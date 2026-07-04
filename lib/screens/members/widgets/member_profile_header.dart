@@ -1,0 +1,79 @@
+import 'package:flutter/material.dart';
+
+class MemberProfileHeader extends StatelessWidget {
+  const MemberProfileHeader({
+    super.key,
+    this.photoUrl,
+    required this.memberName,
+    required this.memberId,
+    required this.isActive,
+  });
+
+  final String? photoUrl;
+  final String memberName;
+  final String memberId;
+  final bool isActive;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            CircleAvatar(
+              radius: 48,
+              backgroundImage: photoUrl != null &&
+                  photoUrl!.isNotEmpty
+                  ? NetworkImage(photoUrl!)
+                  : null,
+              child: photoUrl == null ||
+                  photoUrl!.isEmpty
+                  ? const Icon(
+                Icons.person,
+                size: 48,
+              )
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              memberName,
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              memberId,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            Chip(
+              avatar: Icon(
+                isActive
+                    ? Icons.check_circle
+                    : Icons.cancel,
+                color: Colors.white,
+                size: 18,
+              ),
+              backgroundColor: isActive
+                  ? Colors.green
+                  : Colors.red,
+              label: Text(
+                isActive
+                    ? 'Active'
+                    : 'Inactive',
+                style: const TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
