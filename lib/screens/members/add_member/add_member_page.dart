@@ -10,6 +10,11 @@ import 'widgets/emergency_contact_card.dart';
 import 'widgets/medical_information_card.dart';
 import 'widgets/documents_card.dart';
 import 'widgets/save_member_button.dart';
+import 'package:provider/provider.dart';
+
+import '../../../../providers/auth_provider.dart';
+import '../../../../providers/member_provider.dart';
+import '../../../../models/member_model.dart';
 
 class AddMemberPage extends StatefulWidget {
   const AddMemberPage({super.key});
@@ -38,18 +43,64 @@ class _AddMemberPageState extends State<AddMemberPage> {
     super.dispose();
   }
 
-  void _saveMember() {
+  Future<void> _saveMember() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          "Admission module completed.\nFirestore integration is next.",
+    final authProvider = context.read<AuthProvider>();
+    final memberProvider = context.read<MemberProvider>();
+
+    final currentUser = authProvider.currentUser;
+
+    if (currentUser == null) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("User session expired."),
         ),
-      ),
+      );
+      return;
+    }
+
+    final MemberModel member = controller.buildMember(
+      gymId: currentUser.tenantInfo.gymId,
     );
+
+    final success = await memberProvider.add(member);
+
+    if (!mounted) return;
+
+    if (success) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Admission Completed"),
+          content: Text(
+            "${member.fullName}\n\nAdmission saved successfully.",
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context, true);
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            memberProvider.failure?.message ??
+                "Unable to save member.",
+          ),
+        ),
+      );
+    }
   }
 
   @override

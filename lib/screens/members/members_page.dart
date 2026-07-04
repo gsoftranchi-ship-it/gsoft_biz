@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/member_provider.dart';
-import 'add_member_page.dart';
+import 'add_member/add_member_page.dart';
 
 
 class MembersPage extends StatelessWidget {

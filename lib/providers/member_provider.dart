@@ -61,16 +61,25 @@ class MemberProvider extends ChangeNotifier {
     await loadMembers();
   }
 
-  Future<void> add(MemberModel member) async {
+  Future<bool> add(MemberModel member) async {
+    _loading = true;
+    _failure = null;
+    notifyListeners();
+
     final result = await _repository.addMember(member);
 
     switch (result) {
       case Success<void>():
         await loadMembers();
+        _loading = false;
+        notifyListeners();
+        return true;
 
       case FailureResult<void>():
         _failure = result.failure;
+        _loading = false;
         notifyListeners();
+        return false;
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/age_calculator.dart';
 import '../../../../core/utils/bmi_calculator.dart';
 import '../../../../core/utils/id_generator.dart';
+import '../../../../models/member_model.dart';
 
 class MemberFormController extends ChangeNotifier {
   //==========================
@@ -24,6 +25,7 @@ class MemberFormController extends ChangeNotifier {
   DateTime? dateOfBirth;
 
   String photoUrl = "";
+
 
   //==========================
   // CONTACT
@@ -352,6 +354,20 @@ class MemberFormController extends ChangeNotifier {
         BMICalculator.remark(bmi);
 
     notifyListeners();
+  }
+  MemberModel buildMember({
+    required String gymId,
+  }) {
+    return MemberModel(
+      memberId: memberIdController.text.trim(),
+      gymId: gymId,
+      fullName: fullNameController.text.trim(),
+      photoUrl: photoUrl,
+      dateOfBirth: dateOfBirth,
+      age: int.tryParse(ageController.text) ?? 0,
+      gender: gender,
+      isActive: isActive,
+    );
   }
 
   //==========================

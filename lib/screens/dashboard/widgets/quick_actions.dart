@@ -3,7 +3,7 @@ import '../../../widgets/buttons/quick_action_button.dart';
 import '../../inventory/purchase_page.dart';
 import '../../inventory/sales_page.dart';
 import '../../inventory/stock_page.dart';
-import '../../members/add_member_page.dart';
+import '../../members/add_member/add_member_page.dart';
 import '../../attendance/attendance_page.dart';
 import '../../fees/fees_page.dart';
 
