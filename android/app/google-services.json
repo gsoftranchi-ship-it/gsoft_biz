@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "936049481100",
+    "project_id": "gsoft-biz-production",
+    "storage_bucket": "gsoft-biz-production.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:936049481100:android:0dc8146c66084cc83872a9",
+        "android_client_info": {
+          "package_name": "com.example.gsoft_biz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWwhn5TEYOlH4Wi64fW1IYRAd5-U30r40"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:936049481100:android:57aa74395ba5f56e3872a9",
+        "android_client_info": {
+          "package_name": "com.gsoft.biz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWwhn5TEYOlH4Wi64fW1IYRAd5-U30r40"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
