@@ -23,6 +23,12 @@ import 'widgets/medical_alerts_card.dart';
 import 'widgets/documents_summary_card.dart';
 import 'widgets/member_documents_card.dart';
 import 'widgets/document_actions_card.dart';
+import 'widgets/renewal_summary_card.dart';
+import 'widgets/renewal_history_card.dart';
+import 'widgets/renewal_actions_card.dart';
+import 'widgets/member_reports_summary_card.dart';
+import 'widgets/member_reports_list_card.dart';
+import 'widgets/member_reports_actions_card.dart';
 
 
 class MemberDetailsPage extends StatelessWidget {
@@ -177,46 +183,35 @@ class MemberDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
-            _ComingSoon('Renewals'),
-            _ComingSoon('Reports'),
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  RenewalSummaryCard(
+                    currentPlan: "Gold Membership",
+                    expiryDate: "31 Dec 2026",
+                    remainingDays: 180,
+                    status: "Active",
+                  ),
+                  RenewalHistoryCard(),
+                  RenewalActionsCard(),
+                ],
+              ),
+            ),
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  MemberReportsSummaryCard(
+                    attendance: 128,
+                    payments: 12,
+                    workouts: 84,
+                    progress: 9,
+                  ),
+                  MemberReportsListCard(),
+                  MemberReportsActionsCard(),
+                ],
+              ),
+            ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ComingSoon extends StatelessWidget {
-  const _ComingSoon(this.title);
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Card(
-        margin: const EdgeInsets.all(24),
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.construction,
-                size: 56,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '$title module will be implemented in upcoming sprints.',
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
         ),
       ),
     );
