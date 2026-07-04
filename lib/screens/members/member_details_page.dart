@@ -17,6 +17,12 @@ import 'widgets/daily_meal_plan_card.dart';
 import 'widgets/health_progress_card.dart';
 import 'widgets/progress_chart_card.dart';
 import 'widgets/progress_photo_card.dart';
+import 'widgets/medical_summary_card.dart';
+import 'widgets/medical_history_card.dart';
+import 'widgets/medical_alerts_card.dart';
+import 'widgets/documents_summary_card.dart';
+import 'widgets/member_documents_card.dart';
+import 'widgets/document_actions_card.dart';
 
 
 class MemberDetailsPage extends StatelessWidget {
@@ -142,8 +148,35 @@ class MemberDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
-            _ComingSoon('Medical'),
-            _ComingSoon('Documents'),
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  MedicalSummaryCard(
+                    bloodGroup: "O+",
+                    allergies: 0,
+                    conditions: 0,
+                    fitForWorkout: true,
+                  ),
+                  MedicalHistoryCard(),
+                  MedicalAlertsCard(),
+                ],
+              ),
+            ),
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  DocumentsSummaryCard(
+                    profilePhoto: true,
+                    aadhaar: true,
+                    pan: true,
+                    medicalReport: false,
+                    otherDocuments: 2,
+                  ),
+                  MemberDocumentsCard(),
+                  DocumentActionsCard(),
+                ],
+              ),
+            ),
             _ComingSoon('Renewals'),
             _ComingSoon('Reports'),
           ],
