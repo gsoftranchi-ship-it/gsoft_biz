@@ -6,6 +6,12 @@ import 'widgets/member_quick_actions.dart';
 import 'widgets/member_attendance_card.dart';
 import 'widgets/attendance_history_card.dart';
 import 'widgets/attendance_calendar_card.dart';
+import 'widgets/member_payment_summary_card.dart';
+import 'widgets/payment_history_card.dart';
+import 'widgets/payment_quick_actions.dart';
+import 'widgets/workout_summary_card.dart';
+import 'widgets/workout_schedule_card.dart';
+import 'widgets/workout_progress_card.dart';
 
 class MemberDetailsPage extends StatelessWidget {
   const MemberDetailsPage({super.key});
@@ -73,8 +79,35 @@ class MemberDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
-            _ComingSoon('Payments'),
-            _ComingSoon('Workout'),
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  MemberPaymentSummaryCard(
+                    totalFee: 12000,
+                    paidAmount: 9000,
+                    dueAmount: 3000,
+                    lastPayment: "05 Jul 2026",
+                    nextDueDate: "05 Aug 2026",
+                  ),
+                  PaymentHistoryCard(),
+                  PaymentQuickActions(),
+                ],
+              ),
+            ),
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  WorkoutSummaryCard(
+                    trainer: "Rahul Singh",
+                    program: "Muscle Gain",
+                    week: 4,
+                    completed: 82,
+                  ),
+                  WorkoutScheduleCard(),
+                  WorkoutProgressCard(),
+                ],
+              ),
+            ),
             _ComingSoon('Diet'),
             _ComingSoon('Progress'),
             _ComingSoon('Medical'),
