@@ -12,6 +12,12 @@ import 'widgets/payment_quick_actions.dart';
 import 'widgets/workout_summary_card.dart';
 import 'widgets/workout_schedule_card.dart';
 import 'widgets/workout_progress_card.dart';
+import 'widgets/diet_summary_card.dart';
+import 'widgets/daily_meal_plan_card.dart';
+import 'widgets/health_progress_card.dart';
+import 'widgets/progress_chart_card.dart';
+import 'widgets/progress_photo_card.dart';
+
 
 class MemberDetailsPage extends StatelessWidget {
   const MemberDetailsPage({super.key});
@@ -108,8 +114,34 @@ class MemberDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
-            _ComingSoon('Diet'),
-            _ComingSoon('Progress'),
+            SingleChildScrollView(
+              child: Column(
+                children:  [
+                  DietSummaryCard(
+                    goal: "Muscle Gain",
+                    calories: 2800,
+                    meals: 5,
+                    trainer: "Rahul Singh",
+                  ),
+                  DailyMealPlanCard(),
+                ],
+              ),
+            ),
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  HealthProgressCard(
+                    currentWeight: 74.5,
+                    targetWeight: 70.0,
+                    currentBMI: 24.2,
+                    targetBMI: 22.0,
+                    bodyFat: 18.5,
+                  ),
+                  ProgressChartCard(),
+                  ProgressPhotoCard(),
+                ],
+              ),
+            ),
             _ComingSoon('Medical'),
             _ComingSoon('Documents'),
             _ComingSoon('Renewals'),
