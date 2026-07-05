@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/member_provider.dart';
 import 'add_member/add_member_page.dart';
+import '../../providers/auth_provider.dart';
 
 
 class MembersPage extends StatefulWidget {
@@ -19,7 +20,14 @@ class _MembersPageState extends State<MembersPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
-      context.read<MemberProvider>().loadMembers();
+      final authProvider = context.read<AuthProvider>();
+
+      final gymId =
+          authProvider.currentUser!.tenantInfo.gymId;
+
+      context.read<MemberProvider>().loadMembers(
+        gymId: gymId,
+      );
     });
   }
 

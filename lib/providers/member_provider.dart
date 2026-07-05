@@ -14,6 +14,8 @@ class MemberProvider extends ChangeNotifier {
 
   List<MemberModel> _members = [];
 
+  String? _currentGymId;
+
   bool _loading = false;
 
   AppFailure? _failure;
@@ -24,12 +26,15 @@ class MemberProvider extends ChangeNotifier {
 
   AppFailure? get failure => _failure;
 
-  Future<void> loadMembers() async {
+  Future<void> loadMembers({
+    required String gymId,
+  }) async {
+    _currentGymId = gymId;
     _loading = true;
     _failure = null;
     notifyListeners();
 
-    final result = await _repository.getMembers();
+    final result = await _repository.getMembers(gymId: gymId,);
 
     switch (result) {
       case Success<List<MemberModel>>():
@@ -43,8 +48,12 @@ class MemberProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> search(String keyword) async {
-    final result = await _repository.searchMembers(keyword);
+  Future<void> search({
+    required String gymId,
+    required String keyword,
+  }) async {
+    final result = await _repository.searchMembers(gymId: gymId,
+      keyword: keyword,);
 
     switch (result) {
       case Success<List<MemberModel>>():
@@ -58,7 +67,11 @@ class MemberProvider extends ChangeNotifier {
   }
 
   Future<void> refresh() async {
-    await loadMembers();
+    if (_currentGymId == null) return;
+
+    await loadMembers(
+      gymId: _currentGymId!,
+    );
   }
   Future<String?> generateNextMemberId() async {
     _failure = null;
@@ -85,7 +98,7 @@ class MemberProvider extends ChangeNotifier {
 
     switch (result) {
       case Success<void>():
-        await loadMembers();
+        await refresh();
         _loading = false;
         notifyListeners();
         return true;
@@ -103,7 +116,7 @@ class MemberProvider extends ChangeNotifier {
 
     switch (result) {
       case Success<void>():
-        await loadMembers();
+        await refresh();
 
       case FailureResult<void>():
         _failure = result.failure;
@@ -116,7 +129,7 @@ class MemberProvider extends ChangeNotifier {
 
     switch (result) {
       case Success<void>():
-        await loadMembers();
+        await refresh();
 
       case FailureResult<void>():
         _failure = result.failure;

@@ -12,9 +12,11 @@ class MemberRepositoryImpl implements MemberRepository {
   final FirestoreDataSource _firestoreDataSource;
 
   @override
-  Future<Result<List<MemberModel>>> getMembers() async {
+  Future<Result<List<MemberModel>>> getMembers({
+    required String gymId,
+  }) async {
     try {
-      final members = await _firestoreDataSource.getMembers();
+      final members = await _firestoreDataSource.getMembers(gymId: gymId,);
       return Success(members);
     } catch (e) {
       return FailureResult(
@@ -79,12 +81,14 @@ class MemberRepositoryImpl implements MemberRepository {
   }
 
   @override
-  Future<Result<List<MemberModel>>> searchMembers(
-      String keyword,
-      ) async {
+  Future<Result<List<MemberModel>>> searchMembers({
+    required String gymId,
+    required String keyword,
+  }) async {
     try {
       final members =
-      await _firestoreDataSource.searchMembers(keyword);
+      await _firestoreDataSource.searchMembers( gymId: gymId,
+        keyword: keyword,);
 
       return Success(members);
     } catch (e) {

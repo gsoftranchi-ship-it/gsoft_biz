@@ -60,9 +60,12 @@ class FirestoreDataSource {
       snapshot.id,
     );
   }
-  Future<List<MemberModel>> getMembers() async {
+  Future<List<MemberModel>> getMembers({
+    required String gymId,
+  }) async {
     final snapshot = await _firestore
         .collection(_membersCollection)
+        .where('gymId', isEqualTo: gymId)
         .orderBy('searchName')
         .get();
 
@@ -140,10 +143,11 @@ class FirestoreDataSource {
         .doc(id)
         .delete();
   }
-  Future<List<MemberModel>> searchMembers(
-      String keyword,
-      ) async {
-    final members = await getMembers();
+  Future<List<MemberModel>> searchMembers({
+    required String gymId,
+    required String keyword,
+  }) async {
+    final members = await getMembers(gymId: gymId,);
 
     final query = keyword.trim().toLowerCase();
 
