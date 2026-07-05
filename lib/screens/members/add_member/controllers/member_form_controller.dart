@@ -367,6 +367,8 @@ class MemberFormController extends ChangeNotifier {
       age: int.tryParse(ageController.text) ?? 0,
       gender: gender,
       isActive: isActive,
+      searchName: fullNameController.text.trim().toLowerCase(),
+      version: 1,
     );
   }
 

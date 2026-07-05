@@ -14,6 +14,10 @@ class MemberModel {
 
   final bool isActive;
 
+  final String searchName;
+
+  final int version;
+
   const MemberModel({
     required this.memberId,
     required this.gymId,
@@ -23,6 +27,8 @@ class MemberModel {
     required this.age,
     required this.gender,
     required this.isActive,
+    required this.searchName,
+    required this.version,
   });
 
   factory MemberModel.fromMap(
@@ -40,6 +46,8 @@ class MemberModel {
       age: map['age'] ?? 0,
       gender: map['gender'] ?? '',
       isActive: map['isActive'] ?? true,
+      searchName: map['searchName'] ?? '',
+      version: map['version'] ?? 1,
     );
   }
 
@@ -53,6 +61,8 @@ class MemberModel {
       'age': age,
       'gender': gender,
       'isActive': isActive,
+      'searchName': searchName,
+      'version': version,
     };
   }
 
@@ -65,6 +75,8 @@ class MemberModel {
     int? age,
     String? gender,
     bool? isActive,
+    String? searchName,
+    int? version,
   }) {
     return MemberModel(
       memberId: memberId ?? this.memberId,
@@ -75,6 +87,8 @@ class MemberModel {
       age: age ?? this.age,
       gender: gender ?? this.gender,
       isActive: isActive ?? this.isActive,
+      searchName: searchName ?? this.searchName,
+      version: version ?? this.version,
     );
   }
 }

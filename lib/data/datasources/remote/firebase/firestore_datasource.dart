@@ -63,7 +63,7 @@ class FirestoreDataSource {
   Future<List<MemberModel>> getMembers() async {
     final snapshot = await _firestore
         .collection(_membersCollection)
-        .orderBy('name')
+        .orderBy('searchName')
         .get();
 
     return snapshot.docs
@@ -78,10 +78,20 @@ class FirestoreDataSource {
   Future<void> addMember(
       MemberModel member,
       ) async {
+    final data = Map<String, dynamic>.from(member.toMap());
+
+    data['searchName'] = member.fullName.trim().toLowerCase();
+
+    data['version'] = 1;
+
+    data['createdAt'] = FieldValue.serverTimestamp();
+
+    data['updatedAt'] = FieldValue.serverTimestamp();
+
     await _firestore
         .collection(_membersCollection)
         .doc(member.memberId)
-        .set(member.toMap());
+        .set(data);
   }
   Future<String> generateNextMemberId() async {
     final counterRef = _firestore
