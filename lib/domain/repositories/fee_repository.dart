@@ -1,24 +1,28 @@
+import '../../core/result/result.dart';
 import '../../models/fee_model.dart';
 
 abstract class FeeRepository {
-  /// Create a new fee record.
-  Future<void> createFee(FeeModel fee);
+  Future<Result<List<FeeModel>>> getFees({
+    required String gymId,
+  });
 
-  /// Update an existing fee.
-  Future<void> updateFee(FeeModel fee);
+  Future<Result<List<FeeModel>>> getMemberFees({
+    required String gymId,
+    required String memberId,
+  });
 
-  /// Soft delete a fee.
-  Future<void> deleteFee(String feeId);
+  Future<Result<List<FeeModel>>> getDueFees({
+    required String gymId,
+  });
 
-  /// Get a single fee by ID.
-  Future<FeeModel?> getFeeById(String feeId);
+  Future<Result<void>> addFee(FeeModel fee);
 
-  /// Get all active fees for the current gym.
-  Future<List<FeeModel>> getFees();
+  Future<Result<void>> updateFee(FeeModel fee);
 
-  /// Get all fees for a member.
-  Future<List<FeeModel>> getMemberFees(String memberId);
+  Future<Result<void>> deleteFee(String feeId);
 
-  /// Get all unpaid fees.
-  Future<List<FeeModel>> getDueFees();
+  Future<Result<FeeModel?>> getFeeById({
+    required String gymId,
+    required String feeId,
+  });
 }

@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../../../../models/user_model.dart';
 import '../../../../models/gym_model.dart';
 import '../../../../models/member_model.dart';
+import '../../../../models/membership_invoice_model.dart';
+import '../../../../models/membership_payment_model.dart';
 
 class FirestoreDataSource {
   FirestoreDataSource({
@@ -16,6 +17,8 @@ class FirestoreDataSource {
   static const String _membersCollection = 'members';
   static const String _systemCollection = 'system';
   static const String _memberCounterDocument = 'member_counter';
+  static const String _membershipInvoicesCollection = 'membershipInvoices';
+  static const String _membershipPaymentsCollection = 'membershipPayments';
 
   Future<UserModel?> getUser(String uid) async {
     final snapshot =
@@ -164,5 +167,162 @@ class FirestoreDataSource {
               .contains(query);
 
     }).toList();
+  }
+  Future<void> createMembershipInvoice(
+      MembershipInvoiceModel invoice,
+      ) async {
+    await _firestore
+        .collection(_membershipInvoicesCollection)
+        .doc(invoice.invoiceId)
+        .set(invoice.toMap());
+  }
+
+  Future<List<MembershipInvoiceModel>> getMembershipInvoices({
+    required String gymId,
+  }) async {
+    final snapshot = await _firestore
+        .collection(_membershipInvoicesCollection)
+        .where('gymId', isEqualTo: gymId)
+        .orderBy('invoiceDate', descending: true)
+        .get();
+
+    return snapshot.docs
+        .map(
+          (doc) => MembershipInvoiceModel.fromMap(
+        doc.data(),
+        doc.id,
+      ),
+    )
+        .toList();
+  }
+
+  Future<MembershipInvoiceModel?> getMembershipInvoiceById({
+    required String invoiceId,
+  }) async {
+    final snapshot = await _firestore
+        .collection(_membershipInvoicesCollection)
+        .doc(invoiceId)
+        .get();
+
+    if (!snapshot.exists) {
+      return null;
+    }
+
+    final data = snapshot.data();
+
+    if (data == null) {
+      return null;
+    }
+
+    return MembershipInvoiceModel.fromMap(
+      data,
+      snapshot.id,
+    );
+  }
+
+  Future<void> updateMembershipInvoice(
+      MembershipInvoiceModel invoice,
+      ) async {
+    await _firestore
+        .collection(_membershipInvoicesCollection)
+        .doc(invoice.invoiceId)
+        .update(invoice.toMap());
+  }
+
+  Future<void> deleteMembershipInvoice(
+      String invoiceId,
+      ) async {
+    await _firestore
+        .collection(_membershipInvoicesCollection)
+        .doc(invoiceId)
+        .delete();
+  }
+
+  Future<List<MembershipInvoiceModel>> getMemberInvoices({
+    required String gymId,
+    required String memberId,
+  }) async {
+    final snapshot = await _firestore
+        .collection(_membershipInvoicesCollection)
+        .where('gymId', isEqualTo: gymId)
+        .where('memberId', isEqualTo: memberId)
+        .orderBy('invoiceDate', descending: true)
+        .get();
+
+    return snapshot.docs
+        .map(
+          (doc) => MembershipInvoiceModel.fromMap(
+        doc.data(),
+        doc.id,
+      ),
+    )
+        .toList();
+  }
+
+  Future<List<MembershipInvoiceModel>> getDueMembershipInvoices({
+    required String gymId,
+  }) async {
+    final snapshot = await _firestore
+        .collection(_membershipInvoicesCollection)
+        .where('gymId', isEqualTo: gymId)
+        .where('isPaid', isEqualTo: false)
+        .orderBy('dueDate')
+        .get();
+
+    return snapshot.docs
+        .map(
+          (doc) => MembershipInvoiceModel.fromMap(
+        doc.data(),
+        doc.id,
+      ),
+    )
+        .toList();
+  }
+  Future<List<MembershipPaymentModel>> getMembershipPayments({
+    required String gymId,
+    required String invoiceId,
+  }) async {
+    final snapshot = await _firestore
+        .collection(_membershipPaymentsCollection)
+        .where('gymId', isEqualTo: gymId)
+        .where('invoiceId', isEqualTo: invoiceId)
+        .orderBy('paymentDate', descending: true)
+        .get();
+
+    return snapshot.docs
+        .map(
+          (doc) => MembershipPaymentModel.fromMap(
+        doc.data(),
+        doc.id,
+      ),
+    )
+        .toList();
+  }
+
+  Future<void> collectMembershipPayment(
+      MembershipPaymentModel payment,
+      ) async {
+    await _firestore
+        .collection(_membershipPaymentsCollection)
+        .doc(payment.paymentId)
+        .set(payment.toMap());
+  }
+
+  Future<double> getOutstandingAmount({
+    required String gymId,
+    required String memberId,
+  }) async {
+    final invoices = await getMemberInvoices(
+      gymId: gymId,
+      memberId: memberId,
+    );
+
+    double total = 0;
+
+    for (final invoice in invoices) {
+      total += invoice.dueAmount;
+    }
+
+    return total;
   }
 }

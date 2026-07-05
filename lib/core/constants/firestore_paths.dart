@@ -6,6 +6,8 @@ class FirestorePaths {
   static const members = 'members';
   static const membershipPlans = 'membershipPlans';
   static const attendance = 'attendance';
+  static const membershipInvoices = 'membershipInvoices';
+  static const membershipPayments = 'membershipPayments';
   static const payments = 'payments';
   static const products = 'products';
   static const categories = 'categories';
