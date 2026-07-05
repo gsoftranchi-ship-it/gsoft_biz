@@ -14,6 +14,8 @@ class FirestoreDataSource {
   static const String _usersCollection = 'users';
   static const String _gymsCollection = 'gyms';
   static const String _membersCollection = 'members';
+  static const String _systemCollection = 'system';
+  static const String _memberCounterDocument = 'member_counter';
 
   Future<UserModel?> getUser(String uid) async {
     final snapshot =
@@ -80,6 +82,37 @@ class FirestoreDataSource {
         .collection(_membersCollection)
         .doc(member.memberId)
         .set(member.toMap());
+  }
+  Future<String> generateNextMemberId() async {
+    final counterRef = _firestore
+        .collection(_systemCollection)
+        .doc(_memberCounterDocument);
+
+    return _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(counterRef);
+
+      int lastNumber = 0;
+
+      if (snapshot.exists) {
+        final data = snapshot.data();
+
+        if (data != null) {
+          lastNumber = (data['lastNumber'] as int?) ?? 0;
+        }
+      }
+
+      final nextNumber = lastNumber + 1;
+
+      transaction.set(
+        counterRef,
+        {
+          'lastNumber': nextNumber,
+        },
+        SetOptions(merge: true),
+      );
+
+      return 'MEM${nextNumber.toString().padLeft(6, '0')}';
+    });
   }
   Future<void> updateMember(
       MemberModel member,

@@ -22,6 +22,19 @@ class MemberRepositoryImpl implements MemberRepository {
       );
     }
   }
+  @override
+  Future<Result<String>> generateNextMemberId() async {
+    try {
+      final memberId =
+      await _firestoreDataSource.generateNextMemberId();
+
+      return Success(memberId);
+    } catch (e) {
+      return FailureResult(
+        DatabaseFailure(e.toString()),
+      );
+    }
+  }
 
   @override
   Future<Result<void>> addMember(

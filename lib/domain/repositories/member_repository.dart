@@ -3,6 +3,7 @@ import '../../models/member_model.dart';
 
 abstract class MemberRepository {
   Future<Result<List<MemberModel>>> getMembers();
+  Future<Result<String>> generateNextMemberId();
 
   Future<Result<void>> addMember(
       MemberModel member,

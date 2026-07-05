@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/utils/age_calculator.dart';
 import '../../../../core/utils/bmi_calculator.dart';
-import '../../../../core/utils/id_generator.dart';
+
 import '../../../../models/member_model.dart';
 
 class MemberFormController extends ChangeNotifier {
@@ -242,8 +242,7 @@ class MemberFormController extends ChangeNotifier {
   //==========================
 
   Future<void> initialize() async {
-    memberIdController.text =
-    await IdGenerator.newMemberId();
+    memberIdController.clear();
   }
 
   //==========================
@@ -356,10 +355,11 @@ class MemberFormController extends ChangeNotifier {
     notifyListeners();
   }
   MemberModel buildMember({
+    required String memberId,
     required String gymId,
   }) {
     return MemberModel(
-      memberId: memberIdController.text.trim(),
+      memberId: memberId,
       gymId: gymId,
       fullName: fullNameController.text.trim(),
       photoUrl: photoUrl,
@@ -431,8 +431,7 @@ class MemberFormController extends ChangeNotifier {
 
     expiryDate = null;
 
-    memberIdController.text =
-    await IdGenerator.newMemberId();
+    memberIdController.clear();
 
     notifyListeners();
   }

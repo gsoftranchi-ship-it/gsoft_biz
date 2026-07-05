@@ -64,11 +64,30 @@ class _AddMemberPageState extends State<AddMemberPage> {
       return;
     }
 
+    final memberId = await memberProvider.generateNextMemberId();
+
+    if (memberId == null) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            memberProvider.failure?.message ??
+                "Unable to generate Member ID.",
+          ),
+        ),
+      );
+      return;
+    }
+
     final MemberModel member = controller.buildMember(
+      memberId: memberId,
       gymId: currentUser.tenantInfo.gymId,
     );
 
     final success = await memberProvider.add(member);
+
+
 
     if (!mounted) return;
 
