@@ -4,8 +4,24 @@ import '../../providers/member_provider.dart';
 import 'add_member/add_member_page.dart';
 
 
-class MembersPage extends StatelessWidget {
+class MembersPage extends StatefulWidget {
   const MembersPage({super.key});
+
+  @override
+  State<MembersPage> createState() => _MembersPageState();
+}
+
+class _MembersPageState extends State<MembersPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      context.read<MemberProvider>().loadMembers();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
