@@ -40,8 +40,20 @@ class MembershipInvoiceDetailsPage extends StatelessWidget {
                           .first,
                     ),
                     _infoRow(
+                      'Due Date',
+                      invoice.dueDate == null
+                          ? '-'
+                          : invoice.dueDate!
+                          .toLocal()
+                          .toString()
+                          .split(' ')
+                          .first,
+                    ),
+                    _infoRow(
                       'Status',
-                      invoice.isPaid ? 'Paid' : 'Due',
+                        invoice.dueAmount <= 0
+                            ? 'Paid'
+                            : 'Due'
                     ),
                   ],
                 ),
@@ -135,7 +147,9 @@ class MembershipInvoiceDetailsPage extends StatelessWidget {
               children: [
 
                 FilledButton.icon(
-                  onPressed: () {
+                  onPressed: invoice.dueAmount <= 0
+                      ? null
+                      : () {
                     // TODO(Sprint 16E):
                     // Navigate to Collect Membership Payment.
                   },
