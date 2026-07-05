@@ -49,11 +49,20 @@ class MembershipInvoiceDetailsPage extends StatelessWidget {
                           .split(' ')
                           .first,
                     ),
-                    _infoRow(
-                      'Status',
-                        invoice.dueAmount <= 0
-                            ? 'Paid'
-                            : 'Due'
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text('Status'),
+                        ),
+                        Chip(
+                          label: Text(
+                            invoice.dueAmount <= 0 ? 'Paid' : 'Due',
+                          ),
+                          backgroundColor: invoice.dueAmount <= 0
+                              ? Colors.green.shade100
+                              : Colors.orange.shade100,
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -106,10 +115,15 @@ class MembershipInvoiceDetailsPage extends StatelessWidget {
                       '₹${invoice.paidAmount.toStringAsFixed(2)}',
                     ),
 
-                    _infoRow(
-                      'Outstanding',
+                    Text(
                       '₹${invoice.dueAmount.toStringAsFixed(2)}',
-                      bold: true,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: invoice.dueAmount > 0
+                            ? Colors.red
+                            : Colors.green,
+                      ),
                     ),
                   ],
                 ),
