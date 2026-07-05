@@ -12,11 +12,13 @@ class AppDependencies {
 
   static final AuthDataSource authDataSource = AuthDataSource();
 
-  static final FirestoreDataSource firestoreDataSource =
-  FirestoreDataSource();
-
   static final DocumentNumberService documentNumberService =
   DocumentNumberService();
+
+  static final FirestoreDataSource firestoreDataSource =
+  FirestoreDataSource(
+    documentNumberService: documentNumberService,
+  );
 
   static final AuthRepositoryImpl authRepository =
   AuthRepositoryImpl(

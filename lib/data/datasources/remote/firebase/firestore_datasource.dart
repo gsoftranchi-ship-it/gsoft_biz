@@ -4,13 +4,17 @@ import '../../../../models/gym_model.dart';
 import '../../../../models/member_model.dart';
 import '../../../../models/membership_invoice_model.dart';
 import '../../../../models/membership_payment_model.dart';
+import '../../../../core/services/document_number_service.dart';
 
 class FirestoreDataSource {
   FirestoreDataSource({
     FirebaseFirestore? firestore,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance;
+    required DocumentNumberService documentNumberService,
+  })  : _firestore = firestore ?? FirebaseFirestore.instance,
+        _documentNumberService = documentNumberService;
 
   final FirebaseFirestore _firestore;
+  final DocumentNumberService _documentNumberService;
 
   static const String _usersCollection = 'users';
   static const String _gymsCollection = 'gyms';
@@ -171,10 +175,30 @@ class FirestoreDataSource {
   Future<void> createMembershipInvoice(
       MembershipInvoiceModel invoice,
       ) async {
-    await _firestore
+    final documentRef = invoice.invoiceId.isEmpty
+        ? _firestore.collection(_membershipInvoicesCollection).doc()
+        : _firestore
         .collection(_membershipInvoicesCollection)
-        .doc(invoice.invoiceId)
-        .set(invoice.toMap());
+        .doc(invoice.invoiceId);
+
+    MembershipInvoiceModel finalInvoice = invoice.copyWith(
+      invoiceId: documentRef.id,
+    );
+
+    if (finalInvoice.invoiceNumber.isEmpty) {
+      final invoiceNumber =
+      await _documentNumberService.generateNumber(
+        gymId: finalInvoice.tenantInfo.gymId,
+        documentType: 'membership_invoice',
+        prefix: 'INV',
+      );
+
+      finalInvoice = finalInvoice.copyWith(
+        invoiceNumber: invoiceNumber,
+      );
+    }
+
+    await documentRef.set(finalInvoice.toMap());
   }
 
   Future<List<MembershipInvoiceModel>> getMembershipInvoices({
