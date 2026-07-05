@@ -57,6 +57,11 @@ class MembershipInvoiceDetailsPage extends StatelessWidget {
                         Chip(
                           label: Text(
                             invoice.dueAmount <= 0 ? 'Paid' : 'Due',
+                            style: TextStyle(
+                              color: invoice.dueAmount <= 0
+                                  ? Colors.green.shade800
+                                  : Colors.orange.shade800,
+                            ),
                           ),
                           backgroundColor: invoice.dueAmount <= 0
                               ? Colors.green.shade100
@@ -81,6 +86,17 @@ class MembershipInvoiceDetailsPage extends StatelessWidget {
                       'Member ID',
                       invoice.memberId,
                     ),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Charges',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    const Divider(),
 
                     _infoRow(
                       'Admission Fee',
@@ -109,21 +125,29 @@ class MembershipInvoiceDetailsPage extends StatelessWidget {
                       '₹${invoice.totalAmount.toStringAsFixed(2)}',
                       bold: true,
                     ),
+                    const SizedBox(height: 12),
+
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Payments',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    const Divider(),
 
                     _infoRow(
                       'Paid',
                       '₹${invoice.paidAmount.toStringAsFixed(2)}',
                     ),
 
-                    Text(
+                    _infoRow(
+                      'Outstanding',
                       '₹${invoice.dueAmount.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: invoice.dueAmount > 0
-                            ? Colors.red
-                            : Colors.green,
-                      ),
+                      bold: true,
                     ),
                   ],
                 ),
