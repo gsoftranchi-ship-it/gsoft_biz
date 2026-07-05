@@ -128,7 +128,40 @@ class _LoginPageState extends State<LoginPage> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        if (_emailController.text.trim().isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Please enter your email address first.',
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+
+                        final success = await context
+                            .read<AuthProvider>()
+                            .sendPasswordResetEmail(
+                          email: _emailController.text.trim(),
+                        );
+
+                        if (!context.mounted) return;
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              success
+                                  ? 'Password reset email sent successfully.'
+                                  : context
+                                  .read<AuthProvider>()
+                                  .failure
+                                  ?.message ??
+                                  'Unable to send reset email.',
+                            ),
+                          ),
+                        );
+                      },
                       child: const Text('Forgot Password?'),
                     ),
                   ),
