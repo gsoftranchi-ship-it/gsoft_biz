@@ -5,6 +5,7 @@ import 'core/routes/app_routes.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/theme_provider.dart';
 import 'providers/member_provider.dart';
+import 'providers/membership_provider.dart';
 import 'core/config/app_dependencies.dart';
 import 'providers/auth_provider.dart';
 import 'providers/dashboard_provider.dart';
@@ -31,6 +32,11 @@ class GSoftBizApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => MemberProvider(
             repository: AppDependencies.memberRepository,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => MembershipProvider(
+            repository: AppDependencies.membershipRepository,
           ),
         ),
         ChangeNotifierProvider(
