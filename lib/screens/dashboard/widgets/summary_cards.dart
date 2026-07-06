@@ -56,8 +56,7 @@ class SummaryCards extends StatelessWidget {
     })
         .fold<double>(
       0,
-          (sum, payment) =>
-      sum + payment.amount,
+          (sum, payment) => sum + payment.amount,
     );
 
     int crossAxisCount;
@@ -100,7 +99,7 @@ class SummaryCards extends StatelessWidget {
               icon: AppIcons.members,
               title: "Active Members",
               value: activeMembers.toString(),
-              subtitle: "Current",
+              subtitle: "Active Members",
               color: AppColors.info,
             );
 
@@ -119,7 +118,7 @@ class SummaryCards extends StatelessWidget {
               title: "Outstanding",
               value:
               "₹${outstandingRevenue.toStringAsFixed(2)}",
-              subtitle: "Revenue",
+              subtitle: "Pending Collection",
               color: AppColors.primary,
             );
 
