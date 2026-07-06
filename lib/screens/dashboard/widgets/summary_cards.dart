@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import '../../../providers/member_provider.dart';
+import '../../../providers/membership_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../widgets/cards/dashboard_card.dart';
@@ -10,6 +12,53 @@ class SummaryCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+
+    final memberProvider =
+    context.watch<MemberProvider>();
+
+    final membershipProvider =
+    context.watch<MembershipProvider>();
+
+    if (memberProvider.loading ||
+        membershipProvider.loading) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    final activeMembers =
+        memberProvider.activeMembers;
+
+    final dueMembers =
+        membershipProvider.invoices
+            .where((e) => e.dueAmount > 0)
+            .length;
+
+    final outstandingRevenue =
+    membershipProvider.invoices.fold<double>(
+      0,
+          (sum, invoice) => sum + invoice.dueAmount,
+    );
+
+    final today = DateTime.now();
+
+    final todaysCollections =
+    membershipProvider.payments
+        .where((payment) {
+      final date = payment.paymentDate;
+
+      return date.year == today.year &&
+          date.month == today.month &&
+          date.day == today.day;
+    })
+        .fold<double>(
+      0,
+          (sum, payment) =>
+      sum + payment.amount,
+    );
 
     int crossAxisCount;
     double childAspectRatio;
@@ -47,39 +96,41 @@ class SummaryCards extends StatelessWidget {
       itemBuilder: (context, index) {
         switch (index) {
           case 0:
-            return const DashboardCard(
+            return DashboardCard(
               icon: AppIcons.members,
-              title: "Members",
-              value: "286",
-              subtitle: "+12 This Month",
+              title: "Active Members",
+              value: activeMembers.toString(),
+              subtitle: "Current",
               color: AppColors.info,
             );
 
           case 1:
-            return const DashboardCard(
-              icon: AppIcons.attendance,
-              title: "Attendance",
-              value: "148",
-              subtitle: "Today",
-              color: AppColors.success,
+            return DashboardCard(
+              icon: AppIcons.billing,
+              title: "Due Members",
+              value: dueMembers.toString(),
+              subtitle: "Outstanding",
+              color: AppColors.warning,
             );
 
           case 2:
-            return const DashboardCard(
+            return DashboardCard(
               icon: AppIcons.billing,
-              title: "Revenue",
-              value: "₹18,450",
-              subtitle: "Today",
+              title: "Outstanding",
+              value:
+              "₹${outstandingRevenue.toStringAsFixed(2)}",
+              subtitle: "Revenue",
               color: AppColors.primary,
             );
 
           default:
-            return const DashboardCard(
-              icon: AppIcons.inventory,
-              title: "Store",
-              value: "54",
-              subtitle: "Products",
-              color: AppColors.warning,
+            return DashboardCard(
+              icon: AppIcons.billing,
+              title: "Today's Collection",
+              value:
+              "₹${todaysCollections.toStringAsFixed(2)}",
+              subtitle: "Today",
+              color: AppColors.success,
             );
         }
       },

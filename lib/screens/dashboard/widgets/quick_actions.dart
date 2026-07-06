@@ -58,7 +58,7 @@ class QuickActions extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const StockPage(),
+                    builder: (_) => const SalesPage(),
                   ),
                 );
               },
@@ -74,7 +74,7 @@ class QuickActions extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const SalesPage(),
+                    builder: (_) => const StockPage(),
                   ),
                 );
               },
