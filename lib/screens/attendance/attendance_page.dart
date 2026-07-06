@@ -14,6 +14,11 @@ class AttendancePage extends StatefulWidget {
 class _AttendancePageState extends State<AttendancePage> {
 
   final searchController = TextEditingController();
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +38,34 @@ class _AttendancePageState extends State<AttendancePage> {
       );
     }
 
-    final members =
-        memberProvider.activeMembers;
+    if (attendanceProvider.loading ||
+        memberProvider.loading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
-    final attendance =
-        attendanceProvider.attendance;
+    if (attendanceProvider.error != null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Attendance"),
+        ),
+        body: Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              attendanceProvider.error!,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
+    final members = memberProvider.activeMembers;
+    final attendance = attendanceProvider.attendance;
 
     final today = DateTime.now();
 
@@ -156,10 +184,10 @@ class _AttendancePageState extends State<AttendancePage> {
 
               Expanded(
                 child: _summary(
-                  "Late",
-                  "0",
+                  "Members",
+                  members.toString(),
                   Colors.orange,
-                  Icons.watch_later,
+                  Icons.groups,
                 ),
               ),
 
@@ -216,8 +244,10 @@ class _AttendancePageState extends State<AttendancePage> {
                   member?.fullName ?? record.memberId;
 
               final checkInTime =
-              TimeOfDay.fromDateTime(
-                record.attendanceDate,
+              record.checkInTime == null
+                  ? '--'
+                  : TimeOfDay.fromDateTime(
+                record.checkInTime!,
               ).format(context);
 
               return _member(
