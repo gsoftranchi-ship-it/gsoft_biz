@@ -5,7 +5,9 @@ import '../../inventory/sales_page.dart';
 import '../../inventory/stock_page.dart';
 import '../../members/add_member/add_member_page.dart';
 import '../../attendance/attendance_page.dart';
-import '../../fees/fees_page.dart';
+import '../../fees/membership_invoice_list_page.dart';
+
+
 
 class QuickActions extends StatelessWidget {
   const QuickActions({super.key});
@@ -89,7 +91,7 @@ class QuickActions extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const FeesPage(),
+                    builder: (_) => const MembershipInvoiceListPage(),
                   ),
                 );
               },
