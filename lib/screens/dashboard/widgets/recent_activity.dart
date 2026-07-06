@@ -32,6 +32,9 @@ class RecentActivity extends StatelessWidget {
     }
 
     final members = memberProvider.members;
+    // TODO(Sprint 18):
+    // Show recent MembershipPaymentModel records first,
+    // followed by recent invoices.
 
     final invoices =
     List<MembershipInvoiceModel>.from(
@@ -92,8 +95,8 @@ class RecentActivity extends StatelessWidget {
               radius: 18,
               child: Icon(
                 invoice.dueAmount <= 0
-                    ? Icons.check
-                    : Icons.receipt_long,
+                    ? Icons.check_circle
+                    : Icons.pending_actions,
                 size: 18,
               ),
             ),
