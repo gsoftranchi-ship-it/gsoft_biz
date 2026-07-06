@@ -86,7 +86,7 @@ class QuickActions extends StatelessWidget {
             width: 90,
             child: QuickActionButton(
               icon: Icons.receipt_long_rounded,
-              title: "Billing",
+              title: "Membership Billing",
               onTap: () {
                 Navigator.push(
                   context,
