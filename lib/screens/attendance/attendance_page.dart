@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/attendance_provider.dart';
+import '../../providers/member_provider.dart';
 
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
@@ -13,6 +17,53 @@ class _AttendancePageState extends State<AttendancePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    final attendanceProvider =
+    context.watch<AttendanceProvider>();
+
+    final memberProvider =
+    context.watch<MemberProvider>();
+
+    if (attendanceProvider.loading ||
+        memberProvider.loading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    final members =
+        memberProvider.activeMembers;
+
+    final attendance =
+        attendanceProvider.attendance;
+
+    final today = DateTime.now();
+
+    final todaysAttendance =
+    attendance.where((record) {
+
+      final date = record.attendanceDate;
+
+      return date.year == today.year &&
+          date.month == today.month &&
+          date.day == today.day;
+
+    }).toList();
+
+    final presentToday =
+        todaysAttendance
+            .where((e) => e.isPresent)
+            .length;
+
+    final absentToday =
+        members - presentToday;
+
+    final attendancePercent =
+    members == 0
+        ? 0.0
+        : (presentToday / members) * 100;
 
     return Scaffold(
 
@@ -67,7 +118,7 @@ class _AttendancePageState extends State<AttendancePage> {
               Expanded(
                 child: _summary(
                   "Present",
-                  "148",
+                  presentToday.toString(),
                   Colors.green,
                   Icons.check_circle,
                 ),
@@ -78,7 +129,7 @@ class _AttendancePageState extends State<AttendancePage> {
               Expanded(
                 child: _summary(
                   "Absent",
-                  "18",
+                  absentToday.toString(),
                   Colors.red,
                   Icons.cancel,
                 ),
@@ -94,10 +145,10 @@ class _AttendancePageState extends State<AttendancePage> {
 
               Expanded(
                 child: _summary(
-                  "Late",
-                  "05",
-                  Colors.orange,
-                  Icons.watch_later,
+                  "Attendance %",
+                  "${attendancePercent.toStringAsFixed(1)}%",
+                  Colors.blue,
+                  Icons.pie_chart,
                 ),
               ),
 
@@ -105,10 +156,10 @@ class _AttendancePageState extends State<AttendancePage> {
 
               Expanded(
                 child: _summary(
-                  "Leave",
-                  "02",
-                  Colors.blue,
-                  Icons.beach_access,
+                  "Late",
+                  "0",
+                  Colors.orange,
+                  Icons.watch_later,
                 ),
               ),
 
@@ -138,35 +189,44 @@ class _AttendancePageState extends State<AttendancePage> {
 
           const SizedBox(height: 15),
 
-          _member(
-            "Rahul Kumar",
-            "08:05 AM",
-            true,
-          ),
+          if (todaysAttendance.isEmpty)
 
-          _member(
-            "Amit Kumar",
-            "07:58 AM",
-            true,
-          ),
+            const Card(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Center(
+                  child: Text(
+                    "No attendance recorded today.",
+                  ),
+                ),
+              ),
+            )
 
-          _member(
-            "Rohit Singh",
-            "--",
-            false,
-          ),
+          else
 
-          _member(
-            "Pankaj",
-            "08:18 AM",
-            true,
-          ),
+            ...todaysAttendance.map((record) {
 
-          _member(
-            "Deepak",
-            "--",
-            false,
-          ),
+              final member =
+              memberProvider.members.cast<dynamic>().firstWhere(
+                    (m) => m?.memberId == record.memberId,
+                orElse: () => null,
+              );
+
+              final memberName =
+                  member?.fullName ?? record.memberId;
+
+              final checkInTime =
+              TimeOfDay.fromDateTime(
+                record.attendanceDate,
+              ).format(context);
+
+              return _member(
+                memberName,
+                checkInTime,
+                record.isPresent,
+              );
+
+            }),
 
           const SizedBox(height: 80),
 
