@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../models/member_model.dart';
 import '../../providers/attendance_provider.dart';
 import '../../providers/member_provider.dart';
+
 
 class CheckInPage extends StatefulWidget {
   const CheckInPage({super.key});
@@ -171,24 +171,42 @@ class _CheckInPageState extends State<CheckInPage> {
       return;
     }
 
-    // TODO(Sprint 18B):
-    // Prevent duplicate attendance for the same member
-    // on the same day.
+    final attendanceProvider =
+    context.read<AttendanceProvider>();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${_selectedMember!.fullName} checked in successfully.',
+    try {
+      await attendanceProvider.markAttendanceForMember(
+        member: _selectedMember!,
+        currentUserId: 'SYSTEM', // Temporary Once authentication is integrated, replace:
+        gymId: _selectedMember!.gymId,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${_selectedMember!.fullName} checked in successfully.',
+          ),
         ),
-      ),
-    );
+      );
 
-    // TODO:
-    // Create AttendanceModel
-    // Call attendanceProvider.markAttendance(...)
-    // Refresh attendance list
+      setState(() {
+        _selectedMember = null;
+        _searchController.clear();
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString().replaceFirst('Exception: ', ''),
+          ),
+        ),
+      );
+    }
   }
-
 }
 
 
