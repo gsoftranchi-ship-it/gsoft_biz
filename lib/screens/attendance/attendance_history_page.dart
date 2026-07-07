@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/attendance_provider.dart';
 import '../../providers/member_provider.dart';
+import '../../models/member_model.dart';
 
 class AttendanceHistoryPage extends StatefulWidget {
   const AttendanceHistoryPage({super.key});
@@ -74,6 +75,12 @@ class _AttendanceHistoryPageState
     attendance.isEmpty
         ? null
         : attendance.first;
+    final selectedHistory = attendance.toList()
+      ..sort(
+            (a, b) => b.attendanceDate.compareTo(
+          a.attendanceDate,
+        ),
+      );
 
     if (attendance.isEmpty) {
       return Scaffold(
@@ -197,6 +204,94 @@ class _AttendanceHistoryPageState
             ],
             onChanged: (_) {},
           ),
+          const SizedBox(height: 24),
+
+          const Text(
+            'Attendance History',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 16),
+          if (selectedHistory.isEmpty)
+
+            const Card(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Center(
+                  child: Text(
+                    'No attendance history found.',
+                  ),
+                ),
+              ),
+            )
+
+          else
+
+            ...selectedHistory.map((record) {
+
+              final member =
+              members.cast<MemberModel?>().firstWhere(
+                    (m) => m?.memberId == record.memberId,
+                orElse: () => null,
+              );
+
+              final memberName =
+                  member?.fullName ?? record.memberId;
+
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    child: Text(
+                      memberName.isEmpty
+                          ? '?'
+                          : memberName[0],
+                    ),
+                  ),
+                  title: Text(memberName),
+                  subtitle: Text(
+                    record.attendanceDate
+                        .toString()
+                        .split(' ')
+                        .first,
+                  ),
+                  trailing: Column(
+                    mainAxisAlignment:
+                    MainAxisAlignment.center,
+                    crossAxisAlignment:
+                    CrossAxisAlignment.end,
+                    children: [
+
+                      Text(
+                        record.checkInTime == null
+                            ? '--'
+                            : TimeOfDay.fromDateTime(
+                          record.checkInTime!,
+                        ).format(context),
+                      ),
+
+                      const SizedBox(height: 4),
+
+                      Chip(
+                        label: Text(
+                          record.isPresent
+                              ? 'Present'
+                              : 'Absent',
+                        ),
+                        backgroundColor:
+                        record.isPresent
+                            ? Colors.green.shade100
+                            : Colors.red.shade100,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+
+            }),
 
         ],
       ),
