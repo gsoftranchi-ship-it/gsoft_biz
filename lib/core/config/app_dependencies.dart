@@ -5,6 +5,8 @@ import '../../core/services/document_number_service.dart';
 import '../../data/repositories/impl/membership_repository_impl.dart';
 import '../../data/repositories/gym_repository.dart';
 import '../../data/repositories/member_repository.dart';
+import '../../data/datasources/remote/firebase/attendance_datasource.dart';
+import '../../data/repositories/impl/attendance_repository_impl.dart';
 
 
 class AppDependencies {
@@ -36,5 +38,12 @@ class AppDependencies {
   static final MembershipRepositoryImpl membershipRepository =
   MembershipRepositoryImpl(
     firestoreDataSource: firestoreDataSource,
+  );
+  static final AttendanceDataSource attendanceDataSource =
+  AttendanceDataSource();
+
+  static final AttendanceRepositoryImpl attendanceRepository =
+  AttendanceRepositoryImpl(
+    dataSource: attendanceDataSource,
   );
 }
