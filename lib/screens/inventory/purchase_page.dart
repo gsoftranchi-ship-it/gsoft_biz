@@ -20,7 +20,6 @@ class _PurchasePageState extends State<PurchasePage> {
     super.initState();
 
     controller = PurchaseFormController();
-    controller.selectedProduct = "Whey Protein 1kg";
     controller.taxController.text = "18";
 
   }
