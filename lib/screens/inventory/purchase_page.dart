@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'controllers/purchase_form_controller.dart';
+import 'widgets/purchase_supplier_card.dart';
 
 class PurchasePage extends StatefulWidget {
   const PurchasePage({super.key});
@@ -37,34 +38,8 @@ class _PurchasePageState extends State<PurchasePage> {
         padding: const EdgeInsets.all(16),
         children: [
 
-          const Text(
-            "Supplier Details",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          TextField(
-            controller: controller.supplierController,
-            decoration: const InputDecoration(
-              labelText: "Supplier Name",
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.business),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          TextField(
-            controller: controller.invoiceNumberController,
-            decoration: const InputDecoration(
-              labelText: "Invoice Number",
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.receipt_long),
-            ),
+          PurchaseSupplierCard(
+            controller: controller,
           ),
 
           const SizedBox(height: 24),
