@@ -93,6 +93,7 @@ class StockPage extends StatelessWidget {
           const SizedBox(height: 16),
 
           _stockTile(
+            context,
             "Whey Protein 1kg",
             "Nutrition",
             24,
@@ -100,6 +101,7 @@ class StockPage extends StatelessWidget {
           ),
 
           _stockTile(
+            context,
             "Mass Gainer",
             "Nutrition",
             12,
@@ -107,6 +109,7 @@ class StockPage extends StatelessWidget {
           ),
 
           _stockTile(
+            context,
             "Creatine",
             "Supplement",
             48,
@@ -114,6 +117,7 @@ class StockPage extends StatelessWidget {
           ),
 
           _stockTile(
+            context,
             "Gym Gloves",
             "Accessories",
             8,
@@ -121,6 +125,7 @@ class StockPage extends StatelessWidget {
           ),
 
           _stockTile(
+            context,
             "Shaker Bottle",
             "Accessories",
             36,
@@ -128,6 +133,7 @@ class StockPage extends StatelessWidget {
           ),
 
           _stockTile(
+            context,
             "Resistance Band",
             "Fitness",
             3,
@@ -183,6 +189,7 @@ class StockPage extends StatelessWidget {
   }
 
   Widget _stockTile(
+      BuildContext context,
       String product,
       String category,
       int stock,
@@ -236,7 +243,7 @@ class StockPage extends StatelessWidget {
 
         onTap: () {
           showDialog(
-            context: navigatorKey.currentContext!,
+            context: context,
             builder: (_) => AlertDialog(
               title: Text(product),
               content: Column(
@@ -275,9 +282,7 @@ class StockPage extends StatelessWidget {
               actions: [
                 FilledButton(
                   onPressed: () {
-                    Navigator.pop(
-                      navigatorKey.currentContext!,
-                    );
+                    Navigator.of(context).pop();
                   },
                   child: const Text("Close"),
                 ),
@@ -290,5 +295,3 @@ class StockPage extends StatelessWidget {
   }
 }
 
-final GlobalKey<NavigatorState> navigatorKey =
-GlobalKey<NavigatorState>();
