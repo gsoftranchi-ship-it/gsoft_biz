@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'controllers/purchase_form_controller.dart';
 import 'widgets/purchase_supplier_card.dart';
+import 'widgets/purchase_product_card.dart';
 
 class PurchasePage extends StatefulWidget {
   const PurchasePage({super.key});
@@ -44,85 +45,8 @@ class _PurchasePageState extends State<PurchasePage> {
 
           const SizedBox(height: 24),
 
-          const Text(
-            "Product",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          DropdownButtonFormField<String>(
-            initialValue: controller.selectedProduct,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Select Product",
-            ),
-            items: const [
-
-              DropdownMenuItem(
-                value: "Whey Protein 1kg",
-                child: Text("Whey Protein 1kg"),
-              ),
-
-              DropdownMenuItem(
-                value: "Mass Gainer",
-                child: Text("Mass Gainer"),
-              ),
-
-              DropdownMenuItem(
-                value: "Creatine",
-                child: Text("Creatine"),
-              ),
-
-              DropdownMenuItem(
-                value: "Gym Gloves",
-                child: Text("Gym Gloves"),
-              ),
-            ],
-            onChanged: (value) {
-              if (value != null) {
-                controller.setProduct(value);
-              }
-            },
-          ),
-
-          const SizedBox(height: 16),
-
-          TextField(
-            controller: controller.quantityController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: "Quantity",
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.production_quantity_limits),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          TextField(
-            controller: controller.purchasePriceController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: "Purchase Price",
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.currency_rupee),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          TextField(
-            controller: controller.taxController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: "GST %",
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.percent),
-            ),
+          PurchaseProductCard(
+            controller: controller,
           ),
 
           const SizedBox(height: 30),
