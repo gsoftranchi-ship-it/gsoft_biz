@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'controllers/purchase_form_controller.dart';
 
 class PurchasePage extends StatefulWidget {
   const PurchasePage({super.key});
@@ -8,22 +9,22 @@ class PurchasePage extends StatefulWidget {
 }
 
 class _PurchasePageState extends State<PurchasePage> {
-  final _supplierController = TextEditingController();
-  final _invoiceController = TextEditingController();
-  final _qtyController = TextEditingController(text: "1");
-  final _priceController = TextEditingController();
-  final _gstController = TextEditingController(text: "18");
+  late final PurchaseFormController controller;
 
-  String _selectedProduct = "Whey Protein 1kg";
+  @override
+  void initState() {
+    super.initState();
+
+    controller = PurchaseFormController();
+    controller.selectedProduct = "Whey Protein 1kg";
+    controller.taxController.text = "18";
+
+  }
 
   @override
   void dispose() {
-    _supplierController.dispose();
-    _invoiceController.dispose();
-    _qtyController.dispose();
-    _priceController.dispose();
-    _gstController.dispose();
-    super.dispose();
+    controller.dispose();
+   super.dispose();
   }
 
   @override
@@ -47,7 +48,7 @@ class _PurchasePageState extends State<PurchasePage> {
           const SizedBox(height: 16),
 
           TextField(
-            controller: _supplierController,
+            controller: controller.supplierController,
             decoration: const InputDecoration(
               labelText: "Supplier Name",
               border: OutlineInputBorder(),
@@ -58,7 +59,7 @@ class _PurchasePageState extends State<PurchasePage> {
           const SizedBox(height: 16),
 
           TextField(
-            controller: _invoiceController,
+            controller: controller.invoiceNumberController,
             decoration: const InputDecoration(
               labelText: "Invoice Number",
               border: OutlineInputBorder(),
@@ -79,7 +80,7 @@ class _PurchasePageState extends State<PurchasePage> {
           const SizedBox(height: 16),
 
           DropdownButtonFormField<String>(
-            initialValue: _selectedProduct,
+            initialValue: controller.selectedProduct,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: "Select Product",
@@ -108,9 +109,7 @@ class _PurchasePageState extends State<PurchasePage> {
             ],
             onChanged: (value) {
               if (value != null) {
-                setState(() {
-                  _selectedProduct = value;
-                });
+                controller.setProduct(value);
               }
             },
           ),
@@ -118,7 +117,7 @@ class _PurchasePageState extends State<PurchasePage> {
           const SizedBox(height: 16),
 
           TextField(
-            controller: _qtyController,
+            controller: controller.quantityController,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
               labelText: "Quantity",
@@ -130,7 +129,7 @@ class _PurchasePageState extends State<PurchasePage> {
           const SizedBox(height: 16),
 
           TextField(
-            controller: _priceController,
+            controller: controller.purchasePriceController,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
               labelText: "Purchase Price",
@@ -142,7 +141,7 @@ class _PurchasePageState extends State<PurchasePage> {
           const SizedBox(height: 16),
 
           TextField(
-            controller: _gstController,
+            controller: controller.taxController,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
               labelText: "GST %",
