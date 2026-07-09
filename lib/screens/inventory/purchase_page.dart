@@ -3,6 +3,7 @@ import 'controllers/purchase_form_controller.dart';
 import 'widgets/purchase_supplier_card.dart';
 import 'widgets/purchase_product_card.dart';
 import 'widgets/purchase_summary_card.dart';
+import 'widgets/save_purchase_button.dart';
 
 class PurchasePage extends StatefulWidget {
   const PurchasePage({super.key});
@@ -29,6 +30,16 @@ class _PurchasePageState extends State<PurchasePage> {
     controller.dispose();
    super.dispose();
   }
+  void _savePurchase() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Purchase Saved Successfully (Demo)",
+        ),
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -58,18 +69,9 @@ class _PurchasePageState extends State<PurchasePage> {
 
           const SizedBox(height: 24),
 
-          FilledButton.icon(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    "Purchase Saved Successfully (Demo)",
-                  ),
-                ),
-              );
-            },
-            icon: const Icon(Icons.save),
-            label: const Text("Save Purchase"),
+          SavePurchaseButton(
+            controller: controller,
+            onSave: _savePurchase,
           ),
 
           const SizedBox(height: 30),
