@@ -5,6 +5,7 @@ import '../../../../models/member_model.dart';
 import '../../../../models/membership_invoice_model.dart';
 import '../../../../models/membership_payment_model.dart';
 import '../../../../models/purchase_model.dart';
+import '../../../../models/product_model.dart';
 import '../../../../core/services/document_number_service.dart';
 
 
@@ -26,6 +27,7 @@ class FirestoreDataSource {
   static const String _membershipInvoicesCollection = 'membershipInvoices';
   static const String _membershipPaymentsCollection = 'membershipPayments';
   static const String _purchasesCollection = 'purchases';
+  static const String _productsCollection = 'products';
 
   Future<UserModel?> getUser(String uid) async {
     final snapshot =
@@ -353,8 +355,8 @@ class FirestoreDataSource {
     return total;
   }
   //==================================================
-// PURCHASES
-//==================================================
+  // PURCHASES
+ //==================================================
 
   Future<List<PurchaseModel>> getPurchases({
     required String gymId,
@@ -419,6 +421,145 @@ class FirestoreDataSource {
         .update(
       purchase.toMap(),
     );
+  }//==================================================
+// PRODUCTS
+//==================================================
+
+  Future<List<ProductModel>> getProducts({
+    required String gymId,
+  }) async {
+    final snapshot = await _firestore
+        .collection(_productsCollection)
+        .where('gymId', isEqualTo: gymId)
+        .orderBy('searchName')
+        .get();
+
+    return snapshot.docs
+        .map(
+          (doc) => ProductModel.fromMap(
+        doc.id,
+        doc.data(),
+      ),
+    )
+        .toList();
+  }
+
+  Future<ProductModel?> getProduct({
+    required String productId,
+  }) async {
+    final snapshot = await _firestore
+        .collection(_productsCollection)
+        .doc(productId)
+        .get();
+
+    if (!snapshot.exists) {
+      return null;
+    }
+
+    final data = snapshot.data();
+
+    if (data == null) {
+      return null;
+    }
+
+    return ProductModel.fromMap(
+      snapshot.id,
+      data,
+    );
+  }
+
+  Future<void> addProduct(
+      ProductModel product,
+      ) async {
+    final data = Map<String, dynamic>.from(
+      product.toMap(),
+    );
+
+    data['searchName'] =
+        product.productName.trim().toLowerCase();
+
+    data['version'] = 1;
+
+    data['createdAt'] = FieldValue.serverTimestamp();
+
+    data['updatedAt'] = FieldValue.serverTimestamp();
+
+    await _firestore
+        .collection(_productsCollection)
+        .doc(product.productId)
+        .set(data);
+  }
+
+  Future<void> updateProduct(
+      ProductModel product,
+      ) async {
+    await _firestore
+        .collection(_productsCollection)
+        .doc(product.productId)
+        .update(product.toMap());
+  }
+
+  Future<void> deleteProduct(
+      String productId,
+      ) async {
+    await _firestore
+        .collection(_productsCollection)
+        .doc(productId)
+        .delete();
+  }
+
+  Future<List<ProductModel>> searchProducts({
+    required String gymId,
+    required String keyword,
+  }) async {
+    final products = await getProducts(
+      gymId: gymId,
+    );
+
+    final query = keyword.trim().toLowerCase();
+
+    return products.where((product) {
+      return product.productName
+          .toLowerCase()
+          .contains(query) ||
+          product.productId
+              .toLowerCase()
+              .contains(query);
+    }).toList();
+  }
+
+  Future<String> generateNextProductId() async {
+    const productCounterDocument = 'product_counter';
+
+    final counterRef = _firestore
+        .collection(_systemCollection)
+        .doc(productCounterDocument);
+
+    return _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(counterRef);
+
+      int lastNumber = 0;
+
+      if (snapshot.exists) {
+        final data = snapshot.data();
+
+        if (data != null) {
+          lastNumber = (data['lastNumber'] as int?) ?? 0;
+        }
+      }
+
+      final nextNumber = lastNumber + 1;
+
+      transaction.set(
+        counterRef,
+        {
+          'lastNumber': nextNumber,
+        },
+        SetOptions(merge: true),
+      );
+
+      return 'PRD${nextNumber.toString().padLeft(6, '0')}';
+    });
   }
 
   Future<void> deletePurchase(
@@ -449,4 +590,5 @@ class FirestoreDataSource {
               .contains(query);
     }).toList();
   }
+
 }
