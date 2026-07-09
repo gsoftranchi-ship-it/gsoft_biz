@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/purchase_form_controller.dart';
+import 'package:provider/provider.dart';
+
+import '../../../providers/product_provider.dart';
+import '../../../models/product_model.dart';
 
 class PurchaseProductCard extends StatelessWidget {
   const PurchaseProductCard({
@@ -10,12 +14,7 @@ class PurchaseProductCard extends StatelessWidget {
 
   final PurchaseFormController controller;
 
-  static const List<String> _products = [
-    'Whey Protein 1kg',
-    'Mass Gainer',
-    'Creatine',
-    'Gym Gloves',
-  ];
+
 
   @override
   Widget build(BuildContext context) {
@@ -35,24 +34,39 @@ class PurchaseProductCard extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            DropdownButtonFormField<String>(
-              initialValue: controller.selectedProduct,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Select Product',
-              ),
-              items: _products
-                  .map(
-                    (product) => DropdownMenuItem<String>(
-                  value: product,
-                  child: Text(product),
-                ),
-              )
-                  .toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  controller.setProduct(value);
-                }
+            Consumer<ProductProvider>(
+              builder: (context, provider, child) {
+                return DropdownButtonFormField<String>(
+                  initialValue: controller.selectedProduct.isEmpty
+                      ? null
+                      : controller.selectedProduct,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Select Product',
+                  ),
+                  items: provider.products
+                      .map(
+                        (ProductModel product) => DropdownMenuItem<String>(
+                      value: product.productName,
+                      child: Text(product.productName),
+                    ),
+                  )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value == null) return;
+
+                    controller.setProduct(value);
+
+                    final product = provider.products.firstWhere(
+                          (e) => e.productName == value,
+                    );
+
+                    controller.purchasePriceController.text =
+                        product.purchasePrice.toStringAsFixed(2);
+
+                    controller.calculateTotals();
+                  },
+                );
               },
             ),
 
