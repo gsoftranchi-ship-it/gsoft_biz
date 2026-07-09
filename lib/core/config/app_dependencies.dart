@@ -7,6 +7,7 @@ import '../../data/repositories/gym_repository.dart';
 import '../../data/repositories/member_repository.dart';
 import '../../data/datasources/remote/firebase/attendance_datasource.dart';
 import '../../data/repositories/impl/attendance_repository_impl.dart';
+import '../../data/repositories/impl/product_repository_impl.dart';
 
 
 class AppDependencies {
@@ -45,5 +46,9 @@ class AppDependencies {
   static final AttendanceRepositoryImpl attendanceRepository =
   AttendanceRepositoryImpl(
     dataSource: attendanceDataSource,
+  );
+  static final ProductRepositoryImpl productRepository =
+  ProductRepositoryImpl(
+    firestoreDataSource: firestoreDataSource,
   );
 }
