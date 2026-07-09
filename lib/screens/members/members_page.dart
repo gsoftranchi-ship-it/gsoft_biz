@@ -52,12 +52,23 @@ class _MembersPageState extends State<MembersPage> {
                   ),
                 ),
                 FilledButton.icon(
-                  onPressed: () {
-                    Navigator.push(
+                  onPressed: () async {
+                    final authProvider = context.read<AuthProvider>();
+                    final memberProvider = context.read<MemberProvider>();
+
+                    final result = await Navigator.push<bool>(
                       context,
                       MaterialPageRoute(
                         builder: (_) => const AddMemberPage(),
                       ),
+                    );
+
+                    if (!mounted || result != true) return;
+
+                    final gymId = authProvider.currentUser!.tenantInfo.gymId;
+
+                    await memberProvider.loadMembers(
+                      gymId: gymId,
                     );
                   },
                   icon: const Icon(Icons.person_add),
@@ -67,7 +78,36 @@ class _MembersPageState extends State<MembersPage> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
+            child: provider.loading
+                ? const Center(
+              child: CircularProgressIndicator(),
+            )
+                : provider.members.isEmpty
+                ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.people_outline,
+                    size: 70,
+                    color: Colors.grey,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    "No Members Found",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "Click Admission to register your first member.",
+                  ),
+                ],
+              ),
+            )
+                : ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: provider.members.length,
               itemBuilder: (context, index) {
@@ -94,11 +134,12 @@ class _MembersPageState extends State<MembersPage> {
 
                         const SizedBox(height: 4),
 
-                        Text(
-                          member.isActive
-                              ? "Active Member"
-                              : "Inactive Member",
-                        ),
+                        Chip(
+                          label: Text(
+                            member.isActive ? "Active" : "Inactive",
+                          ),
+                          visualDensity: VisualDensity.compact,
+                        )
                       ],
                     ),
                   ),

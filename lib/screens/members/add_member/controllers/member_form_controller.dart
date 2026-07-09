@@ -518,24 +518,6 @@ class MemberFormController extends ChangeNotifier {
 
     remarksController.dispose();
 
-    admissionFeeController.dispose();
-
-    membershipFeeController.dispose();
-
-    discountController.dispose();
-
-    finalAmountController.dispose();
-
-    paidAmountController.dispose();
-
-    dueAmountController.dispose();
-
-    transactionIdController.dispose();
-
-    receiptNumberController.dispose();
-
-    paymentRemarksController.dispose();
-
     emergencyNameController.dispose();
 
     emergencyRelationshipController.dispose();

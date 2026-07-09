@@ -94,20 +94,21 @@ class MemberProvider extends ChangeNotifier {
     _failure = null;
     notifyListeners();
 
-    final result = await _repository.addMember(member);
+    try {
+      final result = await _repository.addMember(member);
 
-    switch (result) {
-      case Success<void>():
-        await refresh();
-        _loading = false;
-        notifyListeners();
-        return true;
+      switch (result) {
+        case Success<void>():
+          await refresh();
+          return true;
 
-      case FailureResult<void>():
-        _failure = result.failure;
-        _loading = false;
-        notifyListeners();
-        return false;
+        case FailureResult<void>():
+          _failure = result.failure;
+          return false;
+      }
+    } finally {
+      _loading = false;
+      notifyListeners();
     }
   }
 

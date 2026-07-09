@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../controllers/member_form_controller.dart';
+import 'package:provider/provider.dart';
+import '../../../../providers/member_provider.dart';
 
 class SaveMemberButton extends StatelessWidget {
   const SaveMemberButton({
@@ -15,6 +16,7 @@ class SaveMemberButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSaving = context.watch<MemberProvider>().loading;
     return Card(
       elevation: 3,
       margin: const EdgeInsets.only(bottom: 30),
@@ -68,16 +70,32 @@ class SaveMemberButton extends StatelessWidget {
               controller.bmi.toStringAsFixed(1),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
+
+            const Divider(),
+
+            const SizedBox(height: 20),
 
             SizedBox(
               width: double.infinity,
               height: 55,
               child: FilledButton.icon(
-                onPressed: onSave,
-                icon: const Icon(Icons.save),
-                label: const Text(
-                  "SAVE ADMISSION",
+                onPressed: isSaving ? null : onSave,
+                icon: isSaving
+                    ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                  ),
+                )
+                    : const Icon(Icons.save),
+                label: Text(
+                  isSaving ? "Saving Admission..." : "Save Admission",
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -102,10 +120,15 @@ class SaveMemberButton extends StatelessWidget {
             child: Text(title),
           ),
 
-          Text(
-            value,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
