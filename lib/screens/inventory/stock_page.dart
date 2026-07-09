@@ -1,7 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/product_provider.dart';
 
-class StockPage extends StatelessWidget {
+
+class StockPage extends StatefulWidget {
   const StockPage({super.key});
+
+  @override
+  State<StockPage> createState() => _StockPageState();
+}
+
+class _StockPageState extends State<StockPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      final authProvider = context.read<AuthProvider>();
+      final gymId = authProvider.currentUser?.tenantInfo.gymId;
+
+      if (gymId != null) {
+        context.read<ProductProvider>().loadProducts(
+          gymId: gymId,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +47,9 @@ class StockPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () async {
+          await context.read<ProductProvider>().refresh();
+        },
         icon: const Icon(Icons.refresh),
         label: const Text("Refresh"),
       ),
