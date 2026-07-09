@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
 import 'widgets/stock_product_tile.dart';
+import 'widgets/stock_summary_card.dart';
 
 
 class StockPage extends StatefulWidget {
@@ -58,56 +59,62 @@ class _StockPageState extends State<StockPage> {
         padding: const EdgeInsets.all(16),
         children: [
 
-          Row(
-            children: [
+          Consumer<ProductProvider>(
+            builder: (context, provider, child) {
+              return Row(
+                children: [
+                  Expanded(
+                    child: StockSummaryCard(
+                      title: "Products",
+                      value: provider.totalProducts.toString(),
+                      color: Colors.blue,
+                      icon: Icons.inventory_2,
+                    ),
+                  ),
 
-              Expanded(
-                child: _summaryCard(
-                  "Products",
-                  "245",
-                  Colors.blue,
-                  Icons.inventory_2,
-                ),
-              ),
+                  const SizedBox(width: 12),
 
-              const SizedBox(width: 12),
-
-              Expanded(
-                child: _summaryCard(
-                  "Low Stock",
-                  "06",
-                  Colors.red,
-                  Icons.warning_amber_rounded,
-                ),
-              ),
-            ],
+                  Expanded(
+                    child: StockSummaryCard(
+                      title: "Inactive",
+                      value: provider.inactiveProducts.toString(),
+                      color: Colors.red,
+                      icon: Icons.warning_amber_rounded,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
 
           const SizedBox(height: 12),
 
-          Row(
-            children: [
+          Consumer<ProductProvider>(
+            builder: (context, provider, child) {
+              return Row(
+                children: [
+                  Expanded(
+                    child: StockSummaryCard(
+                      title: "Active",
+                      value: provider.activeProducts.toString(),
+                      color: Colors.green,
+                      icon: Icons.check_circle,
+                    ),
+                  ),
 
-              Expanded(
-                child: _summaryCard(
-                  "In Stock",
-                  "239",
-                  Colors.green,
-                  Icons.check_circle,
-                ),
-              ),
+                  const SizedBox(width: 12),
 
-              const SizedBox(width: 12),
-
-              Expanded(
-                child: _summaryCard(
-                  "Stock Value",
-                  "₹4.82L",
-                  Colors.orange,
-                  Icons.currency_rupee,
-                ),
-              ),
-            ],
+                  const Expanded(
+                    child: StockSummaryCard(
+                      title: "Inventory",
+                      value: "Pending",
+                      color: Colors.orange,
+                      icon: Icons.inventory,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
 
           const SizedBox(height: 24),
@@ -161,49 +168,5 @@ class _StockPageState extends State<StockPage> {
       ),
     );
   }
-
-  Widget _summaryCard(
-      String title,
-      String value,
-      Color color,
-      IconData icon,
-      ) {
-    return Card(
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          children: [
-
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: color.withValues(alpha: .15),
-              child: Icon(
-                icon,
-                color: color,
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            Text(
-              value,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: 24,
-              ),
-            ),
-
-            const SizedBox(height: 6),
-
-            Text(title),
-          ],
-        ),
-      ),
-    );
-  }
-
-
 }
 
