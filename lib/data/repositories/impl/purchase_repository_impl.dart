@@ -1,71 +1,130 @@
+import '../../../core/result/failures.dart';
 import '../../../core/result/result.dart';
 import '../../../domain/repositories/purchase_repository.dart';
 import '../../../models/purchase_model.dart';
-import '../../datasources/remote/firebase/purchase_datasource.dart';
+import '../../datasources/remote/firebase/firestore_datasource.dart';
 
 class PurchaseRepositoryImpl implements PurchaseRepository {
-  const PurchaseRepositoryImpl({
-    required PurchaseDataSource dataSource,
-  }) : _dataSource = dataSource;
+  PurchaseRepositoryImpl({
+    required FirestoreDataSource firestoreDataSource,
+  }) : _firestoreDataSource = firestoreDataSource;
 
-  final PurchaseDataSource _dataSource;
-
-  @override
-  Future<Result<void>> addPurchase(
-      PurchaseModel purchase,
-      ) {
-    return _dataSource.addPurchase(purchase);
-  }
+  final FirestoreDataSource _firestoreDataSource;
 
   @override
-  Future<Result<void>> deletePurchase({
-    required String purchaseId,
-  }) {
-    return _dataSource.deletePurchase(
-      purchaseId: purchaseId,
-    );
-  }
+  Future<Result<List<PurchaseModel>>> getPurchases({
+    required String gymId,
+  }) async {
+    try {
+      final purchases = await _firestoreDataSource.getPurchases(
+        gymId: gymId,
+      );
 
-  @override
-  Future<Result<String>> generateNextPurchaseId() {
-    return _dataSource.generateNextPurchaseId();
+      return Success(purchases);
+    } catch (e) {
+      return FailureResult(
+        DatabaseFailure(e.toString()),
+      );
+    }
   }
 
   @override
   Future<Result<PurchaseModel>> getPurchase({
     required String purchaseId,
-  }) {
-    return _dataSource.getPurchase(
-      purchaseId: purchaseId,
-    );
+  }) async {
+    try {
+      final purchase = await _firestoreDataSource.getPurchase(
+        purchaseId: purchaseId,
+      );
+
+      if (purchase == null) {
+        return FailureResult(
+          const DatabaseFailure('Purchase not found.'),
+        );
+      }
+
+      return Success(purchase);
+    } catch (e) {
+      return FailureResult(
+        DatabaseFailure(e.toString()),
+      );
+    }
   }
 
   @override
-  Future<Result<List<PurchaseModel>>> getPurchases({
-    required String gymId,
-  }) {
-    return _dataSource.getPurchases(
-      gymId: gymId,
-    );
+  Future<Result<void>> addPurchase(
+      PurchaseModel purchase,
+      ) async {
+    try {
+      await _firestoreDataSource.addPurchase(
+        purchase,
+      );
+
+      return const Success(null);
+    } catch (e) {
+      return FailureResult(
+        DatabaseFailure(e.toString()),
+      );
+    }
+  }
+
+  @override
+  Future<Result<void>> updatePurchase(
+      PurchaseModel purchase,
+      ) async {
+    try {
+      await _firestoreDataSource.updatePurchase(
+        purchase,
+      );
+
+      return const Success(null);
+    } catch (e) {
+      return FailureResult(
+        DatabaseFailure(e.toString()),
+      );
+    }
+  }
+
+  @override
+  Future<Result<void>> deletePurchase({
+    required String purchaseId,
+  }) async {
+    try {
+      await _firestoreDataSource.deletePurchase(
+        purchaseId,
+      );
+
+      return const Success(null);
+    } catch (e) {
+      return FailureResult(
+        DatabaseFailure(e.toString()),
+      );
+    }
   }
 
   @override
   Future<Result<List<PurchaseModel>>> searchPurchases({
     required String gymId,
     required String keyword,
-  }) {
-    return _dataSource.searchPurchases(
-      gymId: gymId,
-      keyword: keyword,
-    );
+  }) async {
+    try {
+      final purchases =
+      await _firestoreDataSource.searchPurchases(
+        gymId: gymId,
+        keyword: keyword,
+      );
+
+      return Success(purchases);
+    } catch (e) {
+      return FailureResult(
+        DatabaseFailure(e.toString()),
+      );
+    }
   }
 
   @override
-  Future<Result<void>> updatePurchase(
-      PurchaseModel purchase,
-      ) {
-    return _dataSource.updatePurchase(
-      purchase,
-    );
+  Future<Result<String>> generateNextPurchaseId() {
+    // TODO: Implement during Purchase Number service integration.
+    throw UnimplementedError();
   }
 }
