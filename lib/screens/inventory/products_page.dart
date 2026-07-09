@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
+import 'add_product/add_product_page.dart';
 
 class ProductsPage extends StatefulWidget {
   const ProductsPage({super.key});
@@ -43,7 +44,25 @@ class _ProductsPageState extends State<ProductsPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () async {
+          final authProvider = context.read<AuthProvider>();
+          final productProvider = context.read<ProductProvider>();
+
+          final gymId = authProvider.currentUser?.tenantInfo.gymId;
+
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AddProductPage(),
+            ),
+          );
+
+          if (!mounted || gymId == null) return;
+
+          await productProvider.loadProducts(
+            gymId: gymId,
+          );
+        },
         icon: const Icon(Icons.add),
         label: const Text("Add Product"),
       ),
