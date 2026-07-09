@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
+import 'widgets/stock_product_tile.dart';
 
 
 class StockPage extends StatefulWidget {
@@ -112,7 +113,7 @@ class _StockPageState extends State<StockPage> {
           const SizedBox(height: 24),
 
           const Text(
-            "Current Stock",
+            "Product Master",
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -121,52 +122,38 @@ class _StockPageState extends State<StockPage> {
 
           const SizedBox(height: 16),
 
-          _stockTile(
-            context,
-            "Whey Protein 1kg",
-            "Nutrition",
-            24,
-            5,
-          ),
+          Consumer<ProductProvider>(
+            builder: (context, provider, child) {
+              if (provider.loading) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
 
-          _stockTile(
-            context,
-            "Mass Gainer",
-            "Nutrition",
-            12,
-            5,
-          ),
+              if (provider.products.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text(
+                      "No products available.",
+                    ),
+                  ),
+                );
+              }
 
-          _stockTile(
-            context,
-            "Creatine",
-            "Supplement",
-            48,
-            10,
-          ),
-
-          _stockTile(
-            context,
-            "Gym Gloves",
-            "Accessories",
-            8,
-            10,
-          ),
-
-          _stockTile(
-            context,
-            "Shaker Bottle",
-            "Accessories",
-            36,
-            10,
-          ),
-
-          _stockTile(
-            context,
-            "Resistance Band",
-            "Fitness",
-            3,
-            10,
+              return Column(
+                children: provider.products
+                    .map(
+                      (product) => StockProductTile(
+                    product: product,
+                  ),
+                )
+                    .toList(),
+              );
+            },
           ),
 
           const SizedBox(height: 60),
@@ -217,110 +204,6 @@ class _StockPageState extends State<StockPage> {
     );
   }
 
-  Widget _stockTile(
-      BuildContext context,
-      String product,
-      String category,
-      int stock,
-      int minimum,
-      ) {
-    final low = stock <= minimum;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 14),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor:
-          low ? Colors.red.shade100 : Colors.green.shade100,
-          child: Icon(
-            Icons.inventory_2,
-            color: low ? Colors.red : Colors.green,
-          ),
-        ),
-
-        title: Text(
-          product,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-
-        subtitle: Text(category),
-
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-
-            Text(
-              "$stock",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: low ? Colors.red : Colors.green,
-                fontSize: 18,
-              ),
-            ),
-
-            Text(
-              low ? "LOW" : "OK",
-              style: TextStyle(
-                color: low ? Colors.red : Colors.green,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (_) => AlertDialog(
-              title: Text(product),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-
-                  const Icon(
-                    Icons.inventory_2,
-                    size: 70,
-                    color: Colors.orange,
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  Text("Category : $category"),
-
-                  Text("Available : $stock"),
-
-                  Text("Minimum : $minimum"),
-
-                  const SizedBox(height: 10),
-
-                  Text(
-                    low
-                        ? "Stock Reorder Required"
-                        : "Stock Available",
-                    style: TextStyle(
-                      color: low
-                          ? Colors.red
-                          : Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                FilledButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("Close"),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
 }
 
