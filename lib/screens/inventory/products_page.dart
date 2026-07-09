@@ -1,7 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/product_provider.dart';
 
-class ProductsPage extends StatelessWidget {
+class ProductsPage extends StatefulWidget {
   const ProductsPage({super.key});
+
+  @override
+  State<ProductsPage> createState() => _ProductsPageState();
+}
+
+class _ProductsPageState extends State<ProductsPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      final authProvider = context.read<AuthProvider>();
+
+      final gymId = authProvider.currentUser?.tenantInfo.gymId;
+
+      if (gymId != null) {
+        context.read<ProductProvider>().loadProducts(
+          gymId: gymId,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,50 +47,40 @@ class ProductsPage extends StatelessWidget {
         icon: const Icon(Icons.add),
         label: const Text("Add Product"),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
+      body: Consumer<ProductProvider>(
+        builder: (context, provider, child) {
+          if (provider.loading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
 
-          _productCard(
-            "Whey Protein 1kg",
-            "Health Supplement",
-            "₹2200",
-            "Stock : 24",
-            Colors.green,
-          ),
+          if (provider.products.isEmpty) {
+            return const Center(
+              child: Text(
+                'No products found',
+              ),
+            );
+          }
 
-          _productCard(
-            "Mass Gainer",
-            "Nutrition",
-            "₹1850",
-            "Stock : 12",
-            Colors.orange,
-          ),
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: provider.products.length,
+            itemBuilder: (context, index) {
+              final product = provider.products[index];
 
-          _productCard(
-            "Creatine",
-            "Supplement",
-            "₹950",
-            "Stock : 48",
-            Colors.green,
-          ),
-
-          _productCard(
-            "Gym Gloves",
-            "Accessories",
-            "₹450",
-            "Stock : 8",
-            Colors.red,
-          ),
-
-          _productCard(
-            "Shaker Bottle",
-            "Accessories",
-            "₹250",
-            "Stock : 36",
-            Colors.green,
-          ),
-        ],
+              return _productCard(
+                product.productName,
+                product.categoryId,
+                "₹${product.sellingPrice.toStringAsFixed(2)}",
+                "Product Master",
+                product.isActive
+                    ? Colors.green
+                    : Colors.red,
+              );
+            },
+          );
+        },
       ),
     );
   }
