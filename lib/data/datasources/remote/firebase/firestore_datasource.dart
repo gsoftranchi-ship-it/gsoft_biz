@@ -4,7 +4,9 @@ import '../../../../models/gym_model.dart';
 import '../../../../models/member_model.dart';
 import '../../../../models/membership_invoice_model.dart';
 import '../../../../models/membership_payment_model.dart';
+import '../../../../models/purchase_model.dart';
 import '../../../../core/services/document_number_service.dart';
+
 
 class FirestoreDataSource {
   FirestoreDataSource({
@@ -23,6 +25,7 @@ class FirestoreDataSource {
   static const String _memberCounterDocument = 'member_counter';
   static const String _membershipInvoicesCollection = 'membershipInvoices';
   static const String _membershipPaymentsCollection = 'membershipPayments';
+  static const String _purchasesCollection = 'purchases';
 
   Future<UserModel?> getUser(String uid) async {
     final snapshot =
@@ -348,5 +351,102 @@ class FirestoreDataSource {
     }
 
     return total;
+  }
+  //==================================================
+// PURCHASES
+//==================================================
+
+  Future<List<PurchaseModel>> getPurchases({
+    required String gymId,
+  }) async {
+    final snapshot = await _firestore
+        .collection(_purchasesCollection)
+        .where('gymId', isEqualTo: gymId)
+        .orderBy('purchaseDate', descending: true)
+        .get();
+
+    return snapshot.docs
+        .map(
+          (doc) => PurchaseModel.fromMap(
+        doc.id,
+        doc.data(),
+      ),
+    )
+        .toList();
+  }
+
+  Future<PurchaseModel?> getPurchase({
+    required String purchaseId,
+  }) async {
+    final snapshot = await _firestore
+        .collection(_purchasesCollection)
+        .doc(purchaseId)
+        .get();
+
+    if (!snapshot.exists) {
+      return null;
+    }
+
+    final data = snapshot.data();
+
+    if (data == null) {
+      return null;
+    }
+
+    return PurchaseModel.fromMap(
+      snapshot.id,
+      data,
+    );
+  }
+
+  Future<void> addPurchase(
+      PurchaseModel purchase,
+      ) async {
+    await _firestore
+        .collection(_purchasesCollection)
+        .doc(purchase.purchaseId)
+        .set(
+      purchase.toMap(),
+    );
+  }
+
+  Future<void> updatePurchase(
+      PurchaseModel purchase,
+      ) async {
+    await _firestore
+        .collection(_purchasesCollection)
+        .doc(purchase.purchaseId)
+        .update(
+      purchase.toMap(),
+    );
+  }
+
+  Future<void> deletePurchase(
+      String purchaseId,
+      ) async {
+    await _firestore
+        .collection(_purchasesCollection)
+        .doc(purchaseId)
+        .delete();
+  }
+
+  Future<List<PurchaseModel>> searchPurchases({
+    required String gymId,
+    required String keyword,
+  }) async {
+    final purchases = await getPurchases(
+      gymId: gymId,
+    );
+
+    final query = keyword.trim().toLowerCase();
+
+    return purchases.where((purchase) {
+      return purchase.invoiceNumber
+          .toLowerCase()
+          .contains(query) ||
+          purchase.purchaseId
+              .toLowerCase()
+              .contains(query);
+    }).toList();
   }
 }
