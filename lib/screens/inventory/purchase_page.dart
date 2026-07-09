@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'controllers/purchase_form_controller.dart';
 import 'widgets/purchase_supplier_card.dart';
 import 'widgets/purchase_product_card.dart';
+import 'widgets/purchase_summary_card.dart';
 
 class PurchasePage extends StatefulWidget {
   const PurchasePage({super.key});
@@ -51,39 +52,8 @@ class _PurchasePageState extends State<PurchasePage> {
 
           const SizedBox(height: 30),
 
-          Card(
-            color: Colors.orange.shade50,
-            child: const Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                children: [
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Purchase Total"),
-                      Text(
-                        "₹0",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: 10),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("GST"),
-                      Text("18%"),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          PurchaseSummaryCard(
+            controller: controller,
           ),
 
           const SizedBox(height: 24),
