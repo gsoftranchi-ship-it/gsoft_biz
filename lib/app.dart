@@ -10,6 +10,7 @@ import 'core/config/app_dependencies.dart';
 import 'providers/auth_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/attendance_provider.dart';
+import 'providers/product_provider.dart';
 
 
 class GSoftBizApp extends StatelessWidget {
@@ -45,9 +46,17 @@ class GSoftBizApp extends StatelessWidget {
             repository: AppDependencies.attendanceRepository,
           ),
         ),
+
+        ChangeNotifierProvider(
+          create: (_) => ProductProvider(
+            repository: AppDependencies.productRepository,
+          ),
+        ),
+
         ChangeNotifierProvider(
           create: (_) => ThemeProvider(),
         ),
+
 
       ],
       child: Consumer<ThemeProvider>(
