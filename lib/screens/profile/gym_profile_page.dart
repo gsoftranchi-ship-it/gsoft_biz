@@ -525,12 +525,12 @@ class _GymProfilePageState extends State<GymProfilePage> {
 
                     final messenger = ScaffoldMessenger.of(context);
 
-                    debugPrint("Saving Gym : ${gym.toMap()}");
+
 
                     final success =
                     await dashboardProvider.saveGym(gym);
 
-                    debugPrint("Save Result : $success");
+
 
                     if (!mounted) return;
 

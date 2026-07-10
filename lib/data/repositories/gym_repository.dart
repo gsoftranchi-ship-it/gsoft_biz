@@ -52,11 +52,7 @@ class GymRepositoryImpl implements GymRepository {
 
       return const Success(null);
 
-    } catch (e, stackTrace) {
-      debugPrint('===== SAVE GYM ERROR =====');
-      debugPrint(e.toString());
-      debugPrint(stackTrace.toString());
-
+    } catch (e) {
       return FailureResult(
         UnknownFailure(
           e.toString(),
