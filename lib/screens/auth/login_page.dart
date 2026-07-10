@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/routes/route_names.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/member_provider.dart';
+import '../../providers/membership_provider.dart';
 
 
 
@@ -414,8 +416,25 @@ class _LoginPageState extends State<LoginPage> {
                             if (!context.mounted) return;
 
                             if (success) {
-                              Navigator.pushReplacementNamed(
-                                context,
+                              final gymId =
+                                  authProvider.currentUser!.tenantInfo.gymId;
+
+                            // Read providers BEFORE any await.
+                              final memberProvider = context.read<MemberProvider>();
+                              final membershipProvider = context.read<MembershipProvider>();
+                              final navigator = Navigator.of(context);
+
+                              await memberProvider.loadMembers(
+                                gymId: gymId,
+                              );
+
+                              await membershipProvider.loadInvoices(
+                                gymId: gymId,
+                              );
+
+                              if (!mounted) return;
+
+                              navigator.pushReplacementNamed(
                                 RouteNames.dashboard,
                               );
                             } else {

@@ -9,6 +9,11 @@ import '../settings/settings_page.dart';
 import '../../widgets/navigation/bottom_navbar.dart';
 import '../../widgets/navigation/app_drawer.dart';
 import '../more/more_page.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/auth_provider.dart';
+import '../../providers/member_provider.dart';
+import '../../providers/membership_provider.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -18,6 +23,29 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authProvider = context.read<AuthProvider>();
+
+      final gymId = authProvider.currentUser?.tenantInfo.gymId;
+
+      if (gymId == null || gymId.isEmpty) {
+        return;
+      }
+
+      await Future.wait([
+        context.read<MemberProvider>().loadMembers(
+          gymId: gymId,
+        ),
+        context.read<MembershipProvider>().loadInvoices(
+          gymId: gymId,
+        ),
+      ]);
+    });
+  }
   int _currentIndex = 0;
 
   late final List<Widget> _pages = [

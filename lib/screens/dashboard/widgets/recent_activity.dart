@@ -68,8 +68,16 @@ class RecentActivity extends StatelessWidget {
         physics:
         const NeverScrollableScrollPhysics(),
         itemCount: recentInvoices.length,
-        separatorBuilder: (context, index) =>
-        const Divider(height: 20),
+        separatorBuilder: (context, index) => Padding(
+          padding: const EdgeInsets.only(
+            left: 20,
+            right: 8,
+          ),
+          child: Divider(
+            color: Colors.white.withValues(alpha: .06),
+            height: 24,
+          ),
+        ),
         itemBuilder: (context, index) {
           final invoice =
           recentInvoices[index];
@@ -91,21 +99,54 @@ class RecentActivity extends StatelessWidget {
             dense: true,
             contentPadding:
             EdgeInsets.zero,
-            leading: CircleAvatar(
-              radius: 18,
+            leading: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: invoice.dueAmount <= 0
+                    ? Colors.green.withValues(alpha: .15)
+                    : Colors.orange.withValues(alpha: .15),
+                shape: BoxShape.circle,
+              ),
               child: Icon(
                 invoice.dueAmount <= 0
-                    ? Icons.check_circle
-                    : Icons.pending_actions,
-                size: 18,
+                    ? Icons.payments_rounded
+                    : Icons.pending_actions_rounded,
+                color: invoice.dueAmount <= 0
+                    ? Colors.green
+                    : Colors.orange,
+                size: 22,
               ),
             ),
             title: Text(
-              member?.fullName ??
-                  invoice.memberId,
+              member?.fullName ?? invoice.memberId,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+              ),
             ),
-            subtitle: Text(
-              '${invoice.invoiceNumber} • ${invoice.invoiceDate.toLocal().toString().split(' ').first}',
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 3),
+                Text(
+                  invoice.invoiceNumber,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                  ),
+                ),
+                Text(
+                  invoice.invoiceDate
+                      .toLocal()
+                      .toString()
+                      .split(' ')
+                      .first,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
             ),
             trailing: Column(
               mainAxisAlignment:
@@ -120,7 +161,28 @@ class RecentActivity extends StatelessWidget {
                     FontWeight.bold,
                   ),
                 ),
-                Text(status),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: invoice.dueAmount <= 0
+                        ? Colors.green.withValues(alpha: .12)
+                        : Colors.orange.withValues(alpha: .12),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    status,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: invoice.dueAmount <= 0
+                          ? Colors.green
+                          : Colors.orange,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ],
             ),
             onTap: () {
