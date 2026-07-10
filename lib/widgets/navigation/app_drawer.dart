@@ -45,7 +45,7 @@ class AppDrawer extends StatelessWidget {
             const SizedBox(height: 12),
 
             Text(
-              gym?.gymName ?? "GYM ERP",
+              gym?.gymName ?? "Power House Gym",
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 20,
@@ -55,9 +55,7 @@ class AppDrawer extends StatelessWidget {
             const SizedBox(height: 4),
 
             Text(
-              gym == null
-                  ? "Loading..."
-                  : "Partner ID : ${gym.gymCode}",
+              "Partner ID : ${gym?.gymCode ?? "--"}",
               style: const TextStyle(
                 fontSize: 12,
                 color: AppColors.textSecondary,

@@ -20,4 +20,6 @@ class RouteNames {
   static const settings = "/settings";
 
   static const registerPartner = '/register-partner';
+
+  static const String gymProfile = '/gym-profile';
 }

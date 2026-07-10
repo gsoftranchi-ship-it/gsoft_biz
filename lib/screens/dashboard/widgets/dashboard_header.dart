@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-
-import '../../../core/config/app_config.dart';
 import '../../../core/constants/app_colors.dart';
+import 'package:provider/provider.dart';
+import '../../../models/gym_model.dart';
+import '../../../providers/dashboard_provider.dart';
+
 
 
 class DashboardHeader extends StatelessWidget {
   const DashboardHeader({super.key});
-  String get gymName => AppConfig.appName;
-
-  String get partnerId => "--";
-
-  String? get gymLogoUrl => null;
 
   String get greeting {
     final hour = DateTime.now().hour;
@@ -86,6 +83,16 @@ class DashboardHeader extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final mobile = width < 500;
 
+    final dashboardProvider = context.watch<DashboardProvider>();
+
+    final GymModel? gym = dashboardProvider.gym;
+
+    final gymName = gym?.gymName ?? "";
+
+    final partnerId = gym?.gymCode ?? "";
+
+    final logoUrl = gym?.logoUrl;
+
     final avatarRadius = mobile ? 18.0 : 22.0;
     final titleSize = mobile ? 18.0 : 24.0;
 
@@ -121,18 +128,24 @@ class DashboardHeader extends StatelessWidget {
               CircleAvatar(
                 radius: avatarRadius,
                 backgroundColor: AppColors.cardDark,
-                child: gymLogoUrl != null
-                    ? ClipOval(
-                  child: Image.network(
-                    gymLogoUrl!,
+                child: ClipOval(
+                  child: logoUrl != null && logoUrl.isNotEmpty
+                      ? Image.network(
+                    logoUrl,
+                    width: avatarRadius * 4,
+                    height: avatarRadius * 4,
+                    fit: BoxFit.cover,
+                  )
+                      : Image.asset(
+                    'assets/images/logo.png',
                     width: avatarRadius * 2,
                     height: avatarRadius * 2,
                     fit: BoxFit.cover,
                   ),
-                )
-                    : const Icon(
-                  Icons.business_rounded,
-                  color: AppColors.primary,
+
+
+
+
                 ),
               ),
 
@@ -154,7 +167,9 @@ class DashboardHeader extends StatelessWidget {
                     ),
 
                     Text(
-                      gymName,
+                      gymName.isEmpty
+                          ? "Power House Gym"
+                          : gymName,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: titleSize,
@@ -162,13 +177,16 @@ class DashboardHeader extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
 
+
                     Text(
-                      "Partner ID : $partnerId",
+                      "Partner ID : ${partnerId.isEmpty ? "--" : partnerId}",
                       style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
                       ),
                     ),
+
+
                   ],
                 ),
               ),

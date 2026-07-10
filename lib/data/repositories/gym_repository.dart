@@ -3,6 +3,8 @@ import '../../../core/result/result.dart';
 import '../../../domain/repositories/gym_repository.dart';
 import '../../../models/gym_model.dart';
 import '../datasources/remote/firebase/firestore_datasource.dart';
+import 'package:flutter/foundation.dart';
+
 
 class GymRepositoryImpl implements GymRepository {
   GymRepositoryImpl({
@@ -27,7 +29,12 @@ class GymRepositoryImpl implements GymRepository {
       }
 
       return Success(gym);
-    } catch (e) {
+
+    }
+    catch (e, stack) {
+      debugPrint(e.toString());
+      debugPrint(stack.toString());
+
       return FailureResult(
         UnknownFailure(
           e.toString(),
@@ -44,7 +51,12 @@ class GymRepositoryImpl implements GymRepository {
       await _firestoreDataSource.saveGym(gym);
 
       return const Success(null);
-    } catch (e) {
+
+    } catch (e, stackTrace) {
+      debugPrint('===== SAVE GYM ERROR =====');
+      debugPrint(e.toString());
+      debugPrint(stackTrace.toString());
+
       return FailureResult(
         UnknownFailure(
           e.toString(),

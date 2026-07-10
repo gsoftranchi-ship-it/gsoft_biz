@@ -17,6 +17,54 @@ class DashboardProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   GymModel? get gym => _gym;
+  Future<bool> saveGym(
+
+      GymModel gym,
+      ) async {
+    _isLoading = true;
+    notifyListeners();
+    debugPrint("Calling Repository.saveGym()");
+
+    try {
+      final result = await _repository.saveGym(gym);
+
+      switch (result) {
+        case Success<void>():
+          _gym = gym;
+          return true;
+
+        case FailureResult<void>():
+          return false;
+      }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+
+  }
+
+  Future<bool> updateGym(
+      GymModel gym,
+      ) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final result = await _repository.updateGym(gym);
+
+      switch (result) {
+        case Success<void>():
+          _gym = gym;
+          return true;
+
+        case FailureResult<void>():
+          return false;
+      }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> loadGym({
     required String gymId,

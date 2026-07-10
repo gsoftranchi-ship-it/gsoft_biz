@@ -15,7 +15,7 @@ class AppConfig {
   // CLIENT BRANDING
   //==================================================
 
-  static const String appName = "GYM ERP";
+  static const String appName = "Power House Gym";
 
   static const String tagline = "PRACTICE SMARTER MANAGE BETTER ";
 
@@ -26,6 +26,7 @@ class AppConfig {
   static const String email = "";
 
   static const String website = "";
+
 
   //==================================================
   // COLORS

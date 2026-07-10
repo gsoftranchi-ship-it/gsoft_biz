@@ -4,6 +4,8 @@ import '../../screens/splash/splash_page.dart';
 import 'route_names.dart';
 import '../../screens/app_shell/app_shell.dart';
 import '../../screens/auth/register_partner_page.dart';
+import '../../screens/profile/gym_profile_page.dart';
+
 
 class AppRoutes {
 
@@ -19,7 +21,11 @@ class AppRoutes {
 
     RouteNames.registerPartner: (_) => const RegisterPartnerPage(),
 
+    RouteNames.gymProfile: (_) => const GymProfilePage(),
+
     RouteNames.dashboard: (_) => const AppShell(),
+
+
 
   };
 
