@@ -18,4 +18,6 @@ class RouteNames {
   static const reports = "/reports";
 
   static const settings = "/settings";
+
+  static const registerPartner = '/register-partner';
 }

@@ -1,9 +1,6 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-
-import '../../core/config/app_config.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/routes/route_names.dart';
 
@@ -32,66 +29,110 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.scaffoldDark,
-      body: Center(
+        body: Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                  'assets/images/background/dashboard_surface.png',
+                ),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xff071B33).withValues(alpha: .70),
+              ),
+              child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              height: 120,
-              width: 120,
+              height: 150,
+              width: 150,
+              padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.15),
+                color: Colors.white,
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
-              child: const Icon(
-                Icons.fitness_center_rounded,
-                color: AppColors.primary,
-                size: 60,
+              child: Image.asset(
+                'assets/images/logo.png',
+                fit: BoxFit.contain,
               ),
             )
                 .animate()
-                .scale(duration: 700.ms)
+                .scale(
+              duration: 700.ms,
+              curve: Curves.easeOutBack,
+            )
                 .fade(),
 
             const SizedBox(height: 30),
 
-            Text(
-              AppConfig.appName,
-              style: const TextStyle(
+            const Text(
+              "GYM ERP",
+              style: TextStyle(
                 fontSize: 34,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.5,
               ),
             ).animate().fade().slideY(),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
-            Text(
-              AppConfig.tagline,
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 16,
+            const Text(
+              "Stronger Today.\nStronger Tomorrow.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white70,
+                height: 1.4,
+                fontWeight: FontWeight.w500,
               ),
-            ).animate().fade(delay: 400.ms),
+            ).animate().fade(delay: 300.ms),
 
             const SizedBox(height: 8),
 
-            Text(
-              AppConfig.city,
-              style: const TextStyle(
-                color: Colors.white70,
+            const Text(
+              "Enterprise Edition",
+              style: TextStyle(
+                color: AppColors.primary,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.2,
               ),
-            ).animate().fade(delay: 600.ms),
+            ).animate().fade(delay: 500.ms),
 
             const SizedBox(height: 60),
 
-            const CircularProgressIndicator()
+            const CircularProgressIndicator(
+              strokeWidth: 3,
+            )
                 .animate(onPlay: (c) => c.repeat())
                 .rotate(),
+
+            const SizedBox(height: 18),
+
+            const Text(
+              "Loading...",
+              style: TextStyle(
+                color: Colors.white60,
+                letterSpacing: 1,
+              ),
+            ),
           ],
+
+
         ),
-      ),
+              ),
+            ),
+        ),
     );
   }
 }

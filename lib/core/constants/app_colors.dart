@@ -7,13 +7,18 @@ class AppColors {
   static const Color primary = Color(0xffFF9800);
   static const Color secondary = Color(0xffFFC107);
 
-  // Background
-  static const Color scaffoldDark = Color(0xff101214);
-  static const Color scaffoldLight = Color(0xffF7F8FA);
+
+  // Dark Navigation
+  static const Color scaffoldDark = Color(0xFF081A33);
+
+
+  // Main Workspace
+  static const Color scaffoldLight = Color(0xffF5F7FA);
 
   // Cards
-  static const Color cardDark = Color(0xff1B1F24);
+  static const Color cardDark = Color(0xff20252B);
   static const Color cardLight = Colors.white;
+
 
   // Text
   static const Color textPrimary = Colors.white;
@@ -25,11 +30,18 @@ class AppColors {
   static const Color danger = Color(0xffEF4444);
   static const Color info = Color(0xff3B82F6);
 
-  // Border
-  static const Color border = Color(0xff2B3138);
+  // Surface
+
+  static const Color surface = Color(0xffF5F7FA);
+
+  // Borders
+  static const Color border = Color(0xffE5E7EB);
 
   // Divider
-  static const Color divider = Color(0xff30363D);
+  static const Color divider = Color(0xffECEFF3);
+
+  // Shadow
+  static const Color shadow = Color(0x14000000);
 
   // Grey
   static const Color grey = Colors.grey;

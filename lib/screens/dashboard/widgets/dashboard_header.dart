@@ -5,6 +5,80 @@ import '../../../core/constants/app_colors.dart';
 
 class DashboardHeader extends StatelessWidget {
   const DashboardHeader({super.key});
+  String get gymName => AppConfig.appName;
+
+  String get partnerId => "--";
+
+  String? get gymLogoUrl => null;
+
+  String get greeting {
+    final hour = DateTime.now().hour;
+
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  }
+
+  String get currentDate {
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    final now = DateTime.now();
+
+    return "${now.day.toString().padLeft(2, '0')} "
+        "${months[now.month - 1]} "
+        "${now.year}";
+  }
+  String get currentTime {
+    final now = DateTime.now();
+
+    final hour = now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour);
+    final minute = now.minute.toString().padLeft(2, '0');
+    final period = now.hour >= 12 ? "PM" : "AM";
+
+    return "$hour:$minute $period";
+  }
+  Widget _overviewItem(
+      IconData icon,
+      Color color,
+      String value,
+      String label,
+      ) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 22),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 12,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,13 +87,12 @@ class DashboardHeader extends StatelessWidget {
 
     final avatarRadius = mobile ? 18.0 : 22.0;
     final titleSize = mobile ? 18.0 : 24.0;
-    final revenueSize = mobile ? 24.0 : 32.0;
-    final trendSize = mobile ? 48.0 : 70.0;
+
     return Container(
       padding: EdgeInsets.all(mobile ? 16 : 22),
 
       decoration: BoxDecoration(
-        color: const Color(0xff1A1D22),
+        color: const Color(0xFF081A33),
 
         borderRadius: BorderRadius.circular(22),
 
@@ -46,10 +119,19 @@ class DashboardHeader extends StatelessWidget {
 
               CircleAvatar(
                 radius: avatarRadius,
-                backgroundColor: AppColors.primary,
-                child: Icon(
-                  Icons.fitness_center,
-                  color: Colors.white,
+                backgroundColor: AppColors.cardDark,
+                child: gymLogoUrl != null
+                    ? ClipOval(
+                  child: Image.network(
+                    gymLogoUrl!,
+                    width: avatarRadius * 2,
+                    height: avatarRadius * 2,
+                    fit: BoxFit.cover,
+                  ),
+                )
+                    : const Icon(
+                  Icons.business_rounded,
+                  color: AppColors.primary,
                 ),
               ),
 
@@ -61,19 +143,29 @@ class DashboardHeader extends StatelessWidget {
                   CrossAxisAlignment.start,
                   children: [
 
-                    const Text(
-                      "Welcome To 👋",
-                      style: TextStyle(
-                        color: Colors.grey,
+                    Text(
+                      greeting,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
                         fontSize: 13,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
 
                     Text(
-                      AppConfig.appName,
+                      gymName,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: titleSize,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+
+                    Text(
+                      "Partner ID : $partnerId",
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -87,7 +179,9 @@ class DashboardHeader extends StatelessWidget {
                   BorderRadius.circular(14),
                 ),
                 child: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // TODO(RC1): Notification Center
+                  },
                   icon: const Icon(
                     Icons.notifications_none_rounded,
                   ),
@@ -98,154 +192,105 @@ class DashboardHeader extends StatelessWidget {
 
           const SizedBox(height: 18),
 
-          Text(
-            AppConfig.tagline,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 15,
-            ),
-          ),
-
-          SizedBox(height: mobile ? 18 : 25),
-
-          //---------------- REVENUE ----------------
-
-          Container(
-            padding: const EdgeInsets.all(18),
-
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xffFF9800),
-                  Color(0xffFB8C00),
-                ],
+          Row(
+            children: [
+              const Icon(
+                Icons.calendar_today_outlined,
+                size: 15,
+                color: AppColors.success,
               ),
 
-              borderRadius:
-              BorderRadius.circular(18),
-            ),
+              const SizedBox(width: 6),
 
-            child: mobile
-                ? Column(
+              Expanded(
+                child: Text(
+                  currentDate,
+                  style: const TextStyle(
+                    color: AppColors.success,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              const Icon(
+                Icons.access_time_rounded,
+                size: 15,
+                color: AppColors.success,
+              ),
+
+              const SizedBox(width: 6),
+
+              Text(
+                currentTime,
+                style: const TextStyle(
+                  color: AppColors.success,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 22),
+
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            decoration: BoxDecoration(
+              color: AppColors.cardDark,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const Text(
+                  "Business Overview",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
                   children: [
-
-                    const Text(
-                      "Today's Revenue",
-                      style: TextStyle(
-                        color: Colors.black,
+                    Expanded(
+                      child: _overviewItem(
+                        Icons.people_alt_outlined,
+                        AppColors.info,
+                        "--",
+                        "Members",
                       ),
                     ),
-
-                    const SizedBox(height: 6),
-
-                    Text(
-                      "₹18,450",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: revenueSize,
-                        color: Colors.white,
+                    Expanded(
+                      child: _overviewItem(
+                        Icons.fact_check_outlined,
+                        AppColors.success,
+                        "--",
+                        "Attendance",
                       ),
                     ),
-
-                    const SizedBox(height: 8),
-
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white24,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        "+18% This Month",
-                        style: TextStyle(
-                          color: Colors.black,
-                        ),
+                    Expanded(
+                      child: _overviewItem(
+                        Icons.currency_rupee,
+                        AppColors.primary,
+                        "--",
+                        "Collection",
                       ),
                     ),
-
-                    const SizedBox(height: 14),
-
-                    Center(
-                      child: Icon(
-                        Icons.trending_up_rounded,
-                        size: trendSize,
-                        color: Colors.white,
+                    Expanded(
+                      child: _overviewItem(
+                        Icons.warning_amber_rounded,
+                        AppColors.warning,
+                        "--",
+                        "Due",
                       ),
                     ),
                   ],
                 ),
               ],
-            )
-                : Row(
-              children: [
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                    children: [
-
-                      const Text(
-                        "Today's Revenue",
-                        style: TextStyle(
-                          color: Colors.black,
-                        ),
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      Text(
-                        "₹18,450",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: revenueSize,
-                          color: Colors.white,
-                        ),
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      Container(
-                        padding:
-                        const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 5,
-                        ),
-
-                        decoration: BoxDecoration(
-                          color: Colors.white24,
-                          borderRadius:
-                          BorderRadius.circular(
-                              20),
-                        ),
-
-                        child: const Text(
-                          "+18% This Month",
-                          style: TextStyle(
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                Icon(
-                  Icons.trending_up_rounded,
-                  color: Colors.white,
-                  size: trendSize,
-                ),
-              ],
             ),
-          ),
+          )
         ],
       ),
     );

@@ -13,20 +13,20 @@ class DarkTheme {
 
     fontFamily: GoogleFonts.poppins().fontFamily,
 
-    scaffoldBackgroundColor: AppColors.scaffoldDark,
+    scaffoldBackgroundColor: AppColors.surface,
 
     primaryColor: AppColors.primary,
 
     colorScheme: const ColorScheme.dark(
       primary: AppColors.primary,
       secondary: AppColors.secondary,
-      surface: AppColors.cardDark,
+      surface: Colors.white,
       error: AppColors.danger,
     ),
 
     cardTheme: CardThemeData(
-      color: AppColors.cardDark,
-      elevation: 2,
+      color: Colors.white,
+      elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -37,7 +37,7 @@ class DarkTheme {
       centerTitle: false,
       elevation: 0,
       backgroundColor: Colors.transparent,
-      foregroundColor: Colors.white,
+      foregroundColor: Colors.black87,
     ),
 
     dividerTheme: const DividerThemeData(
@@ -81,7 +81,10 @@ class DarkTheme {
         minimumSize: const Size(double.infinity, 54),
 
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          side: const BorderSide(
+            color: AppColors.border,
+          ),
         ),
       ),
     ),

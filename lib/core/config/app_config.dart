@@ -15,11 +15,11 @@ class AppConfig {
   // CLIENT BRANDING
   //==================================================
 
-  static const String appName = "POWER GYM";
+  static const String appName = "GYM ERP";
 
-  static const String tagline = "Train Hard. Stay Strong.";
+  static const String tagline = "PRACTICE SMARTER MANAGE BETTER ";
 
-  static const String city = "Godda";
+  static const String city = "";
 
   static const String phone = "";
 

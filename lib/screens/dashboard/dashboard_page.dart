@@ -1,74 +1,93 @@
 import 'package:flutter/material.dart';
-
 import '../../widgets/common/section_title.dart';
 import '../../widgets/charts/membership_pie_chart.dart';
 import '../../widgets/charts/revenue_chart.dart';
-
 import 'widgets/dashboard_header.dart';
-import 'widgets/quick_actions.dart';
 import 'widgets/recent_activity.dart';
 import 'widgets/summary_cards.dart';
+import '../../../core/constants/app_colors.dart';
+import 'widgets/todays_tasks.dart';
 
 class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key});
+  final ValueChanged<int> onNavigate;
+
+  const DashboardPage({
+    super.key,
+    required this.onNavigate,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(18, 14, 18, 30),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.scaffoldDark,
+        image: DecorationImage(
+          image: AssetImage(
+            'assets/images/background/dashboard_surface.png',
+          ),
+          fit: BoxFit.cover,
+          alignment: Alignment.center,
+        ),
+      ),
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 30),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
 
-            DashboardHeader(),
+              DashboardHeader(),
 
-            SizedBox(height: 20),
+              SizedBox(height: 20),
 
-            SummaryCards(),
+              SummaryCards(
+                onNavigate: onNavigate,
+              ),
+              SizedBox(height: 28),
 
-            SizedBox(height: 28),
+              SectionTitle(
+                title: "Today's Tasks",
+              ),
 
-            SectionTitle(
-              title: "Quick Actions",
-            ),
+              SizedBox(height: 14),
 
-            SizedBox(height: 14),
+              TodaysTasks(),
 
-            QuickActions(),
+              SizedBox(height: 28),
 
-            SizedBox(height: 28),
 
-            SectionTitle(
-              title: "Revenue",
-            ),
 
-            SizedBox(height: 14),
+              SectionTitle(
+                title: "Revenue",
+              ),
 
-            RevenueChart(),
+              SizedBox(height: 14),
 
-            SizedBox(height: 28),
+              RevenueChart(),
 
-            SectionTitle(
-              title: "Membership",
-            ),
+              SizedBox(height: 28),
 
-            SizedBox(height: 14),
+              SectionTitle(
+                title: "Membership",
+              ),
 
-            MembershipPieChart(),
+              SizedBox(height: 14),
 
-            SizedBox(height: 28),
+              MembershipPieChart(),
 
-            SectionTitle(
-              title: "Recent Activity",
-            ),
+              SizedBox(height: 28),
 
-            SizedBox(height: 14),
+              SectionTitle(
+                title: "Recent Activity",
+              ),
 
-            RecentActivity(),
+              SizedBox(height: 14),
 
-            SizedBox(height: 40),
-          ],
+              RecentActivity(),
+
+              SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );

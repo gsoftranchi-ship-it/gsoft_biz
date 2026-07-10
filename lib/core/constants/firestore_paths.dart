@@ -13,6 +13,7 @@ class FirestorePaths {
   static const categories = 'categories';
   static const suppliers = 'suppliers';
   static const purchases = 'purchases';
+  static const purchaseItems = 'purchaseItems';
   static const sales = 'sales';
   static const expenses = 'expenses';
   static const notifications = 'notifications';

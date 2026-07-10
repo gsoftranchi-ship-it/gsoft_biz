@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_icons.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/routes/route_names.dart';
+import '../../providers/auth_provider.dart';
 
 class AppDrawer extends StatelessWidget {
   final int selectedIndex;
@@ -65,10 +69,81 @@ class AppDrawer extends StatelessWidget {
                 color: Colors.red,
               ),
               title: const Text("Logout"),
-              onTap: () {
-                Navigator.popUntil(
-                  context,
-                      (route) => route.isFirst,
+              onTap: () async {
+                final navigator = Navigator.of(context);
+                final authProvider = context.read<AuthProvider>();
+
+                final logout = await showDialog<bool>(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (dialogContext) {
+                    return AlertDialog(
+                      backgroundColor: const Color(0xFF081A33),
+
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: const BorderSide(
+                          color: AppColors.border,
+                        ),
+                      ),
+
+                      icon: const CircleAvatar(
+                        radius: 26,
+                        backgroundColor: Color(0xff3A2323),
+                        child: Icon(
+                          AppIcons.logout,
+                          color: AppColors.danger,
+                        ),
+                      ),
+
+                      title: const Text(
+                        "Logout",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      content: const Text(
+                        "Are you sure you want to logout from GSoft Biz ERP?",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          height: 1.5,
+                        ),
+                      ),
+
+                      actionsAlignment: MainAxisAlignment.center,
+
+                      actions: [
+
+                        OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(dialogContext, false);
+                          },
+                          child: const Text("Cancel"),
+                        ),
+
+                        FilledButton.icon(
+                          onPressed: () {
+                            Navigator.pop(dialogContext, true);
+                          },
+                          icon: const Icon(Icons.logout),
+                          label: const Text("Logout"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                if (logout != true) return;
+
+                await authProvider.signOut();
+
+                navigator.pushNamedAndRemoveUntil(
+                  RouteNames.login,
+                      (route) => false,
                 );
               },
             ),

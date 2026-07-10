@@ -6,6 +6,7 @@ class DashboardCard extends StatelessWidget {
   final String value;
   final String subtitle;
   final Color color;
+  final VoidCallback? onTap;
 
   const DashboardCard({
     super.key,
@@ -14,6 +15,7 @@ class DashboardCard extends StatelessWidget {
     required this.value,
     required this.subtitle,
     required this.color,
+    this.onTap,
   });
 
   @override
@@ -26,7 +28,16 @@ class DashboardCard extends StatelessWidget {
     final valueSize = mobile ? 18.0 : 28.0;
     final titleSize = mobile ? 13.0 : 15.0;
     final subTitleSize = mobile ? 11.0 : 12.0;
-    return Container(
+    return MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(22),
+            hoverColor: color.withValues(alpha: .18),
+            splashColor: color.withValues(alpha: .25),
+            child: Container(
       decoration: BoxDecoration(
         color: const Color(0xff1B1F24),
         borderRadius: BorderRadius.circular(22),
@@ -61,11 +72,10 @@ class DashboardCard extends StatelessWidget {
 
           SizedBox(height: mobile ? 6 : 8),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
                 Text(
                   value,
                   maxLines: 1,
@@ -99,9 +109,13 @@ class DashboardCard extends StatelessWidget {
                 ),
               ],
             ),
-          ),
+
         ],
       ),
+
+            ),
+          ),
+        ),
     );
   }
 }

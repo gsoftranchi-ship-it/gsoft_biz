@@ -21,7 +21,9 @@ class _AppShellState extends State<AppShell> {
   int _currentIndex = 0;
 
   late final List<Widget> _pages = [
-    const DashboardPage(),    // 0
+    DashboardPage(
+      onNavigate: changePage,
+    ),
     const MembersPage(),      // 1
     const AttendancePage(),   // 2
     const FeesPage(),         // 3

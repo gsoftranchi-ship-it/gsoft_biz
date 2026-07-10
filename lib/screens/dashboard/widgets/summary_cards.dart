@@ -6,8 +6,13 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../widgets/cards/dashboard_card.dart';
 
+
 class SummaryCards extends StatelessWidget {
-  const SummaryCards({super.key});
+  final ValueChanged<int> onNavigate;
+  const SummaryCards({
+    super.key,
+    required this.onNavigate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,28 +65,28 @@ class SummaryCards extends StatelessWidget {
     );
 
     int crossAxisCount;
-    double childAspectRatio;
 
-    if (width >= 1200) {
+    final double cardHeight;
+
+    if (width >= 1400) {
       crossAxisCount = 4;
-      childAspectRatio = 1.35;
+      cardHeight = 180;
+    } else if (width >= 1200) {
+      crossAxisCount = 4;
+      cardHeight = 170;
     } else if (width >= 900) {
-      crossAxisCount = 4;
-      childAspectRatio = 1.20;
-    } else if (width >= 700) {
       crossAxisCount = 3;
-      childAspectRatio = 1.05;
+      cardHeight = 165;
+    } else if (width >= 700) {
+      crossAxisCount = 2;
+      cardHeight = 160;
     } else if (width >= 500) {
       crossAxisCount = 2;
-      childAspectRatio = 1.00;
-    } else if (width >= 380) {
-      crossAxisCount = 2;
-      childAspectRatio = 0.82;
+      cardHeight = 155;
     } else {
       crossAxisCount = 1;
-      childAspectRatio = 2.1;
+      cardHeight = 150;
     }
-
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -90,12 +95,13 @@ class SummaryCards extends StatelessWidget {
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: childAspectRatio,
+        mainAxisExtent: cardHeight,
       ),
       itemBuilder: (context, index) {
         switch (index) {
           case 0:
             return DashboardCard(
+              onTap: () => onNavigate(1),
               icon: AppIcons.members,
               title: "Active Members",
               value: activeMembers.toString(),
@@ -105,6 +111,7 @@ class SummaryCards extends StatelessWidget {
 
           case 1:
             return DashboardCard(
+              onTap: () => onNavigate(3),
               icon: AppIcons.billing,
               title: "Due Members",
               value: dueMembers.toString(),
@@ -114,6 +121,7 @@ class SummaryCards extends StatelessWidget {
 
           case 2:
             return DashboardCard(
+              onTap: () => onNavigate(3),
               icon: AppIcons.billing,
               title: "Outstanding",
               value:
@@ -124,6 +132,7 @@ class SummaryCards extends StatelessWidget {
 
           default:
             return DashboardCard(
+              onTap: () => onNavigate(5),
               icon: AppIcons.billing,
               title: "Today's Collection",
               value:

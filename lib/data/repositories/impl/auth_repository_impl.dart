@@ -51,10 +51,47 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return Success(user);
     } on FirebaseAuthException catch (e) {
+      String message;
+
+      switch (e.code) {
+        case 'invalid-credential':
+        case 'wrong-password':
+          message =
+          'Invalid Partner ID or Password. Please check your credentials and try again.';
+          break;
+
+        case 'user-not-found':
+          message =
+          'No account found for the provided Partner ID. Please register your gym or contact support.';
+          break;
+
+        case 'invalid-email':
+          message =
+          'Please enter a valid Partner ID.';
+          break;
+
+        case 'user-disabled':
+          message =
+          'Your account has been disabled. Please contact GYM ERP Support.';
+          break;
+
+        case 'too-many-requests':
+          message =
+          'Too many failed login attempts. Please try again after a few minutes.';
+          break;
+
+        case 'network-request-failed':
+          message =
+          'Unable to connect to the server. Please check your internet connection.';
+          break;
+
+        default:
+          message =
+          'Unable to sign in at the moment. Please try again later.';
+      }
+
       return FailureResult(
-        AuthenticationFailure(
-          e.message ?? 'Authentication failed.',
-        ),
+        AuthenticationFailure(message),
       );
     } catch (_) {
       return const FailureResult(
@@ -98,10 +135,31 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return const Success(null);
     } on FirebaseAuthException catch (e) {
+      String message;
+
+      switch (e.code) {
+        case 'user-not-found':
+          message =
+          'No account found for the provided Partner ID.';
+          break;
+
+        case 'invalid-email':
+          message =
+          'Please enter a valid Partner ID.';
+          break;
+
+        case 'network-request-failed':
+          message =
+          'Unable to connect to the server. Please check your internet connection.';
+          break;
+
+        default:
+          message =
+          'Unable to send the password reset email. Please try again later.';
+      }
+
       return FailureResult(
-        AuthenticationFailure(
-          e.message ?? 'Unable to send reset email.',
-        ),
+        AuthenticationFailure(message),
       );
     }
   }
