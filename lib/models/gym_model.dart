@@ -25,6 +25,21 @@ class GymModel {
   final String timezone;
 
   final String? gstNumber;
+  final String? website;
+
+  final String? registrationNumber;
+
+  final String? subscriptionPlan;
+
+  final String? subscriptionStatus;
+
+  final int branchCount;
+
+  final String? businessType;
+
+  final String? supportContact;
+
+  final DateTime? subscriptionExpiry;
 
   final bool isActive;
 
@@ -50,6 +65,21 @@ class GymModel {
     this.logoUrl,
 
     this.gstNumber,
+    this.website,
+
+    this.registrationNumber,
+
+    this.subscriptionPlan,
+
+    this.subscriptionStatus,
+
+    this.branchCount = 1,
+
+    this.businessType,
+
+    this.supportContact,
+
+    this.subscriptionExpiry,
 
     this.currency = 'INR',
     this.timezone = 'Asia/Kolkata',
@@ -82,6 +112,22 @@ class GymModel {
       logoUrl: map['logoUrl'],
 
       gstNumber: map['gstNumber'],
+      website: map['website'],
+
+      registrationNumber: map['registrationNumber'],
+
+      subscriptionPlan: map['subscriptionPlan'],
+
+      subscriptionStatus: map['subscriptionStatus'],
+
+      branchCount: map['branchCount'] ?? 1,
+
+      businessType: map['businessType'],
+
+      supportContact: map['supportContact'],
+
+      subscriptionExpiry:
+      (map['subscriptionExpiry'] as Timestamp?)?.toDate(),
 
       currency: map['currency'] ?? 'INR',
       timezone: map['timezone'] ?? 'Asia/Kolkata',
@@ -109,6 +155,38 @@ class GymModel {
       ),
     );
   }
+  Map<String, dynamic> toMap() {
+    return {
+      'gymCode': gymCode,
+      'gymName': gymName,
+      'ownerName': ownerName,
+      'email': email,
+      'phone': phone,
+      'address': address,
+      'city': city,
+      'state': state,
+      'country': country,
+      'pincode': pincode,
+      'logoUrl': logoUrl,
+      'gstNumber': gstNumber,
+      'website': website,
+      'registrationNumber': registrationNumber,
+      'subscriptionPlan': subscriptionPlan,
+      'subscriptionStatus': subscriptionStatus,
+      'branchCount': branchCount,
+      'businessType': businessType,
+      'supportContact': supportContact,
+      'subscriptionExpiry': subscriptionExpiry,
+      'currency': currency,
+      'timezone': timezone,
+      'isActive': isActive,
+      'status': status.name,
+      'createdAt': auditInfo.createdAt,
+      'updatedAt': auditInfo.updatedAt,
+      'createdBy': auditInfo.createdBy,
+      'updatedBy': auditInfo.updatedBy,
+    };
+  }
 
   GymModel copyWith({
     String? id,
@@ -118,7 +196,22 @@ class GymModel {
     String? email,
     String? phone,
     String? address,
+    String? city,
+    String? state,
+    String? country,
+    String? pincode,
     String? logoUrl,
+    String? gstNumber,
+    String? website,
+    String? registrationNumber,
+    String? subscriptionPlan,
+    String? subscriptionStatus,
+    int? branchCount,
+    String? businessType,
+    String? supportContact,
+    DateTime? subscriptionExpiry,
+    String? currency,
+    String? timezone,
     bool? isActive,
     TenantInfo? tenantInfo,
     AuditInfo? auditInfo,
@@ -137,6 +230,28 @@ class GymModel {
       tenantInfo: tenantInfo ?? this.tenantInfo,
       auditInfo: auditInfo ?? this.auditInfo,
       status: status ?? this.status,
+      website: website ?? this.website,
+      city: city ?? this.city,
+      state: state ?? this.state,
+      country: country ?? this.country,
+      pincode: pincode ?? this.pincode,
+      gstNumber: gstNumber ?? this.gstNumber,
+      currency: currency ?? this.currency,
+      timezone: timezone ?? this.timezone,
+      registrationNumber:
+      registrationNumber ?? this.registrationNumber,
+      subscriptionPlan:
+      subscriptionPlan ?? this.subscriptionPlan,
+      subscriptionStatus:
+      subscriptionStatus ?? this.subscriptionStatus,
+      branchCount:
+      branchCount ?? this.branchCount,
+      businessType:
+      businessType ?? this.businessType,
+      supportContact:
+      supportContact ?? this.supportContact,
+      subscriptionExpiry:
+      subscriptionExpiry ?? this.subscriptionExpiry,
     );
   }
 }

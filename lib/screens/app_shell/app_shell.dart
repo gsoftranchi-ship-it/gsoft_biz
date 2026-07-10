@@ -10,10 +10,10 @@ import '../../widgets/navigation/bottom_navbar.dart';
 import '../../widgets/navigation/app_drawer.dart';
 import '../more/more_page.dart';
 import 'package:provider/provider.dart';
-
 import '../../providers/auth_provider.dart';
 import '../../providers/member_provider.dart';
 import '../../providers/membership_provider.dart';
+import '../../providers/tenant_provider.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -29,6 +29,9 @@ class _AppShellState extends State<AppShell> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final authProvider = context.read<AuthProvider>();
+      final tenantProvider = context.read<TenantProvider>();
+      final memberProvider = context.read<MemberProvider>();
+      final membershipProvider = context.read<MembershipProvider>();
 
       final gymId = authProvider.currentUser?.tenantInfo.gymId;
 
@@ -36,11 +39,15 @@ class _AppShellState extends State<AppShell> {
         return;
       }
 
+      await tenantProvider.loadGym(
+        gymId: gymId,
+      );
+
       await Future.wait([
-        context.read<MemberProvider>().loadMembers(
+        memberProvider.loadMembers(
           gymId: gymId,
         ),
-        context.read<MembershipProvider>().loadInvoices(
+        membershipProvider.loadInvoices(
           gymId: gymId,
         ),
       ]);

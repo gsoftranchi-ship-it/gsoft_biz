@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/routes/route_names.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/tenant_provider.dart';
 
 class AppDrawer extends StatelessWidget {
   final int selectedIndex;
@@ -19,6 +20,8 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tenantProvider = context.watch<TenantProvider>();
+    final gym = tenantProvider.currentGym;
     return Container(
       width: 250,
       color: AppColors.cardDark,
@@ -28,18 +31,36 @@ class AppDrawer extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            const CircleAvatar(
+            CircleAvatar(
               radius: 34,
-              child: Icon(Icons.business, size: 34),
+              backgroundColor: AppColors.cardDark,
+              backgroundImage: (gym?.logoUrl != null &&
+                  gym!.logoUrl!.isNotEmpty)
+                  ? NetworkImage(gym.logoUrl!)
+                  : const AssetImage(
+                'assets/images/logo.png',
+              ) as ImageProvider,
             ),
 
             const SizedBox(height: 12),
 
-            const Text(
-              "GSoft Biz",
-              style: TextStyle(
+            Text(
+              gym?.gymName ?? "GYM ERP",
+              textAlign: TextAlign.center,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+
+            Text(
+              gym == null
+                  ? "Loading..."
+                  : "Partner ID : ${gym.gymCode}",
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textSecondary,
               ),
             ),
 

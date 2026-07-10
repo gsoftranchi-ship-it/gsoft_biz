@@ -1,62 +1,56 @@
 import 'package:flutter/material.dart';
 
 import '../../core/config/app_config.dart';
-import '../../core/constants/app_colors.dart';
 
 class AppLogo extends StatelessWidget {
   final double size;
+  final bool showTitle;
+  final bool showTagline;
 
   const AppLogo({
     super.key,
     this.size = 90,
+    this.showTitle = true,
+    this.showTagline = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
+        Image.asset(
+          'assets/images/logo.png',
           height: size,
           width: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              colors: [
-                Color(0xffFFB300),
-                Color(0xffFF9800),
-              ],
+          fit: BoxFit.contain,
+        ),
+
+        if (showTitle) ...[
+          const SizedBox(height: 16),
+          Text(
+            AppConfig.appName,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.6,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: .30),
-                blurRadius: 25,
-                spreadRadius: 2,
-              )
-            ],
           ),
-          child: const Icon(
-            Icons.fitness_center_rounded,
-            color: Colors.white,
-            size: 42,
+        ],
+
+        if (showTagline) ...[
+          const SizedBox(height: 6),
+          Text(
+            AppConfig.tagline,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.grey.shade500,
+              fontSize: 14,
+              letterSpacing: 0.4,
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          AppConfig.appName,
-          style: const TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          AppConfig.tagline,
-          style: const TextStyle(
-            color: Colors.grey,
-            letterSpacing: 0.5,
-          ),
-        ),
+        ],
       ],
     );
   }

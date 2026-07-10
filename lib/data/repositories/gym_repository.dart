@@ -40,21 +40,33 @@ class GymRepositoryImpl implements GymRepository {
   Future<Result<void>> saveGym(
       GymModel gym,
       ) async {
-    return const FailureResult(
-      UnknownFailure(
-        'Not implemented yet.',
-      ),
-    );
+    try {
+      await _firestoreDataSource.saveGym(gym);
+
+      return const Success(null);
+    } catch (e) {
+      return FailureResult(
+        UnknownFailure(
+          e.toString(),
+        ),
+      );
+    }
   }
 
   @override
   Future<Result<void>> updateGym(
       GymModel gym,
       ) async {
-    return const FailureResult(
-      UnknownFailure(
-        'Not implemented yet.',
-      ),
-    );
+    try {
+      await _firestoreDataSource.updateGym(gym);
+
+      return const Success(null);
+    } catch (e) {
+      return FailureResult(
+        UnknownFailure(
+          e.toString(),
+        ),
+      );
+    }
   }
-}
+  }

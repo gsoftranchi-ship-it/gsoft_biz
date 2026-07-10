@@ -1,18 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../models/user_model.dart';
-import '../../../../models/gym_model.dart';
 import '../../../../models/member_model.dart';
 import '../../../../models/membership_invoice_model.dart';
 import '../../../../models/membership_payment_model.dart';
 import '../../../../models/purchase_model.dart';
 import '../../../../models/product_model.dart';
 import '../../../../core/services/document_number_service.dart';
-
+import '../../../../models/gym_model.dart';
 
 class FirestoreDataSource {
+
+  Future<void> saveGym(GymModel gym) async {
+    await _firestore
+        .collection(_gymsCollection)
+        .doc(gym.id)
+        .set(gym.toMap());
+  }
+
+  Future<void> updateGym(GymModel gym) async {
+    await _firestore
+        .collection(_gymsCollection)
+        .doc(gym.id)
+        .update(gym.toMap());
+  }
   FirestoreDataSource({
+
     FirebaseFirestore? firestore,
     required DocumentNumberService documentNumberService,
+
+
   })  : _firestore = firestore ?? FirebaseFirestore.instance,
         _documentNumberService = documentNumberService;
 

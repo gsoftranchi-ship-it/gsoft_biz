@@ -11,6 +11,7 @@ import 'providers/auth_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/attendance_provider.dart';
 import 'providers/product_provider.dart';
+import 'providers/tenant_provider.dart';
 
 
 class GSoftBizApp extends StatelessWidget {
@@ -23,6 +24,11 @@ class GSoftBizApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => AuthProvider(
             repository: AppDependencies.authRepository,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => TenantProvider(
+            repository: AppDependencies.gymRepository,
           ),
         ),
         ChangeNotifierProvider(
