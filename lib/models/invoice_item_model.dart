@@ -346,6 +346,7 @@ class InvoiceItemModel {
       tenantInfo: tenantInfo ?? this.tenantInfo,
       auditInfo: auditInfo ?? this.auditInfo,
       status: status ?? this.status,
+
     );
   }
 }
