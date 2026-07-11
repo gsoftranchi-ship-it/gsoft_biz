@@ -1,38 +1,91 @@
-class FirestorePaths {
-  FirestorePaths._();
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-  static const gyms = 'gyms';
-  static const users = 'users';
-  static const members = 'members';
-  static const membershipPlans = 'membershipPlans';
-  static const attendance = 'attendance';
+import '../../../../core/constants/firestore_paths.dart';
+import '../../../../models/invoice_model.dart';
+import '../../../../models/base/entity_status.dart';
 
-  // Legacy
-  static const membershipInvoices = 'membershipInvoices';
-  static const membershipPayments = 'membershipPayments';
+class InvoiceDataSource {
+  InvoiceDataSource({
+    FirebaseFirestore? firestore,
+  }) : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  // RC1 Billing
-  static const invoices = 'invoices';
-  static const invoiceItems = 'invoiceItems';
-  static const payments = 'payments';
+  final FirebaseFirestore _firestore;
 
-  // Inventory
-  static const products = 'products';
-  static const categories = 'categories';
-  static const suppliers = 'suppliers';
-  static const purchases = 'purchases';
-  static const purchaseItems = 'purchaseItems';
-  static const sales = 'sales';
+  CollectionReference<Map<String, dynamic>> _invoiceCollection(
+      String gymId,
+      ) {
+    return _firestore
+        .collection(FirestorePaths.gyms)
+        .doc(gymId)
+        .collection(FirestorePaths.invoices);
+  }
 
-  // RC1 Nutrition
-  static const dietPlans = 'dietPlans';
-  static const dietPlanItems = 'dietPlanItems';
-  static const memberProductUsage = 'memberProductUsage';
+  Future<void> createInvoice(
+      String gymId,
+      InvoiceModel invoice,
+      ) async {
+    await _invoiceCollection(gymId)
+        .doc(invoice.invoiceId)
+        .set(invoice.toMap());
+  }
 
-  // Masters
-  static const trainers = 'trainers';
+  Future<void> updateInvoice(
+      String gymId,
+      InvoiceModel invoice,
+      ) async {
+    await _invoiceCollection(gymId)
+        .doc(invoice.invoiceId)
+        .update(invoice.toMap());
+  }
 
-  static const expenses = 'expenses';
-  static const notifications = 'notifications';
-  static const settings = 'settings';
+  Future<InvoiceModel?> getInvoice(
+      String gymId,
+      String invoiceId,
+      ) async {
+    final document = await _invoiceCollection(gymId)
+        .doc(invoiceId)
+        .get();
+
+    if (!document.exists || document.data() == null) {
+      return null;
+    }
+
+    return InvoiceModel.fromMap(
+      document.data()!,
+      document.id,
+    );
+  }
+  ///===========================================================
+  /// Get All Invoices
+  ///===========================================================
+  Future<List<InvoiceModel>> getInvoices(
+      String gymId,
+      ) async {
+    final snapshot = await _invoiceCollection(gymId)
+        .orderBy('invoiceDate', descending: true)
+        .get();
+
+    return snapshot.docs
+        .map(
+          (doc) => InvoiceModel.fromMap(
+        doc.data(),
+        doc.id,
+      ),
+    )
+        .toList();
+  }
+  ///===========================================================
+  /// Soft Delete Invoice
+  ///===========================================================
+  Future<void> deleteInvoice(
+      String gymId,
+      String invoiceId,
+      ) async {
+    await _invoiceCollection(gymId)
+        .doc(invoiceId)
+        .update({
+      'status': EntityStatus.inactive.name,
+      'updatedAt': Timestamp.now(),
+    });
+  }
 }
