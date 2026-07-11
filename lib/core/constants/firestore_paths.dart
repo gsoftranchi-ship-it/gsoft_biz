@@ -18,52 +18,28 @@ class FirestorePaths {
   static const expenses = 'expenses';
   static const notifications = 'notifications';
   static const settings = 'settings';
+
   //==============================
-// Common
+// Billing
 //==============================
 
-  static const version = 'version';
+  static const invoices = 'invoices';
+
+  static const invoiceItems = 'invoiceItems';
 
 //==============================
-// Invoice
+// Nutrition
 //==============================
 
-  static const invoiceId = 'invoiceId';
-  static const invoiceNumber = 'invoiceNumber';
-  static const invoiceType = 'invoiceType';
+  static const dietPlans = 'dietPlans';
+
+  static const dietPlanItems = 'dietPlanItems';
+
+  static const memberProductUsage = 'memberProductUsage';
 
 //==============================
-// References
+// Masters
 //==============================
 
-  static const memberId = 'memberId';
-  static const customerId = 'customerId';
-  static const supplierId = 'supplierId';
-  static const trainerId = 'trainerId';
-  static const productId = 'productId';
-  static const dietPlanId = 'dietPlanId';
-
-//==============================
-// Payment
-//==============================
-
-  static const paymentId = 'paymentId';
-  static const paymentMethod = 'paymentMethod';
-  static const paymentStatus = 'paymentStatus';
-
-//==============================
-// Product Usage
-//==============================
-
-  static const quantity = 'quantity';
-
-//==============================
-// Dates
-//==============================
-
-  static const invoiceDate = 'invoiceDate';
-  static const paymentDate = 'paymentDate';
-  static const issuedDate = 'issuedDate';
-  static const startDate = 'startDate';
-  static const endDate = 'endDate';
+  static const trainers = 'trainers';
 }

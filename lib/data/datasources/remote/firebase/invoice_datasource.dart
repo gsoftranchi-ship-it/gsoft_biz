@@ -1,15 +1,38 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+class FirestorePaths {
+  FirestorePaths._();
 
-import '../../../../models/invoice_model.dart';
+  static const gyms = 'gyms';
+  static const users = 'users';
+  static const members = 'members';
+  static const membershipPlans = 'membershipPlans';
+  static const attendance = 'attendance';
 
-class InvoiceDataSource {
-  InvoiceDataSource({
-    FirebaseFirestore? firestore,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance;
+  // Legacy
+  static const membershipInvoices = 'membershipInvoices';
+  static const membershipPayments = 'membershipPayments';
 
-  final FirebaseFirestore _firestore;
+  // RC1 Billing
+  static const invoices = 'invoices';
+  static const invoiceItems = 'invoiceItems';
+  static const payments = 'payments';
 
-  static const String _collection = 'invoices';
+  // Inventory
+  static const products = 'products';
+  static const categories = 'categories';
+  static const suppliers = 'suppliers';
+  static const purchases = 'purchases';
+  static const purchaseItems = 'purchaseItems';
+  static const sales = 'sales';
 
-  CollectionReference<Map<String, dynamic>> get _invoiceCollection =>
-      _firestore.collection(_collection);
+  // RC1 Nutrition
+  static const dietPlans = 'dietPlans';
+  static const dietPlanItems = 'dietPlanItems';
+  static const memberProductUsage = 'memberProductUsage';
+
+  // Masters
+  static const trainers = 'trainers';
+
+  static const expenses = 'expenses';
+  static const notifications = 'notifications';
+  static const settings = 'settings';
+}
