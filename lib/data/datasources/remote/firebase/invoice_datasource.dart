@@ -3,8 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/constants/firestore_paths.dart';
 import '../../../../models/invoice_model.dart';
 import '../../../../models/base/entity_status.dart';
+import '../../base/base_firestore_datasource.dart';
 
-class InvoiceDataSource {
+class InvoiceDataSource
+    implements BaseFirestoreDataSource<InvoiceModel> {
   InvoiceDataSource({
     FirebaseFirestore? firestore,
   }) : _firestore = firestore ?? FirebaseFirestore.instance;
@@ -20,7 +22,8 @@ class InvoiceDataSource {
         .collection(FirestorePaths.invoices);
   }
 
-  Future<void> createInvoice(
+  @override
+  Future<void> create(
       String gymId,
       InvoiceModel invoice,
       ) async {
@@ -29,7 +32,8 @@ class InvoiceDataSource {
         .set(invoice.toMap());
   }
 
-  Future<void> updateInvoice(
+  @override
+  Future<void> update(
       String gymId,
       InvoiceModel invoice,
       ) async {
@@ -38,7 +42,8 @@ class InvoiceDataSource {
         .update(invoice.toMap());
   }
 
-  Future<InvoiceModel?> getInvoice(
+  @override
+  Future<InvoiceModel?> get(
       String gymId,
       String invoiceId,
       ) async {
@@ -58,7 +63,8 @@ class InvoiceDataSource {
   ///===========================================================
   /// Get All Invoices
   ///===========================================================
-  Future<List<InvoiceModel>> getInvoices(
+  @override
+  Future<List<InvoiceModel>> getAll(
       String gymId,
       ) async {
     final snapshot = await _invoiceCollection(gymId)
@@ -77,7 +83,8 @@ class InvoiceDataSource {
   ///===========================================================
   /// Soft Delete Invoice
   ///===========================================================
-  Future<void> deleteInvoice(
+  @override
+  Future<void> softDelete(
       String gymId,
       String invoiceId,
       ) async {
