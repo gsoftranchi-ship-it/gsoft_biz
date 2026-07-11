@@ -44,39 +44,63 @@ class _MemberPhotoCardState
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
+      color: const Color(0xff1E293B),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(
+          color: Colors.white12,
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
 
-            const Text(
-              "Member Photo",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            const Row(
+              children: [
+                Icon(
+                  Icons.account_circle,
+                  color: Colors.orange,
+                ),
+                SizedBox(width: 8),
+                Text(
+                  "Member Photo",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            Container(
+              width: 130,
+              height: 130,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.orange,
+                  width: 3,
+                ),
+              ),
+              child: ClipOval(
+                child: _selectedImage != null
+                    ? Image.file(
+                  _selectedImage!,
+                  fit: BoxFit.cover,
+                )
+                    : Image.asset(
+                  'assets/images/logo.png',
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
 
-            const SizedBox(height: 20),
-
-            CircleAvatar(
-              radius: 70,
-              backgroundColor: Colors.grey.shade200,
-              backgroundImage:
-              _selectedImage != null
-                  ? FileImage(_selectedImage!)
-                  : null,
-              child: _selectedImage == null
-                  ? const Icon(
-                Icons.person,
-                size: 70,
-                color: Colors.grey,
-              )
-                  : null,
-            ),
-
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             Row(
               children: [
@@ -100,7 +124,9 @@ class _MemberPhotoCardState
                 const SizedBox(width: 12),
 
                 Expanded(
-                  child: FilledButton.icon(
+                  child: SizedBox(
+                    height: 44,
+                    child: FilledButton.icon(
                     onPressed: () {
                       _pickImage(
                         ImageSource.gallery,
@@ -113,6 +139,7 @@ class _MemberPhotoCardState
                       "Gallery",
                     ),
                   ),
+                ),
                 ),
               ],
             ),

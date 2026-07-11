@@ -95,7 +95,23 @@ class _AppShellState extends State<AppShell> {
             selectedIndex: _currentIndex,
             onChanged: changePage,
           ),
-          Expanded(child: currentPage),
+          Expanded(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFF081A33),
+                image: DecorationImage(
+                  image: AssetImage(
+                    'assets/images/background/dashboard_surface.png',
+                  ),
+                  fit: BoxFit.cover,
+                  alignment: Alignment.center,
+                ),
+              ),
+              child: SafeArea(
+                child: currentPage,
+              ),
+            ),
+          ),
         ],
       )
           : currentPage,

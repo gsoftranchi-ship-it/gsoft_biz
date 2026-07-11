@@ -173,6 +173,7 @@ class MemberFormController extends ChangeNotifier {
 
   final heartRateController = TextEditingController();
 
+
   double bmi = 0;
 
   String bmiCategory = "";
@@ -266,7 +267,6 @@ class MemberFormController extends ChangeNotifier {
   //==========================
 
   void updateAge(int age) {
-    ageController.text = age.toString();
 
     final dob =
     AgeCalculator.estimateDateOfBirth(age);
@@ -369,6 +369,9 @@ class MemberFormController extends ChangeNotifier {
       isActive: isActive,
       searchName: fullNameController.text.trim().toLowerCase(),
       version: 1,
+      phone: mobileController.text.trim(),
+      email: emailController.text.trim(),
+      address: addressController.text.trim(),
     );
   }
 

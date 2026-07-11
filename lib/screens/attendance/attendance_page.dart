@@ -31,28 +31,20 @@ class _AttendancePageState extends State<AttendancePage> {
 
     if (attendanceProvider.loading ||
         memberProvider.loading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
+      return const Center(
+        child: CircularProgressIndicator(),
       );
     }
 
     if (attendanceProvider.loading ||
         memberProvider.loading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
+      return const Center(
+        child: CircularProgressIndicator(),
       );
     }
 
     if (attendanceProvider.error != null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text("Attendance"),
-        ),
-        body: Center(
+      return Center(
           child: Padding(
             padding: EdgeInsets.all(24),
             child: Text(
@@ -60,7 +52,6 @@ class _AttendancePageState extends State<AttendancePage> {
               textAlign: TextAlign.center,
             ),
           ),
-        ),
       );
     }
 
@@ -93,11 +84,24 @@ class _AttendancePageState extends State<AttendancePage> {
         ? 0.0
         : (presentToday / members) * 100;
 
-    return Scaffold(
+    return SafeArea(
+      child: Column(
+          children: [
 
-      appBar: AppBar(
-        title: const Text("Attendance"),
-        actions: [
+      Padding(
+      padding: const EdgeInsets.fromLTRB(16,16,16,8),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Text(
+              "Attendance",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
 
           IconButton(
             onPressed: () {},
@@ -108,25 +112,30 @@ class _AttendancePageState extends State<AttendancePage> {
             onPressed: () {},
             icon: const Icon(Icons.download),
           ),
-
         ],
       ),
+    ),
 
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Attendance Marked Successfully"),
-            ),
-          );
-
-        },
-        icon: const Icon(Icons.check),
-        label: const Text("Check In"),
-      ),
-
-      body: ListView(
+    Padding(
+    padding: const EdgeInsets.symmetric(horizontal:16),
+    child: Align(
+    alignment: Alignment.centerRight,
+    child: FilledButton.icon(
+    onPressed: () {
+    ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+    content: Text("Attendance Marked Successfully"),
+    ),
+    );
+    },
+    icon: const Icon(Icons.check),
+    label: const Text("Check In"),
+    ),
+    ),
+    ),
+    Expanded(
+    child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
 
@@ -231,7 +240,6 @@ class _AttendancePageState extends State<AttendancePage> {
             )
 
           else
-
             ...todaysAttendance.map((record) {
 
               final member =
@@ -259,8 +267,11 @@ class _AttendancePageState extends State<AttendancePage> {
             }),
 
           const SizedBox(height: 80),
-
         ],
+    ),
+    ),
+
+          ],
       ),
     );
   }

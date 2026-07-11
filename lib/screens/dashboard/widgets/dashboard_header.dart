@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 import '../../../models/gym_model.dart';
 import '../../../providers/dashboard_provider.dart';
 
-
-
 class DashboardHeader extends StatelessWidget {
   const DashboardHeader({super.key});
 
@@ -89,11 +87,11 @@ class DashboardHeader extends StatelessWidget {
 
     final gymName = gym?.gymName ?? "";
 
-    final partnerId = gym?.gymCode ?? "";
+    final ownerName = gym?.ownerName ?? "";
 
     final logoUrl = gym?.logoUrl;
 
-    final avatarRadius = mobile ? 18.0 : 22.0;
+    final avatarRadius = mobile ? 24.0 : 30.0;
     final titleSize = mobile ? 18.0 : 24.0;
 
     return Container(
@@ -178,13 +176,14 @@ class DashboardHeader extends StatelessWidget {
                     const SizedBox(height: 4),
 
 
-                    Text(
-                      "Partner ID : ${partnerId.isEmpty ? "--" : partnerId}",
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 12,
+                    if (ownerName.isNotEmpty)
+                      Text(
+                        "Owner : $ownerName",
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                        ),
                       ),
-                    ),
 
 
                   ],
@@ -198,9 +197,8 @@ class DashboardHeader extends StatelessWidget {
                   BorderRadius.circular(14),
                 ),
                 child: IconButton(
-                  onPressed: () {
-                    // TODO(RC1): Notification Center
-                  },
+                    onPressed: null,
+                    tooltip: "Coming Soon",
                   icon: const Icon(
                     Icons.notifications_none_rounded,
                   ),

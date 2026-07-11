@@ -25,7 +25,7 @@ class LightTheme {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
 
-      fillColor: Colors.white,
+      fillColor: Colors.black,
 
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadius.md),

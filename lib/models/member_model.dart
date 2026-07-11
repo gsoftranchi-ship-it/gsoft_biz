@@ -18,6 +18,10 @@ class MemberModel {
 
   final int version;
 
+  final String phone;
+  final String email;
+  final String address;
+
   const MemberModel({
     required this.memberId,
     required this.gymId,
@@ -29,6 +33,10 @@ class MemberModel {
     required this.isActive,
     required this.searchName,
     required this.version,
+    required this.phone,
+    required this.email,
+    required this.address,
+
   });
 
   factory MemberModel.fromMap(
@@ -48,6 +56,10 @@ class MemberModel {
       isActive: map['isActive'] ?? true,
       searchName: map['searchName'] ?? '',
       version: map['version'] ?? 1,
+      phone: map['phone'] ?? '',
+      email:map['email']??'',
+      address:map['address']?? '',
+
     );
   }
 
@@ -63,6 +75,10 @@ class MemberModel {
       'isActive': isActive,
       'searchName': searchName,
       'version': version,
+      'phone': phone,
+      'email': email,
+      'address':address,
+
     };
   }
 
@@ -77,6 +93,9 @@ class MemberModel {
     bool? isActive,
     String? searchName,
     int? version,
+    String? phone,
+    String? email,
+    String? address,
   }) {
     return MemberModel(
       memberId: memberId ?? this.memberId,
@@ -89,6 +108,9 @@ class MemberModel {
       isActive: isActive ?? this.isActive,
       searchName: searchName ?? this.searchName,
       version: version ?? this.version,
+      phone: phone ?? this.phone,
+      email: email ?? this.email,
+      address:address?? this.address,
     );
   }
 }

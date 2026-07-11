@@ -7,12 +7,22 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Settings"),
+    const Padding(
+      padding: EdgeInsets.only(bottom: 20),
+      child: Text(
+        "Settings",
+        style: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
       ),
-      body: ListView(
+    );
+    return SafeArea(
+      child: ListView(
+
         padding: const EdgeInsets.all(16),
+
         children: [
           Card(
             child: ListTile(

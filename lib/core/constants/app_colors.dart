@@ -13,11 +13,12 @@ class AppColors {
 
 
   // Main Workspace
-  static const Color scaffoldLight = Color(0xffF5F7FA);
+  static const Color scaffoldLight = Colors.transparent;
+
 
   // Cards
   static const Color cardDark = Color(0xff20252B);
-  static const Color cardLight = Colors.white;
+  static const Color cardLight = Color(0xff20252B);
 
 
   // Text

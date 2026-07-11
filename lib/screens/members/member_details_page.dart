@@ -29,10 +29,15 @@ import 'widgets/renewal_actions_card.dart';
 import 'widgets/member_reports_summary_card.dart';
 import 'widgets/member_reports_list_card.dart';
 import 'widgets/member_reports_actions_card.dart';
-
+import '../../models/member_model.dart';
 
 class MemberDetailsPage extends StatelessWidget {
-  const MemberDetailsPage({super.key});
+  final MemberModel member;
+
+  const MemberDetailsPage({
+    super.key,
+    required this.member,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -57,22 +62,22 @@ class MemberDetailsPage extends StatelessWidget {
             ],
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
             SingleChildScrollView(
               child: Column(
                 children: [
                   MemberProfileHeader(
-                    memberName: "Demo Member",
-                    memberId: "MBR000001",
-                    isActive: true,
+                    memberName: member.fullName,
+                    memberId: member.memberId,
+                    isActive: member.isActive,
                   ),
-                  MemberInformationCard(
-                    mobile: "9876543210",
-                    email: "member@gsoft.com",
-                    gender: "Male",
-                    age: 25,
-                  ),
+                    MemberInformationCard(
+                      mobile: member.phone,
+                      email: member.email,
+                      gender: member.gender,
+                      age: member.age,
+                    ),
                   MembershipCard(
                     plan: "Gold Membership",
                     joinDate: "01 Jul 2026",

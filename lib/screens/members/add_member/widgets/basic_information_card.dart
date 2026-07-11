@@ -13,18 +13,37 @@ class BasicInformationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
+      elevation: 0,
+      color: const Color(0xFF232D3F),
       margin: const EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(
+          color: Colors.white.withValues(alpha: 0.08),
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            Text(
-              "Basic Information",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: const [
+                  Icon(
+                    Icons.badge_outlined,
+                    color: Colors.orange,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    "Basic Information",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
 
             const SizedBox(height: 20),
 
@@ -66,7 +85,7 @@ class BasicInformationCard extends StatelessWidget {
                       labelText: "Age",
                       prefixIcon: Icon(Icons.cake),
                     ),
-                    onChanged: (value) {
+                    onFieldSubmitted: (value) {
                       final age = int.tryParse(value);
 
                       if (age != null) {
@@ -143,7 +162,13 @@ class BasicInformationCard extends StatelessWidget {
 
             SwitchListTile(
               value: controller.isActive,
-              title: const Text("Active Member"),
+              title: const Text(
+                "Active Member",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               onChanged: controller.setMemberStatus,
             ),
           ],

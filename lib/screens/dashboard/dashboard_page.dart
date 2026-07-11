@@ -5,7 +5,6 @@ import '../../widgets/charts/revenue_chart.dart';
 import 'widgets/dashboard_header.dart';
 import 'widgets/recent_activity.dart';
 import 'widgets/summary_cards.dart';
-import '../../../core/constants/app_colors.dart';
 import 'widgets/todays_tasks.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -18,18 +17,7 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.scaffoldDark,
-        image: DecorationImage(
-          image: AssetImage(
-            'assets/images/background/dashboard_surface.png',
-          ),
-          fit: BoxFit.cover,
-          alignment: Alignment.center,
-        ),
-      ),
-      child: SafeArea(
+    return SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(18, 14, 18, 30),
           child: Column(
@@ -89,7 +77,7 @@ class DashboardPage extends StatelessWidget {
             ],
           ),
         ),
-      ),
+
     );
   }
 }

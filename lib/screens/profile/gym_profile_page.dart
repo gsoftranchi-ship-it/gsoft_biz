@@ -143,8 +143,48 @@ class _GymProfilePageState extends State<GymProfilePage> {
       ) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon),
-      border: const OutlineInputBorder(),
+
+      labelStyle: const TextStyle(
+        color: Colors.white70,
+      ),
+
+      prefixIcon: Icon(
+        icon,
+        color: AppColors.primary,
+      ),
+
+      filled: true,
+      fillColor: Colors.transparent,
+
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(
+          color: Colors.white.withValues(alpha: .20),
+        ),
+      ),
+
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: AppColors.primary,
+          width: 2,
+        ),
+      ),
+
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: AppColors.danger,
+        ),
+      ),
+
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: AppColors.danger,
+          width: 2,
+        ),
+      ),
     );
   }
 
@@ -208,10 +248,16 @@ class _GymProfilePageState extends State<GymProfilePage> {
 
             children: [
 
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 52,
-                backgroundImage: AssetImage(
-                  'assets/images/logo.png',
+                backgroundColor: Colors.transparent,
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    width: 104,
+                    height: 104,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
 
