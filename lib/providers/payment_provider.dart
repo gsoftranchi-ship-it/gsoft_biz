@@ -1,6 +1,7 @@
 import '../domain/repositories/payment_repository.dart';
 import '../models/payment_model.dart';
 import 'base/base_provider.dart';
+import '../models/invoice_model.dart';
 
 class PaymentProvider extends BaseProvider {
   PaymentProvider({
@@ -80,6 +81,33 @@ class PaymentProvider extends BaseProvider {
       );
 
       await loadPayments(gymId);
+    } catch (e) {
+      setError(e.toString());
+    } finally {
+      setLoading(false);
+    }
+  }
+  ///===========================================================
+  /// Save Payment Transaction
+  ///===========================================================
+  Future<void> savePaymentTransaction({
+    required String gymId,
+    required PaymentModel payment,
+    required InvoiceModel invoice,
+  }) async {
+    try {
+      clearError();
+      setLoading(true);
+
+      await _repository.savePaymentTransaction(
+        gymId: gymId,
+        payment: payment,
+        invoice: invoice,
+      );
+
+      await loadPayments(gymId);
+
+      notifyListeners();
     } catch (e) {
       setError(e.toString());
     } finally {

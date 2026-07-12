@@ -1,5 +1,6 @@
 import '../../models/payment_model.dart';
 import 'base/base_repository.dart';
+import '../../models/invoice_model.dart';
 
 abstract class PaymentRepository
     implements BaseRepository<PaymentModel> {
@@ -41,4 +42,12 @@ abstract class PaymentRepository
   Future<double> getTotalCollection(
       String gymId,
       );
+  ///===========================================================
+  /// Save Payment Transaction
+  ///===========================================================
+  Future<void> savePaymentTransaction({
+    required String gymId,
+    required PaymentModel payment,
+    required InvoiceModel invoice,
+  });
 }

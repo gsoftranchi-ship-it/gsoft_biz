@@ -4,6 +4,7 @@ import '../../../../core/constants/firestore_paths.dart';
 import '../../../../models/base/entity_status.dart';
 import '../../../../models/payment_model.dart';
 import '../../base/base_firestore_datasource.dart';
+import '../../../../models/invoice_model.dart';
 
 class PaymentDataSource
     implements BaseFirestoreDataSource<PaymentModel> {
@@ -91,6 +92,43 @@ class PaymentDataSource
         .update({
       'status': EntityStatus.inactive.name,
       'updatedAt': Timestamp.now(),
+    });
+  }
+  ///===========================================================
+  /// Save Payment & Update Invoice (Atomic Transaction)
+  ///===========================================================
+  Future<void> savePaymentTransaction({
+    required String gymId,
+    required PaymentModel payment,
+    required InvoiceModel invoice,
+  }) async {
+    final paymentRef = _paymentCollection(gymId).doc(payment.paymentId);
+
+    final invoiceRef = _firestore
+        .collection(FirestorePaths.gyms)
+        .doc(gymId)
+        .collection(FirestorePaths.invoices)
+        .doc(invoice.invoiceId);
+
+    await _firestore.runTransaction((transaction) async {
+      transaction.set(
+        paymentRef,
+        payment.toMap(),
+      );
+
+      transaction.update(
+        invoiceRef,
+        {
+          'receivedAmount': invoice.receivedAmount,
+          'balanceAmount': invoice.balanceAmount,
+          'paymentStatus': invoice.paymentStatus.name,
+          'paymentMethod': invoice.paymentMethod,
+          'updatedAt': Timestamp.fromDate(
+            invoice.auditInfo.updatedAt,
+          ),
+          'updatedBy': invoice.auditInfo.updatedBy,
+        },
+      );
     });
   }
 }

@@ -31,44 +31,9 @@ class InvoiceDataSource
       String gymId,
       InvoiceModel invoice,
       ) async {
-    final doc = _invoiceCollection(gymId).doc();
-
-    await doc.set(
-      InvoiceModel(
-        invoiceId: doc.id,
-        invoiceNumber: invoice.invoiceNumber,
-        invoiceType: invoice.invoiceType,
-        memberId: invoice.memberId,
-        customerId: invoice.customerId,
-        supplierId: invoice.supplierId,
-        customerName: invoice.customerName,
-        customerPhone: invoice.customerPhone,
-        customerEmail: invoice.customerEmail,
-        customerAddress: invoice.customerAddress,
-        customerGstin: invoice.customerGstin,
-        invoiceDate: invoice.invoiceDate,
-        dueDate: invoice.dueDate,
-        subtotal: invoice.subtotal,
-        discountAmount: invoice.discountAmount,
-        discountPercentage: invoice.discountPercentage,
-        taxableAmount: invoice.taxableAmount,
-        cgstAmount: invoice.cgstAmount,
-        sgstAmount: invoice.sgstAmount,
-        igstAmount: invoice.igstAmount,
-        taxAmount: invoice.taxAmount,
-        grandTotal: invoice.grandTotal,
-        receivedAmount: invoice.receivedAmount,
-        balanceAmount: invoice.balanceAmount,
-        paymentStatus: invoice.paymentStatus,
-        paymentMethod: invoice.paymentMethod,
-        amountInWords: invoice.amountInWords,
-        notes: invoice.notes,
-        version: invoice.version,
-        tenantInfo: invoice.tenantInfo,
-        auditInfo: invoice.auditInfo,
-        status: invoice.status,
-      ).toMap(),
-    );
+    await _invoiceCollection(gymId)
+        .doc(invoice.invoiceId)
+        .set(invoice.toMap());
   }
 
   @override

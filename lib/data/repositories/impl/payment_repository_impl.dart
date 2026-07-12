@@ -1,6 +1,7 @@
 import '../../../data/datasources/remote/firebase/payment_datasource.dart';
 import '../../../domain/repositories/payment_repository.dart';
 import '../../../models/payment_model.dart';
+import '../../../models/invoice_model.dart';
 
 class PaymentRepositoryImpl implements PaymentRepository {
   PaymentRepositoryImpl({
@@ -110,6 +111,18 @@ class PaymentRepositoryImpl implements PaymentRepository {
       ) {
     throw UnimplementedError(
       'Will be implemented in Dashboard Sprint.',
+    );
+  }
+  @override
+  Future<void> savePaymentTransaction({
+    required String gymId,
+    required PaymentModel payment,
+    required InvoiceModel invoice,
+  }) {
+    return _paymentDataSource.savePaymentTransaction(
+      gymId: gymId,
+      payment: payment,
+      invoice: invoice,
     );
   }
 }
