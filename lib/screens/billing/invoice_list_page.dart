@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/invoice_provider.dart';
 import '../../widgets/billing/invoice_card.dart';
+import 'create_invoice_page.dart';
+import '../../providers/auth_provider.dart';
 
 class InvoiceListPage extends StatefulWidget {
   const InvoiceListPage({super.key});
@@ -83,9 +85,24 @@ class _InvoiceListPageState extends State<InvoiceListPage> {
 
       floatingActionButton:
       FloatingActionButton.extended(
-        onPressed: () {
-          // TODO(RC1):
-          // Navigate to CreateInvoicePage
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const CreateInvoicePage(),
+            ),
+          );
+
+          if (!context.mounted) return;
+
+          final authProvider = context.read<AuthProvider>();
+          final gymId = authProvider.currentUser?.tenantInfo.gymId;
+
+          if (gymId != null && gymId.isNotEmpty) {
+            await context.read<InvoiceProvider>().loadInvoices(
+              gymId: gymId,
+            );
+          }
         },
         icon: const Icon(Icons.add),
         label: const Text(

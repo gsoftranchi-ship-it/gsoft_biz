@@ -12,6 +12,8 @@ import '../../data/datasources/remote/firebase/invoice_datasource.dart';
 import '../../data/datasources/remote/firebase/payment_datasource.dart';
 import '../../data/repositories/impl/invoice_repository_impl.dart';
 import '../../data/repositories/impl/payment_repository_impl.dart';
+import '../../data/datasources/remote/firebase/invoice_item_datasource.dart';
+import '../../data/repositories/impl/invoice_item_repository_impl.dart';
 
 class AppDependencies {
   AppDependencies._();
@@ -74,5 +76,12 @@ class AppDependencies {
   static final PaymentRepositoryImpl paymentRepository =
   PaymentRepositoryImpl(
     paymentDataSource: paymentDataSource,
+  );
+  static final InvoiceItemDataSource invoiceItemDataSource =
+  InvoiceItemDataSource();
+
+  static final InvoiceItemRepositoryImpl invoiceItemRepository =
+  InvoiceItemRepositoryImpl(
+    invoiceItemDataSource: invoiceItemDataSource,
   );
 }

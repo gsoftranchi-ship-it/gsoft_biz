@@ -14,6 +14,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/member_provider.dart';
 import '../../providers/membership_provider.dart';
 import '../../providers/tenant_provider.dart';
+import '../../providers/product_provider.dart';
 
 
 class AppShell extends StatefulWidget {
@@ -32,7 +33,10 @@ class _AppShellState extends State<AppShell> {
       final authProvider = context.read<AuthProvider>();
       final tenantProvider = context.read<TenantProvider>();
       final memberProvider = context.read<MemberProvider>();
-      final membershipProvider = context.read<MembershipProvider>();
+      final membershipProvider =
+      context.read<MembershipProvider>();
+      final productProvider =
+      context.read<ProductProvider>();
 
       final gymId = authProvider.currentUser?.tenantInfo.gymId;
 
@@ -49,6 +53,9 @@ class _AppShellState extends State<AppShell> {
           gymId: gymId,
         ),
         membershipProvider.loadInvoices(
+          gymId: gymId,
+        ),
+        productProvider.loadProducts(
           gymId: gymId,
         ),
       ]);

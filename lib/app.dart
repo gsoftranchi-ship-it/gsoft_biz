@@ -15,6 +15,7 @@ import 'providers/invoice_provider.dart';
 import 'providers/payment_provider.dart';
 import 'providers/invoice_builder_provider.dart';
 import 'providers/tenant_provider.dart';
+import 'providers/invoice_item_provider.dart';
 
 
 
@@ -66,6 +67,11 @@ class GSoftBizApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => InvoiceProvider(
             repository: AppDependencies.invoiceRepository,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => InvoiceItemProvider(
+            repository: AppDependencies.invoiceItemRepository,
           ),
         ),
 

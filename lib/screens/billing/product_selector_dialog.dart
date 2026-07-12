@@ -168,12 +168,7 @@ class _ProductSelectorDialogState
                     ),
 
                     onTap: () {
-
-                      widget.onSelected
-                          ?.call(product);
-
-                      Navigator.pop(context);
-
+                      Navigator.pop(context, product);
                     },
 
                   );

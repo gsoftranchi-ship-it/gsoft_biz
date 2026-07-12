@@ -118,12 +118,18 @@ class InvoiceProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      debugPrint("Calling repository.create");
+
       await _repository.create(
         gymId,
         invoice,
       );
 
+      debugPrint("Repository.create completed");
+
       await refresh();
+
+      debugPrint("Refresh completed");
     } catch (e) {
       _error = e.toString();
     }
@@ -147,7 +153,10 @@ class InvoiceProvider extends ChangeNotifier {
       );
 
       await refresh();
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("InvoiceProvider ERROR: $e");
+      debugPrint(stackTrace.toString());
+
       _error = e.toString();
     }
 

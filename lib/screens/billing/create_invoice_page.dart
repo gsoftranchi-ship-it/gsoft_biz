@@ -13,6 +13,8 @@ import '../../models/base/entity_status.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/invoice_provider.dart';
 import '../../models/invoice_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../providers/invoice_item_provider.dart';
 
 
 
@@ -55,6 +57,9 @@ class _CreateInvoicePageState
 
 
   final String _paymentMethod = 'Cash';
+  String _customerType = 'MEMBER';
+
+  String _taxType = 'GST';
 
   final TextEditingController _invoiceDateController =
   TextEditingController();
@@ -104,7 +109,14 @@ class _CreateInvoicePageState
 
     for (final item in _items) {
       subtotal += item.lineTotal;
-      tax += item.taxAmount;
+
+      if (_taxType == 'GST') {
+        tax += item.taxAmount;
+      }
+    }
+
+    if (_taxType == 'NON_GST') {
+      tax = 0;
     }
 
     setState(() {
@@ -131,6 +143,8 @@ class _CreateInvoicePageState
 
     final authProvider = context.read<AuthProvider>();
     final invoiceProvider = context.read<InvoiceProvider>();
+    final invoiceItemProvider =
+    context.read<InvoiceItemProvider>();
 
     final user = authProvider.currentUser;
 
@@ -145,6 +159,13 @@ class _CreateInvoicePageState
       return;
     }
 
+    final invoiceId = FirebaseFirestore.instance
+        .collection('gyms')
+        .doc(gymId)
+        .collection('invoices')
+        .doc()
+        .id;
+
     try {
       final invoiceNumber =
       await invoiceProvider.generateInvoiceNumber(
@@ -152,11 +173,13 @@ class _CreateInvoicePageState
       );
 
       final invoice = InvoiceModel(
-        invoiceId: '',
+        invoiceId: invoiceId,
         invoiceNumber: invoiceNumber,
         invoiceType: InvoiceType.sale,
 
-        memberId: _selectedMember?.memberId,
+        memberId: _customerType == 'MEMBER'
+            ? _selectedMember?.memberId
+            : null,
         customerId: null,
         supplierId: null,
 
@@ -182,13 +205,19 @@ class _CreateInvoicePageState
 
         taxableAmount: _subTotal,
 
-        cgstAmount: _tax / 2,
+        cgstAmount: _taxType == 'GST'
+            ? _tax / 2
+            : 0,
 
-        sgstAmount: _tax / 2,
+        sgstAmount: _taxType == 'GST'
+            ? _tax / 2
+            : 0,
 
         igstAmount: 0,
 
-        taxAmount: _tax,
+        taxAmount: _taxType == 'GST'
+            ? _tax
+            : 0,
 
         grandTotal: _grandTotal,
 
@@ -220,9 +249,31 @@ class _CreateInvoicePageState
         status: EntityStatus.active,
       );
 
+      final invoiceItems = _items
+          .map(
+            (item) => item.copyWith(
+          invoiceId: invoiceId,
+          tenantInfo: TenantInfo(
+            gymId: gymId,
+          ),
+          auditInfo: AuditInfo(
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            createdBy: user?.id ?? '',
+            updatedBy: user?.id ?? '',
+          ),
+        ),
+      )
+          .toList();
+
       await invoiceProvider.createInvoice(
+
         gymId: gymId,
         invoice: invoice,
+      );
+      await invoiceItemProvider.saveItems(
+        gymId: gymId,
+        items: invoiceItems,
       );
 
       if (!mounted) return;
@@ -274,11 +325,7 @@ class _CreateInvoicePageState
   Future<void> _addProduct() async {
     final product = await showDialog<ProductModel>(
       context: context,
-      builder: (_) => ProductSelectorDialog(
-        onSelected: (selected) {
-          Navigator.pop(context, selected);
-        },
-      ),
+      builder: (_) => const ProductSelectorDialog(),
     );
 
     if (product == null) return;
@@ -288,58 +335,33 @@ class _CreateInvoicePageState
         InvoiceItemModel(
           invoiceItemId:
           DateTime.now().millisecondsSinceEpoch.toString(),
-
           invoiceId: '',
-
           itemType: InvoiceItemType.product,
-
           referenceId: product.productId,
-
           itemCode: product.productId,
-
           barcode: '',
-
           itemName: product.productName,
-
           description: '',
-
           hsnSacCode: '',
-
           unit: product.unit,
-
           quantity: 1,
-
           purchasePrice: product.purchasePrice,
-
           sellingPrice: product.sellingPrice,
-
           unitPrice: product.sellingPrice,
-
           discountAmount: 0,
-
           discountPercentage: 0,
-
           taxPercentage: 18,
-
           taxAmount: product.sellingPrice * 0.18,
-
           lineTotal: product.sellingPrice,
-
           remarks: '',
-
           version: 1,
-
-          tenantInfo: const TenantInfo(
-            gymId: '',
-          ),
-
+          tenantInfo: const TenantInfo(gymId: ''),
           auditInfo: AuditInfo(
             createdAt: DateTime.now(),
             updatedAt: DateTime.now(),
             createdBy: '',
             updatedBy: '',
           ),
-
           status: EntityStatus.active,
         ),
       );
@@ -450,50 +472,112 @@ class _CreateInvoicePageState
             const SizedBox(height: 24),
 
             const Divider(),
+            const Text(
+              'Customer Type',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
 
             const SizedBox(height: 16),
 
-            TextFormField(
-              controller: _memberController,
-              readOnly: true,
-              onTap: () async {
-                final memberProvider =
-                context.read<MemberProvider>();
+            DropdownButtonFormField<String>(
+              initialValue: _customerType,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.people),
+                labelText: 'Customer Type',
+              ),
+              items: const [
 
-                await showDialog(
-                  context: context,
-                  builder: (_) => MemberSelectorDialog(
-                    members: memberProvider.members,
-                    onSelected: (member) {
-                      setState(() {
-                        _selectedMember = member;
-                        _memberController.text = member.fullName;
-                        _customerController.text = member.fullName;
-                        _phoneController.text = member.phone;
-                        _emailController.text = member.email;
-                        _addressController.text = member.address;
-                      });
-                    },
-                  ),
-                );
+                DropdownMenuItem(
+                  value: 'MEMBER',
+                  child: Text('Gym Member'),
+                ),
+
+                DropdownMenuItem(
+                  value: 'GUEST',
+                  child: Text('Walk-in Guest'),
+                ),
+
+              ],
+              onChanged: (value) {
+
+                if (value == null) return;
+
+                setState(() {
+
+                  _customerType = value;
+
+                  if (value == 'GUEST') {
+                    _selectedMember = null;
+
+                    _memberController.clear();
+                    _customerController.clear();
+                    _phoneController.clear();
+                    _emailController.clear();
+                    _addressController.clear();
+                    _gstinController.clear();
+                  }
+
+                });
+
               },
-              decoration: const InputDecoration(
-                labelText: 'Member',
-                hintText: 'Tap to select member',
-                suffixIcon: Icon(Icons.search),
-              ),
             ),
 
             const SizedBox(height: 16),
 
-            TextFormField(
-              controller: _customerController,
-              enabled: _selectedMember == null,
-              decoration: const InputDecoration(
-                labelText: 'Walk-in Customer',
+            if (_customerType == 'MEMBER') ...[
+              TextFormField(
+                controller: _memberController,
+                readOnly: true,
+                onTap: () async {
+                  final memberProvider = context.read<MemberProvider>();
+
+                  await showDialog(
+                    context: context,
+                    builder: (_) => MemberSelectorDialog(
+                      members: memberProvider.members,
+                      onSelected: (member) {
+                        setState(() {
+                          _selectedMember = member;
+
+                          _memberController.text = member.fullName;
+                          _customerController.text = member.fullName;
+                          _phoneController.text = member.phone;
+                          _emailController.text = member.email;
+                          _addressController.text = member.address;
+                        });
+                      },
+                    ),
+                  );
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Select Member',
+                  hintText: 'Tap to select member',
+                  prefixIcon: Icon(Icons.person_search),
+                  suffixIcon: Icon(Icons.search),
+                ),
               ),
-            ),
-            if (_selectedMember != null) ...[
+
+              const SizedBox(height: 16),
+            ],
+            const SizedBox(height: 16),
+
+            if (_customerType == 'GUEST') ...[
+              TextFormField(
+                controller: _customerController,
+                decoration: const InputDecoration(
+                  labelText: 'Customer Name',
+                  prefixIcon: Icon(Icons.person),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+            ],
+
+            if (_customerType == 'MEMBER' &&
+                _selectedMember != null) ...[
               const SizedBox(height: 16),
 
               Card(
@@ -533,6 +617,7 @@ class _CreateInvoicePageState
 
             const SizedBox(height: 24),
 
+            if (_customerType == 'GUEST') ...[
             const Text(
               'Customer Information',
               style: TextStyle(
@@ -545,6 +630,7 @@ class _CreateInvoicePageState
 
             TextFormField(
               controller: _phoneController,
+              readOnly: _customerType == 'MEMBER',
               keyboardType: TextInputType.phone,
               decoration: const InputDecoration(
                 labelText: 'Phone',
@@ -585,6 +671,7 @@ class _CreateInvoicePageState
             ),
 
             const SizedBox(height: 24),
+            ],
 
             const Divider(),
 
@@ -607,9 +694,53 @@ class _CreateInvoicePageState
             ),
 
             const SizedBox(height: 24),
+            const Text(
+              'Tax Type',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            DropdownButtonFormField<String>(
+              initialValue: _taxType,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.receipt_long),
+                labelText: 'Tax Type',
+              ),
+              items: const [
+
+                DropdownMenuItem(
+                  value: 'GST',
+                  child: Text('GST Invoice'),
+                ),
+
+                DropdownMenuItem(
+                  value: 'NON_GST',
+                  child: Text('Non GST Invoice'),
+                ),
+
+              ],
+              onChanged: (value) {
+
+                if (value == null) return;
+
+                setState(() {
+
+                  _taxType = value;
+
+                  _calculateTotals();
+
+                });
+
+              },
+            ),
 
             const Text(
               'Payment Information',
+
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
