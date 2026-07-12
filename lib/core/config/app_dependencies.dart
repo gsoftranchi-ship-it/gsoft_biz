@@ -8,7 +8,10 @@ import '../../data/repositories/member_repository.dart';
 import '../../data/datasources/remote/firebase/attendance_datasource.dart';
 import '../../data/repositories/impl/attendance_repository_impl.dart';
 import '../../data/repositories/impl/product_repository_impl.dart';
-
+import '../../data/datasources/remote/firebase/invoice_datasource.dart';
+import '../../data/datasources/remote/firebase/payment_datasource.dart';
+import '../../data/repositories/impl/invoice_repository_impl.dart';
+import '../../data/repositories/impl/payment_repository_impl.dart';
 
 class AppDependencies {
   AppDependencies._();
@@ -50,5 +53,26 @@ class AppDependencies {
   static final ProductRepositoryImpl productRepository =
   ProductRepositoryImpl(
     firestoreDataSource: firestoreDataSource,
+  );
+  //==========================================================
+// BILLING
+//==========================================================
+
+  static final InvoiceDataSource invoiceDataSource =
+  InvoiceDataSource(
+    documentNumberService: documentNumberService,
+  );
+
+  static final PaymentDataSource paymentDataSource =
+  PaymentDataSource();
+
+  static final InvoiceRepositoryImpl invoiceRepository =
+  InvoiceRepositoryImpl(
+    invoiceDataSource: invoiceDataSource,
+  );
+
+  static final PaymentRepositoryImpl paymentRepository =
+  PaymentRepositoryImpl(
+    paymentDataSource: paymentDataSource,
   );
 }

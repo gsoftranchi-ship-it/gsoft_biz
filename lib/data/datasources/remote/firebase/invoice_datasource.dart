@@ -4,14 +4,18 @@ import '../../../../core/constants/firestore_paths.dart';
 import '../../../../models/invoice_model.dart';
 import '../../../../models/base/entity_status.dart';
 import '../../base/base_firestore_datasource.dart';
+import '../../../../core/services/document_number_service.dart';
 
 class InvoiceDataSource
     implements BaseFirestoreDataSource<InvoiceModel> {
   InvoiceDataSource({
     FirebaseFirestore? firestore,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance;
+    required DocumentNumberService documentNumberService,
+  })  : _firestore = firestore ?? FirebaseFirestore.instance,
+        _documentNumberService = documentNumberService;
 
   final FirebaseFirestore _firestore;
+  final DocumentNumberService _documentNumberService;
 
   CollectionReference<Map<String, dynamic>> _invoiceCollection(
       String gymId,
@@ -27,9 +31,44 @@ class InvoiceDataSource
       String gymId,
       InvoiceModel invoice,
       ) async {
-    await _invoiceCollection(gymId)
-        .doc(invoice.invoiceId)
-        .set(invoice.toMap());
+    final doc = _invoiceCollection(gymId).doc();
+
+    await doc.set(
+      InvoiceModel(
+        invoiceId: doc.id,
+        invoiceNumber: invoice.invoiceNumber,
+        invoiceType: invoice.invoiceType,
+        memberId: invoice.memberId,
+        customerId: invoice.customerId,
+        supplierId: invoice.supplierId,
+        customerName: invoice.customerName,
+        customerPhone: invoice.customerPhone,
+        customerEmail: invoice.customerEmail,
+        customerAddress: invoice.customerAddress,
+        customerGstin: invoice.customerGstin,
+        invoiceDate: invoice.invoiceDate,
+        dueDate: invoice.dueDate,
+        subtotal: invoice.subtotal,
+        discountAmount: invoice.discountAmount,
+        discountPercentage: invoice.discountPercentage,
+        taxableAmount: invoice.taxableAmount,
+        cgstAmount: invoice.cgstAmount,
+        sgstAmount: invoice.sgstAmount,
+        igstAmount: invoice.igstAmount,
+        taxAmount: invoice.taxAmount,
+        grandTotal: invoice.grandTotal,
+        receivedAmount: invoice.receivedAmount,
+        balanceAmount: invoice.balanceAmount,
+        paymentStatus: invoice.paymentStatus,
+        paymentMethod: invoice.paymentMethod,
+        amountInWords: invoice.amountInWords,
+        notes: invoice.notes,
+        version: invoice.version,
+        tenantInfo: invoice.tenantInfo,
+        auditInfo: invoice.auditInfo,
+        status: invoice.status,
+      ).toMap(),
+    );
   }
 
   @override
@@ -94,5 +133,14 @@ class InvoiceDataSource
       'status': EntityStatus.inactive.name,
       'updatedAt': Timestamp.now(),
     });
+  }
+  Future<String> generateInvoiceNumber(
+      String gymId,
+      ) {
+    return _documentNumberService.generateNumber(
+      gymId: gymId,
+      documentType: 'invoice',
+      prefix: 'INV',
+    );
   }
 }

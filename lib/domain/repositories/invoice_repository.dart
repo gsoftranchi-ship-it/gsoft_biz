@@ -40,4 +40,5 @@ abstract class InvoiceRepository
   Future<List<InvoiceModel>> getOutstandingInvoices(
       String gymId,
       );
+
 }

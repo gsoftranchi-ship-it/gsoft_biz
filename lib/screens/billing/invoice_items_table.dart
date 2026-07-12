@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
+import '../../models/invoice_item_model.dart';
 
 class InvoiceItemsTable extends StatelessWidget {
   const InvoiceItemsTable({
     super.key,
+    required this.items,
+    required this.onAddProduct,
+    required this.onDeleteItem,
   });
+
+  final List<InvoiceItemModel> items;
+
+  final VoidCallback onAddProduct;
+
+  final ValueChanged<int> onDeleteItem;
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +38,7 @@ class InvoiceItemsTable extends StatelessWidget {
                 ),
 
                 FilledButton.icon(
-                  onPressed: () {
-                    // TODO(RC1):
-                    // Open Product Selector
-                  },
+                  onPressed: onAddProduct,
                   icon: const Icon(Icons.add),
                   label: const Text('Add Product'),
                 ),
@@ -118,14 +125,69 @@ class InvoiceItemsTable extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            const Center(
-              child: Text(
-                'No items added.',
-                style: TextStyle(
-                  color: Colors.grey,
+            if (items.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: Text(
+                    'No items added.',
+                    style: TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+              )
+            else
+              Column(
+                children: List.generate(
+                  items.length,
+                      (index) {
+                    final item = items[index];
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        children: [
+
+                          Expanded(
+                            flex: 4,
+                            child: Text(item.itemName),
+                          ),
+
+                          Expanded(
+                            child: Text(
+                              item.quantity.toStringAsFixed(0),
+                            ),
+                          ),
+
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              "₹${item.unitPrice.toStringAsFixed(2)}",
+                            ),
+                          ),
+
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              "₹${item.lineTotal.toStringAsFixed(2)}",
+                            ),
+                          ),
+
+                          IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.red,
+                            ),
+                            onPressed: () =>
+                                onDeleteItem(index),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
-            ),
           ],
         ),
       ),

@@ -1,136 +1,180 @@
-
+import 'package:flutter/foundation.dart';
 
 import '../domain/repositories/invoice_repository.dart';
 import '../models/invoice_model.dart';
-import 'base/base_provider.dart';
 
-class InvoiceProvider extends BaseProvider {
+class InvoiceProvider extends ChangeNotifier {
   InvoiceProvider({
     required InvoiceRepository repository,
   }) : _repository = repository;
 
   final InvoiceRepository _repository;
 
-  List<InvoiceModel> _invoices = [];
+  InvoiceRepository get repository => _repository;
+
+  final List<InvoiceModel> _invoices = [];
 
   InvoiceModel? _selectedInvoice;
+
+  bool _loading = false;
+
+  String? _error;
+
+  String? _currentGymId;
 
   List<InvoiceModel> get invoices =>
       List.unmodifiable(_invoices);
 
   InvoiceModel? get selectedInvoice =>
       _selectedInvoice;
-  ///===========================================================
-  /// Load All Invoices
-  ///===========================================================
-  Future<void> loadInvoices(
-      String gymId,
-      ) async {
+
+  bool get loading => _loading;
+
+  /// Backward compatibility
+  bool get isLoading => _loading;
+
+  String? get error => _error;
+
+  /// Backward compatibility
+  String? get errorMessage => _error;
+
+  int get totalInvoices => _invoices.length;
+
+  double get totalSales => _invoices.fold(
+    0,
+        (sum, invoice) => sum + invoice.grandTotal,
+  );
+
+  double get totalOutstanding => _invoices.fold(
+    0,
+        (sum, invoice) => sum + invoice.balanceAmount,
+  );
+
+  Future<void> loadInvoices({
+    required String gymId,
+  }) async {
+    _currentGymId = gymId;
+
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
     try {
-      clearError();
-      setLoading(true);
+      final data = await _repository.getAll(gymId);
 
-      _invoices = await _repository.getAll(gymId);
-
-      notifyListeners();
+      _invoices
+        ..clear()
+        ..addAll(data);
     } catch (e) {
-      setError(e.toString());
-    } finally {
-      setLoading(false);
+      _error = e.toString();
     }
+
+    _loading = false;
+    notifyListeners();
   }
 
-  ///===========================================================
-  /// Load Invoice
-  ///===========================================================
-  Future<void> loadInvoice(
-      String gymId,
-      String invoiceId,
-      ) async {
-    try {
-      clearError();
-      setLoading(true);
+  Future<void> refresh() async {
+    if (_currentGymId == null) return;
 
+    await loadInvoices(
+      gymId: _currentGymId!,
+    );
+  }
+
+  Future<void> loadInvoice({
+    required String gymId,
+    required String invoiceId,
+  }) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
       _selectedInvoice = await _repository.get(
         gymId,
         invoiceId,
       );
-
-      notifyListeners();
     } catch (e) {
-      setError(e.toString());
-    } finally {
-      setLoading(false);
+      _error = e.toString();
     }
-  }
-  ///===========================================================
-  /// Create Invoice
-  ///===========================================================
-  Future<void> createInvoice(
-      String gymId,
-      InvoiceModel invoice,
-      ) async {
-    try {
-      clearError();
-      setLoading(true);
 
+    _loading = false;
+    notifyListeners();
+  }
+  Future<String> generateInvoiceNumber({
+    required String gymId,
+  }) {
+    return _repository.generateInvoiceNumber(
+      gymId,
+    );
+  }
+
+  Future<void> createInvoice({
+    required String gymId,
+    required InvoiceModel invoice,
+  }) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
       await _repository.create(
         gymId,
         invoice,
       );
 
-      await loadInvoices(gymId);
+      await refresh();
     } catch (e) {
-      setError(e.toString());
-    } finally {
-      setLoading(false);
+      _error = e.toString();
     }
+
+    _loading = false;
+    notifyListeners();
   }
 
-  ///===========================================================
-  /// Update Invoice
-  ///===========================================================
-  Future<void> updateInvoice(
-      String gymId,
-      InvoiceModel invoice,
-      ) async {
-    try {
-      clearError();
-      setLoading(true);
+  Future<void> updateInvoice({
+    required String gymId,
+    required InvoiceModel invoice,
+  }) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
 
+    try {
       await _repository.update(
         gymId,
         invoice,
       );
 
-      await loadInvoices(gymId);
+      await refresh();
     } catch (e) {
-      setError(e.toString());
-    } finally {
-      setLoading(false);
+      _error = e.toString();
     }
-  }
-  ///===========================================================
-  /// Delete Invoice
-  ///===========================================================
-  Future<void> deleteInvoice(
-      String gymId,
-      String invoiceId,
-      ) async {
-    try {
-      clearError();
-      setLoading(true);
 
+    _loading = false;
+    notifyListeners();
+  }
+
+  Future<void> deleteInvoice({
+    required String gymId,
+    required String invoiceId,
+  }) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
       await _repository.softDelete(
         gymId,
         invoiceId,
       );
 
-      await loadInvoices(gymId);
+      await refresh();
     } catch (e) {
-      setError(e.toString());
-    } finally {
-      setLoading(false);
+      _error = e.toString();
     }
+
+    _loading = false;
+    notifyListeners();
   }
 }

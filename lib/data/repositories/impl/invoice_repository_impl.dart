@@ -79,8 +79,8 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
   Future<String> generateInvoiceNumber(
       String gymId,
       ) {
-    throw UnimplementedError(
-      'Will be implemented with DocumentNumberService.',
+    return _invoiceDataSource.generateInvoiceNumber(
+      gymId,
     );
   }
 
