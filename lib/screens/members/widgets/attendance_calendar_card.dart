@@ -1,15 +1,32 @@
 import 'package:flutter/material.dart';
+import '../../../models/attendance_model.dart';
 
 class AttendanceCalendarCard extends StatelessWidget {
-  const AttendanceCalendarCard({super.key});
+
+  final List<AttendanceModel> attendance;
+
+  const AttendanceCalendarCard({
+    super.key,
+    required this.attendance,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final days = List.generate(30, (index) {
-      if (index % 7 == 0) return 0; // Holiday
-      if (index % 5 == 0) return -1; // Absent
-      return 1; // Present
-    });
+    final now = DateTime.now();
+
+    final daysInMonth = DateUtils.getDaysInMonth(
+      now.year,
+      now.month,
+    );
+
+    final records = <int, AttendanceModel>{};
+
+    for (final record in attendance) {
+      if (record.attendanceDate.year == now.year &&
+          record.attendanceDate.month == now.month) {
+        records[record.attendanceDate.day] = record;
+      }
+    }
 
     return Card(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -26,7 +43,7 @@ class AttendanceCalendarCard extends StatelessWidget {
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: days.length,
+              itemCount: daysInMonth,
               gridDelegate:
               const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 5,
@@ -34,17 +51,18 @@ class AttendanceCalendarCard extends StatelessWidget {
                 mainAxisSpacing: 8,
               ),
               itemBuilder: (_, index) {
+                final day = index + 1;
+
+                final record = records[day];
+
                 Color color;
 
-                switch (days[index]) {
-                  case 1:
-                    color = Colors.green;
-                    break;
-                  case -1:
-                    color = Colors.red;
-                    break;
-                  default:
-                    color = Colors.grey;
+                if (record == null) {
+                  color = Colors.grey;
+                } else if (record.isPresent) {
+                  color = Colors.green;
+                } else {
+                  color = Colors.red;
                 }
 
                 return Container(
@@ -54,7 +72,7 @@ class AttendanceCalendarCard extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    "${index + 1}",
+                    "$day",
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

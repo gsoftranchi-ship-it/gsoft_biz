@@ -3,6 +3,9 @@ import '../../../core/constants/app_colors.dart';
 import 'package:provider/provider.dart';
 import '../../../models/gym_model.dart';
 import '../../../providers/dashboard_provider.dart';
+import '../../../providers/member_provider.dart';
+import '../../../providers/attendance_provider.dart';
+import '../../../providers/invoice_provider.dart';
 
 class DashboardHeader extends StatelessWidget {
   const DashboardHeader({super.key});
@@ -82,6 +85,13 @@ class DashboardHeader extends StatelessWidget {
     final mobile = width < 500;
 
     final dashboardProvider = context.watch<DashboardProvider>();
+    final memberProvider = context.watch<MemberProvider>();
+
+    final attendanceProvider =
+    context.watch<AttendanceProvider>();
+
+    final invoiceProvider =
+    context.watch<InvoiceProvider>();
 
     final GymModel? gym = dashboardProvider.gym;
 
@@ -91,7 +101,7 @@ class DashboardHeader extends StatelessWidget {
 
     final logoUrl = gym?.logoUrl;
 
-    final avatarRadius = mobile ? 24.0 : 30.0;
+    final avatarRadius = mobile ? 34.0 : 42.0;
     final titleSize = mobile ? 18.0 : 24.0;
 
     return Container(
@@ -103,7 +113,7 @@ class DashboardHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
 
         border: Border.all(
-          color: Colors.white.withValues(alpha: .05),
+          color: AppColors.primary.withValues(alpha: .25),
         ),
 
         boxShadow: [
@@ -136,14 +146,10 @@ class DashboardHeader extends StatelessWidget {
                   )
                       : Image.asset(
                     'assets/images/logo.png',
-                    width: avatarRadius * 2,
-                    height: avatarRadius * 2,
+                    width: avatarRadius * 4,
+                    height: avatarRadius * 4,
                     fit: BoxFit.cover,
                   ),
-
-
-
-
                 ),
               ),
 
@@ -197,8 +203,16 @@ class DashboardHeader extends StatelessWidget {
                   BorderRadius.circular(14),
                 ),
                 child: IconButton(
-                    onPressed: null,
-                    tooltip: "Coming Soon",
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Notifications will be available in a future update.',
+                        ),
+                      ),
+                    );
+                  },
+                  tooltip: "Notifications",
                   icon: const Icon(
                     Icons.notifications_none_rounded,
                   ),
@@ -275,7 +289,7 @@ class DashboardHeader extends StatelessWidget {
                       child: _overviewItem(
                         Icons.people_alt_outlined,
                         AppColors.info,
-                        "--",
+                        memberProvider.totalMembers.toString(),
                         "Members",
                       ),
                     ),
@@ -283,7 +297,7 @@ class DashboardHeader extends StatelessWidget {
                       child: _overviewItem(
                         Icons.fact_check_outlined,
                         AppColors.success,
-                        "--",
+                        attendanceProvider.todayAttendance.toString(),
                         "Attendance",
                       ),
                     ),
@@ -291,7 +305,7 @@ class DashboardHeader extends StatelessWidget {
                       child: _overviewItem(
                         Icons.currency_rupee,
                         AppColors.primary,
-                        "--",
+                        '₹${invoiceProvider.totalSales.toStringAsFixed(0)}',
                         "Collection",
                       ),
                     ),
@@ -299,7 +313,7 @@ class DashboardHeader extends StatelessWidget {
                       child: _overviewItem(
                         Icons.warning_amber_rounded,
                         AppColors.warning,
-                        "--",
+                        '₹${invoiceProvider.totalOutstanding.toStringAsFixed(0)}',
                         "Due",
                       ),
                     ),

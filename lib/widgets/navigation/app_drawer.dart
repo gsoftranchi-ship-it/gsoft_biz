@@ -23,7 +23,7 @@ class AppDrawer extends StatelessWidget {
     final tenantProvider = context.watch<TenantProvider>();
     final gym = tenantProvider.currentGym;
     return Container(
-      width: 250,
+      width: 265,
       color: AppColors.cardDark,
       child: SafeArea(
         child: Column(
@@ -31,18 +31,42 @@ class AppDrawer extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            CircleAvatar(
-              radius: 34,
-              backgroundColor: AppColors.cardDark,
-              backgroundImage: (gym?.logoUrl != null &&
-                  gym!.logoUrl!.isNotEmpty)
-                  ? NetworkImage(gym.logoUrl!)
-                  : const AssetImage(
-                'assets/images/logo.png',
-              ) as ImageProvider,
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppColors.primary,
+              width: 2,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: .25),
+                blurRadius: 16,
+              ),
+            ],
+          ),
+          child: CircleAvatar(
+            radius: 42,
+            backgroundColor: AppColors.cardDark,
+            child: ClipOval(
+              child: (gym?.logoUrl != null && gym!.logoUrl!.isNotEmpty)
+                  ? Image.network(
+                gym.logoUrl!,
+                width: 84,
+                height: 84,
+                fit: BoxFit.cover,
+              )
+                  : Image.asset(
+                'assets/images/logo.png',
+                width: 84,
+                height: 84,
+                fit: BoxFit.cover,
+              ),
+            ),
+          )
+        ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
             Text(
               gym?.gymName ?? "Power House Gym",
@@ -62,7 +86,10 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
 
-            const Divider(height: 40),
+            const Divider(
+              height: 36,
+              color: AppColors.border,
+            ),
 
             _item(0, AppIcons.dashboard, "Dashboard"),
 
@@ -181,7 +208,24 @@ class AppDrawer extends StatelessWidget {
       ) {
     final selected = selectedIndex == index;
 
-    return ListTile(
+    return AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        margin: const EdgeInsets.symmetric(
+          horizontal: 8,
+          vertical: 2,
+        ),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.primary.withValues(alpha: .12)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          border: selected
+              ? Border.all(
+            color: AppColors.primary,
+          )
+              : null,
+        ),
+        child: ListTile(
       selected: selected,
       leading: Icon(
         icon,
@@ -198,6 +242,7 @@ class AppDrawer extends StatelessWidget {
         ),
       ),
       onTap: () => onChanged(index),
+        ),
     );
   }
 }

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/member_provider.dart';
-import '../../../providers/membership_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_icons.dart';
 import '../../../widgets/cards/dashboard_card.dart';
+import '../../../providers/invoice_provider.dart';
+
 
 
 class SummaryCards extends StatelessWidget {
@@ -21,11 +22,11 @@ class SummaryCards extends StatelessWidget {
     final memberProvider =
     context.watch<MemberProvider>();
 
-    final membershipProvider =
-    context.watch<MembershipProvider>();
+    final invoiceProvider =
+    context.watch<InvoiceProvider>();
 
     if (memberProvider.loading ||
-        membershipProvider.loading) {
+        invoiceProvider.loading) {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(32),
@@ -37,33 +38,17 @@ class SummaryCards extends StatelessWidget {
     final activeMembers =
         memberProvider.activeMembers;
 
-    final dueMembers =
-        membershipProvider.invoices
-            .where((e) => e.dueAmount > 0)
-            .length;
+    final dueMembers = invoiceProvider.invoices
+        .where((invoice) => invoice.balanceAmount > 0)
+        .length;
 
     final outstandingRevenue =
-    membershipProvider.invoices.fold<double>(
-      0,
-          (sum, invoice) => sum + invoice.dueAmount,
-    );
+        invoiceProvider.totalOutstanding;
 
-    final today = DateTime.now();
-
+    /// Temporary for RC1.
+    /// We'll replace this with PaymentProvider after go-live.
     final todaysCollections =
-    membershipProvider.payments
-        .where((payment) {
-      final date = payment.paymentDate;
-
-      return date.year == today.year &&
-          date.month == today.month &&
-          date.day == today.day;
-    })
-        .fold<double>(
-      0,
-          (sum, payment) => sum + payment.amount,
-    );
-
+        invoiceProvider.totalSales;
     int crossAxisCount;
 
     final double cardHeight;

@@ -28,6 +28,15 @@ class AttendanceProvider extends ChangeNotifier {
 
   List<AttendanceModel> get attendance =>
       List.unmodifiable(_attendance);
+  int get todayAttendance {
+    final today = DateTime.now();
+
+    return _attendance.where((record) {
+      return record.attendanceDate.year == today.year &&
+          record.attendanceDate.month == today.month &&
+          record.attendanceDate.day == today.day;
+    }).length;
+  }
   Future<void> loadAttendance({
     required String gymId,
   }) async {
@@ -73,7 +82,8 @@ class AttendanceProvider extends ChangeNotifier {
     final now = DateTime.now();
 
     final attendanceId =
-    await IdGenerator.newAttendanceId(); // Use your project's existing ID generator
+    await IdGenerator
+        .newAttendanceId(); // Use your project's existing ID generator
     final attendance = AttendanceModel(
       attendanceId: attendanceId,
       memberId: member.memberId,
@@ -99,8 +109,31 @@ class AttendanceProvider extends ChangeNotifier {
     await loadAttendance(
       gymId: gymId,
     );
-
-
-
   }
-}
+  Future<void> checkOutAttendance({
+    required AttendanceModel attendance,
+    required String gymId,
+    required String currentUserId,
+  }) async {
+    final now = DateTime.now();
+
+    final updatedAttendance = attendance.copyWith(
+      checkOutTime: now,
+      auditInfo: AuditInfo(
+        createdAt: attendance.auditInfo.createdAt,
+        updatedAt: now,
+        createdBy: attendance.auditInfo.createdBy,
+        updatedBy: currentUserId,
+      ),
+    );
+
+    await _repository.updateAttendance(
+      updatedAttendance,
+    );
+
+    await loadAttendance(
+      gymId: gymId,
+    );
+  }
+  }
+

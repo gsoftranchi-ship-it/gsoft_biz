@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import '../../providers/attendance_provider.dart';
 import 'package:flutter/material.dart';
 import 'widgets/member_profile_header.dart';
 import 'widgets/member_information_card.dart';
@@ -31,7 +33,7 @@ import 'widgets/member_reports_list_card.dart';
 import 'widgets/member_reports_actions_card.dart';
 import '../../models/member_model.dart';
 
-class MemberDetailsPage extends StatelessWidget {
+class MemberDetailsPage extends StatefulWidget {
   final MemberModel member;
 
   const MemberDetailsPage({
@@ -39,16 +41,64 @@ class MemberDetailsPage extends StatelessWidget {
     required this.member,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 10,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Member Details'),
-          bottom: const TabBar(
-            isScrollable: true,
-            tabs: [
+     @override
+      State<MemberDetailsPage> createState() =>
+        _MemberDetailsPageState();
+      }
+
+      class _MemberDetailsPageState
+      extends State<MemberDetailsPage> {
+
+        @override
+        Widget build(BuildContext context) {
+          final attendanceProvider =
+          context.watch<AttendanceProvider>();
+
+          final memberAttendance =
+          attendanceProvider.attendance
+              .where(
+                (e) =>
+            e.memberId ==
+                widget.member.memberId,
+          )
+              .toList();
+
+          memberAttendance.sort(
+                (a, b) =>
+                b.attendanceDate.compareTo(
+                  a.attendanceDate,
+                ),
+          );
+
+          final presentDays =
+              memberAttendance
+                  .where((e) => e.isPresent)
+                  .length;
+
+          final absentDays =
+              memberAttendance
+                  .where((e) => !e.isPresent)
+                  .length;
+
+          final totalDays =
+              memberAttendance.length;
+
+          final lastCheckIn =
+          memberAttendance.isEmpty ||
+              memberAttendance.first.checkInTime == null
+              ? "--"
+              : TimeOfDay.fromDateTime(
+            memberAttendance.first.checkInTime!,
+          ).format(context);
+
+            return DefaultTabController(
+                length: 10,
+               child: Scaffold(
+                appBar: AppBar(
+                title: const Text('Member Details'),
+                bottom: const TabBar(
+                isScrollable: true,
+              tabs: [
               Tab(text: 'Profile'),
               Tab(text: 'Attendance'),
               Tab(text: 'Payments'),
@@ -68,15 +118,15 @@ class MemberDetailsPage extends StatelessWidget {
               child: Column(
                 children: [
                   MemberProfileHeader(
-                    memberName: member.fullName,
-                    memberId: member.memberId,
-                    isActive: member.isActive,
+                    memberName: widget.member.fullName,
+                    memberId: widget.member.memberId,
+                    isActive: widget.member.isActive,
                   ),
                     MemberInformationCard(
-                      mobile: member.phone,
-                      email: member.email,
-                      gender: member.gender,
-                      age: member.age,
+                      mobile: widget.member.phone,
+                      email: widget.member.email,
+                      gender: widget.member.gender,
+                      age: widget.member.age,
                     ),
                   MembershipCard(
                     plan: "Gold Membership",
@@ -92,13 +142,17 @@ class MemberDetailsPage extends StatelessWidget {
               child: Column(
                 children: [
                   MemberAttendanceCard(
-                    presentDays: 22,
-                    absentDays: 3,
-                    totalDays: 25,
-                    lastCheckIn: "Today 07:15 AM",
+                    presentDays: presentDays,
+                    absentDays: absentDays,
+                    totalDays: totalDays,
+                    lastCheckIn: lastCheckIn,
                   ),
-                  AttendanceHistoryCard(),
-                  AttendanceCalendarCard(),
+                  AttendanceHistoryCard(
+                    attendance: memberAttendance,
+                  ),
+                  AttendanceCalendarCard(
+                    attendance: memberAttendance,
+                  ),
                 ],
               ),
             ),

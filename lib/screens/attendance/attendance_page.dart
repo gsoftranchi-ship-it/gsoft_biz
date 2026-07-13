@@ -3,6 +3,11 @@ import 'package:provider/provider.dart';
 
 import '../../providers/attendance_provider.dart';
 import '../../providers/member_provider.dart';
+import '../../models/attendance_model.dart';
+import '../../models/member_model.dart';
+import '../../providers/auth_provider.dart';
+
+
 
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
@@ -25,6 +30,13 @@ class _AttendancePageState extends State<AttendancePage> {
 
     final attendanceProvider =
     context.watch<AttendanceProvider>();
+    final authProvider = context.read<AuthProvider>();
+
+    final currentUser = authProvider.currentUser;
+
+    final gymId = currentUser?.tenantInfo.gymId ?? "";
+
+    final currentUserId = currentUser?.id ?? "";
 
     final memberProvider =
     context.watch<MemberProvider>();
@@ -36,12 +48,7 @@ class _AttendancePageState extends State<AttendancePage> {
       );
     }
 
-    if (attendanceProvider.loading ||
-        memberProvider.loading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
+
 
     if (attendanceProvider.error != null) {
       return Center(
@@ -71,10 +78,9 @@ class _AttendancePageState extends State<AttendancePage> {
 
     }).toList();
 
-    final presentToday =
-        todaysAttendance
-            .where((e) => e.isPresent)
-            .length;
+    final presentToday = todaysAttendance
+        .where((e) => e.isPresent)
+        .length;
 
     final absentToday =
         members - presentToday;
@@ -117,23 +123,7 @@ class _AttendancePageState extends State<AttendancePage> {
     ),
 
 
-    Padding(
-    padding: const EdgeInsets.symmetric(horizontal:16),
-    child: Align(
-    alignment: Alignment.centerRight,
-    child: FilledButton.icon(
-    onPressed: () {
-    ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-    content: Text("Attendance Marked Successfully"),
-    ),
-    );
-    },
-    icon: const Icon(Icons.check),
-    label: const Text("Check In"),
-    ),
-    ),
-    ),
+
     Expanded(
     child: ListView(
         padding: const EdgeInsets.all(16),
@@ -226,45 +216,30 @@ class _AttendancePageState extends State<AttendancePage> {
 
           const SizedBox(height: 15),
 
-          if (todaysAttendance.isEmpty)
+          ...memberProvider.members
+              .where((member) => member.isActive)
+              .map((member) {
 
-            const Card(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Center(
-                  child: Text(
-                    "No attendance recorded today.",
-                  ),
-                ),
-              ),
-            )
+            final todayRecord = todaysAttendance.cast<AttendanceModel?>().firstWhere(
+                  (record) => record?.memberId == member.memberId,
+              orElse: () => null,
+            );
 
-          else
-            ...todaysAttendance.map((record) {
+            final checkInTime = todayRecord?.checkInTime == null
+                ? "--"
+                : TimeOfDay.fromDateTime(
+              todayRecord!.checkInTime!,
+            ).format(context);
 
-              final member =
-              memberProvider.members.cast<dynamic>().firstWhere(
-                    (m) => m?.memberId == record.memberId,
-                orElse: () => null,
-              );
-
-              final memberName =
-                  member?.fullName ?? record.memberId;
-
-              final checkInTime =
-              record.checkInTime == null
-                  ? '--'
-                  : TimeOfDay.fromDateTime(
-                record.checkInTime!,
-              ).format(context);
-
-              return _member(
-                memberName,
-                checkInTime,
-                record.isPresent,
-              );
-
-            }),
+            return _member(
+              context,
+              member,
+              todayRecord,
+              checkInTime,
+              gymId,
+              currentUserId,
+            );
+          }),
 
           const SizedBox(height: 80),
         ],
@@ -324,59 +299,104 @@ class _AttendancePageState extends State<AttendancePage> {
   }
 
   Widget _member(
-      String name,
+      BuildContext context,
+      MemberModel member,
+      AttendanceModel? attendance,
       String time,
-      bool present,
+      String gymId,
+      String currentUserId,
       ) {
+    final isPresent = attendance != null;
+    final memberName = member.fullName;
 
     return Card(
-
       margin: const EdgeInsets.only(bottom: 12),
-
       child: ListTile(
-
         leading: CircleAvatar(
-          child: Text(name[0]),
+          child: Text(
+            memberName.isNotEmpty ? memberName[0] : "?",
+          ),
         ),
 
-        title: Text(name),
+        title: Text(memberName),
 
         subtitle: Text(
-          present
+          isPresent
               ? "Check In : $time"
-              : "Absent",
+              : "Not Checked In",
         ),
 
-        trailing: present
-
+        trailing: attendance == null
             ? FilledButton(
-          onPressed: () {
+          onPressed: () async {
+            try {
+              await context.read<AttendanceProvider>().markAttendanceForMember(
+                member: member,
+                currentUserId: currentUserId,
+                gymId: gymId,
+              );
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  "$name Checked Out",
+              if (!context.mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    "${member.fullName} checked in successfully.",
+                  ),
                 ),
-              ),
-            );
+              );
+            } catch (e) {
+              if (!context.mounted) return;
 
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(e.toString()),
+                ),
+              );
+            }
+          },
+          child: const Text("Check In"),
+        )
+            : attendance.checkOutTime == null
+            ? FilledButton(
+          onPressed: () async {
+            try {
+              await context
+                  .read<AttendanceProvider>()
+                  .checkOutAttendance(
+                attendance: attendance,
+                gymId: gymId,
+                currentUserId: currentUserId,
+              );
+
+              if (!context.mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    "${member.fullName} checked out successfully.",
+                  ),
+                ),
+              );
+            } catch (e) {
+              if (!context.mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(e.toString()),
+                ),
+              );
+            }
           },
           child: const Text("Check Out"),
         )
-
-            : FilledButton(
-          onPressed: () {
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  "$name Checked In",
-                ),
-              ),
-            );
-
-          },
-          child: const Text("Check In"),
+            : const Chip(
+          avatar: Icon(
+            Icons.check_circle,
+            color: Colors.green,
+            size: 18,
+          ),
+          label: Text("Completed"),
         ),
       ),
     );
