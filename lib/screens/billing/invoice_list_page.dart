@@ -4,6 +4,7 @@ import '../../providers/invoice_provider.dart';
 import '../../widgets/billing/invoice_card.dart';
 import 'create_invoice_page.dart';
 import '../../providers/auth_provider.dart';
+import 'invoice_details_page.dart';
 
 class InvoiceListPage extends StatefulWidget {
   const InvoiceListPage({super.key});
@@ -19,6 +20,7 @@ class _InvoiceListPageState extends State<InvoiceListPage> {
 
   bool _loaded = false;
 
+  int _selectedFilter = 0;
   @override
   void dispose() {
     _searchController.dispose();
@@ -30,18 +32,49 @@ class _InvoiceListPageState extends State<InvoiceListPage> {
 
     final provider =
     context.watch<InvoiceProvider>();
+    final filteredInvoices = provider.invoices.where((invoice) {
+
+      switch (_selectedFilter) {
+        case 1:
+          return invoice.paymentStatus.name == 'paid';
+
+        case 2:
+          return invoice.paymentStatus.name == 'unpaid' ||
+              invoice.paymentStatus.name == 'partial';
+
+        default:
+          return true;
+      }
+    }).toList();
+    final totalCollected = provider.invoices.fold<double>(
+      0,
+          (sum, invoice) => sum + invoice.receivedAmount,
+    );
+
+    final totalOutstanding = provider.invoices.fold<double>(
+      0,
+          (sum, invoice) => sum + invoice.balanceAmount,
+    );
     if (!_loaded) {
       _loaded = true;
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        // TODO(RC1):
-        // Load invoices once AuthProvider exposes gymId.
-        //
-        // final authProvider =
-        //     context.read<AuthProvider>();
-        //
-        // provider.loadInvoices(
-        //     authProvider.currentGymId);
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final authProvider =
+        context.read<AuthProvider>();
+
+        final invoiceProvider =
+        context.read<InvoiceProvider>();
+
+        final gymId =
+            authProvider.currentUser?.tenantInfo.gymId;
+
+        if (gymId == null || gymId.isEmpty) {
+          return;
+        }
+
+        await invoiceProvider.loadInvoices(
+          gymId: gymId,
+        );
       });
     }
 
@@ -136,34 +169,36 @@ class _InvoiceListPageState extends State<InvoiceListPage> {
               children: [
 
                 FilterChip(
-                  label:
-                  const Text('All'),
-
-                  selected: true,
-
-                  onSelected: (_) {},
+                  label: const Text('All'),
+                  selected: _selectedFilter == 0,
+                  onSelected: (_) {
+                    setState(() {
+                      _selectedFilter = 0;
+                    });
+                  },
                 ),
 
                 const SizedBox(width: 8),
 
                 FilterChip(
-                  label:
-                  const Text('Paid'),
-
-                  selected: false,
-
-                  onSelected: (_) {},
+                  label: const Text('Paid'),
+                  selected: _selectedFilter == 1,
+                  onSelected: (_) {
+                    setState(() {
+                      _selectedFilter = 1;
+                    });
+                  },
                 ),
-
                 const SizedBox(width: 8),
 
                 FilterChip(
-                  label:
-                  const Text('Due'),
-
-                  selected: false,
-
-                  onSelected: (_) {},
+                  label: const Text('Due'),
+                  selected: _selectedFilter == 2,
+                  onSelected: (_) {
+                    setState(() {
+                      _selectedFilter = 2;
+                    });
+                  },
                 ),
               ],
             ),
@@ -237,9 +272,9 @@ class _InvoiceListPageState extends State<InvoiceListPage> {
 
                           const SizedBox(height: 4),
 
-                          const Text(
-                            '₹0',
-                            style: TextStyle(
+                          Text(
+                            '₹${totalCollected.toStringAsFixed(0)}',
+                            style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                             ),
@@ -275,9 +310,9 @@ class _InvoiceListPageState extends State<InvoiceListPage> {
 
                           const SizedBox(height: 4),
 
-                          const Text(
-                            '₹0',
-                            style: TextStyle(
+                          Text(
+                            '₹${totalOutstanding.toStringAsFixed(0)}',
+                            style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                             ),
@@ -306,14 +341,40 @@ class _InvoiceListPageState extends State<InvoiceListPage> {
                 child: Text('No invoices found'),
               )
                   : ListView.builder(
-                itemCount: provider.invoices.length,
+                itemCount: filteredInvoices.length,
                 itemBuilder: (context, index) {
-                  final invoice = provider.invoices[index];
+                  final invoice = filteredInvoices[index];
 
                   return InvoiceCard(
                     invoice: invoice,
-                    onTap: () {
-                      // TODO: Invoice Details
+                    onTap: () async {
+                      final authProvider =
+                      context.read<AuthProvider>();
+
+                      final invoiceProvider =
+                      context.read<InvoiceProvider>();
+
+                      final gymId =
+                          authProvider.currentUser?.tenantInfo.gymId;
+
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => InvoiceDetailsPage(
+                            invoice: invoice,
+                          ),
+                        ),
+                      );
+
+                      if (!mounted) return;
+
+                      if (gymId == null || gymId.isEmpty) {
+                        return;
+                      }
+
+                      await invoiceProvider.loadInvoices(
+                        gymId: gymId,
+                      );
                     },
                   );
                 },

@@ -3,6 +3,8 @@ import '../../models/invoice_model.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/invoice_item_provider.dart';
+import '../../providers/invoice_provider.dart';
+import 'collect_payment_page.dart';
 import '../../models/invoice_item_model.dart';
 
 class InvoiceDetailsPage extends StatefulWidget {
@@ -20,6 +22,13 @@ class InvoiceDetailsPage extends StatefulWidget {
 
 class _InvoiceDetailsPageState
     extends State<InvoiceDetailsPage> {
+  InvoiceModel get _invoice {
+    final provider =
+    context.read<InvoiceProvider>();
+
+    return provider.selectedInvoice ??
+        widget.invoice;
+  }
   @override
   void initState() {
     super.initState();
@@ -70,7 +79,7 @@ class _InvoiceDetailsPageState
           const SizedBox(height: 24),
 
           FilledButton.icon(
-            onPressed: () {},
+            onPressed: _collectPayment,
             icon: const Icon(Icons.payments),
             label: const Text(
               'Collect Payment',
@@ -112,12 +121,12 @@ class _InvoiceDetailsPageState
 
             _info(
               'Invoice Number',
-              widget.invoice.invoiceNumber,
+              _invoice.invoiceNumber,
             ),
 
             _info(
               'Invoice Date',
-              widget.invoice.invoiceDate
+              _invoice.invoiceDate
                   .toString()
                   .split(' ')
                   .first,
@@ -125,14 +134,14 @@ class _InvoiceDetailsPageState
 
             _info(
               'Invoice Type',
-              widget.invoice.invoiceType.name,
+              _invoice.invoiceType.name,
             ),
 
             const SizedBox(height: 8),
 
             Chip(
               label: Text(
-                widget.invoice.paymentStatus.name
+                _invoice.paymentStatus.name
                     .toUpperCase(),
               ),
             ),
@@ -163,22 +172,22 @@ class _InvoiceDetailsPageState
 
             _info(
               'Name',
-              widget.invoice.customerName,
+              _invoice.customerName,
             ),
 
             _info(
               'Phone',
-              widget.invoice.customerPhone,
+              _invoice.customerPhone,
             ),
 
             _info(
               'Email',
-              widget.invoice.customerEmail,
+              _invoice.customerEmail,
             ),
 
             _info(
               'Address',
-              widget.invoice.customerAddress,
+              _invoice.customerAddress,
             ),
           ],
         ),
@@ -205,38 +214,91 @@ class _InvoiceDetailsPageState
 
             _money(
               'Subtotal',
-              widget.invoice.subtotal,
+              _invoice.subtotal,
             ),
 
             _money(
               'Discount',
-              widget.invoice.discountAmount,
+              _invoice.discountAmount,
             ),
 
             _money(
               'Tax',
-              widget.invoice.taxAmount,
+              _invoice.taxAmount,
             ),
 
             const Divider(),
 
             _money(
               'Grand Total',
-              widget.invoice.grandTotal,
+              _invoice.grandTotal,
               bold: true,
             ),
 
             _money(
               'Received',
-              widget.invoice.receivedAmount,
+              _invoice.receivedAmount,
             ),
 
             _money(
               'Outstanding',
-              widget.invoice.balanceAmount,
+              _invoice.balanceAmount,
               bold: true,
             ),
           ],
+        ),
+      ),
+    );
+  }
+  Future<void> _collectPayment() async {
+    final authProvider =
+    context.read<AuthProvider>();
+
+    final invoiceProvider =
+    context.read<InvoiceProvider>();
+
+    final invoiceItemProvider =
+    context.read<InvoiceItemProvider>();
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CollectPaymentPage(
+          invoice: widget.invoice,
+        ),
+      ),
+    );
+
+    if (result != true || !mounted) {
+      return;
+    }
+
+    final user = authProvider.currentUser;
+
+    final gymId = user?.tenantInfo.gymId;
+
+    if (gymId == null || gymId.isEmpty) {
+      return;
+    }
+
+    await invoiceProvider.loadInvoice(
+      gymId: gymId,
+      invoiceId: _invoice.invoiceId,
+    );
+    if (!mounted) return;
+
+    setState(() {});
+
+    await invoiceItemProvider.loadInvoiceItems(
+      gymId: gymId,
+      invoiceId: _invoice.invoiceId,
+    );
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Payment collected successfully.',
         ),
       ),
     );

@@ -90,6 +90,33 @@ class _CollectPaymentPageState
     final amount = double.parse(
       _paymentAmountController.text,
     );
+    if (widget.invoice.balanceAmount <= 0) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Invoice has already been fully paid.',
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    if (amount > widget.invoice.balanceAmount) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Payment amount cannot exceed outstanding balance.',
+          ),
+        ),
+      );
+
+      return;
+    }
 
     final receivedAmount =
         widget.invoice.receivedAmount + amount;
@@ -395,13 +422,16 @@ class _CollectPaymentPageState
             const SizedBox(height: 32),
 
             FilledButton.icon(
-              onPressed:
-              _validateAndContinue,
+              onPressed: widget.invoice.balanceAmount <= 0
+                  ? null
+                  : _validateAndContinue,
               icon: const Icon(
                 Icons.payments,
               ),
-              label: const Text(
-                'Collect Payment',
+              label: Text(
+                widget.invoice.balanceAmount <= 0
+                    ? 'Already Paid'
+                    : 'Collect Payment',
               ),
             ),
 
