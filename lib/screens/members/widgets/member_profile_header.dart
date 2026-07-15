@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class MemberProfileHeader extends StatelessWidget {
   const MemberProfileHeader({
@@ -22,19 +23,36 @@ class MemberProfileHeader extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            CircleAvatar(
-              radius: 48,
-              backgroundImage: photoUrl != null &&
-                  photoUrl!.isNotEmpty
-                  ? NetworkImage(photoUrl!)
-                  : null,
-              child: photoUrl == null ||
-                  photoUrl!.isEmpty
-                  ? const Icon(
-                Icons.person,
-                size: 48,
-              )
-                  : null,
+            SizedBox(
+              width: 96,
+              height: 96,
+              child: ClipOval(
+                child: photoUrl != null && photoUrl!.isNotEmpty
+                    ? CachedNetworkImage(
+                  imageUrl: photoUrl!,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => const Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  ),
+                  errorWidget: (context, url, error) =>
+                      Container(
+                        color: Colors.grey.shade300,
+                        child: const Icon(
+                          Icons.person,
+                          size: 48,
+                        ),
+                      ),
+                )
+                    : Container(
+                  color: Colors.grey.shade300,
+                  child: const Icon(
+                    Icons.person,
+                    size: 48,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Text(

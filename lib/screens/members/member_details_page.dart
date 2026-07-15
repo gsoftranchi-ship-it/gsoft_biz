@@ -33,6 +33,7 @@ import 'widgets/member_reports_list_card.dart';
 import 'widgets/member_reports_actions_card.dart';
 import '../../models/member_model.dart';
 import 'package:intl/intl.dart';
+import 'add_member/add_member_page.dart';
 
 class MemberDetailsPage extends StatefulWidget {
   final MemberModel member;
@@ -98,6 +99,44 @@ class _MemberDetailsPageState
         backgroundColor: const Color(0xFF111827),
         appBar: AppBar(
           title: const Text('Member Details'),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(
+                right: 12,
+                top: 8,
+                bottom: 8,
+              ),
+              child: FilledButton.icon(
+                onPressed: () async {
+                  final navigator = Navigator.of(context);
+
+                  final updated = await navigator.push<bool>(
+                    MaterialPageRoute(
+                      builder: (_) => AddMemberPage(
+                        member: widget.member,
+                      ),
+                    ),
+                  );
+
+                  if (!mounted) return;
+
+                  if (updated == true) {
+                    navigator.pop(true);
+                  }
+                },
+                icon: const Icon(
+                  Icons.edit,
+                  size: 18,
+                ),
+                label: const Text('Edit'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                  ),
+                ),
+              ),
+            ),
+          ],
           bottom: const TabBar(
             isScrollable: true,
             tabs: [

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../controllers/member_form_controller.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class MemberPhotoCard extends StatefulWidget {
   const MemberPhotoCard({
@@ -104,6 +105,18 @@ class _MemberPhotoCardState
                       fit: BoxFit.cover,
                     );
                   },
+                )
+                    : widget.controller.photoUrl.isNotEmpty
+                    ? CachedNetworkImage(
+                  imageUrl: widget.controller.photoUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.cover,
+                  ),
                 )
                     : Image.asset(
                   'assets/images/logo.png',

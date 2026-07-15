@@ -516,6 +516,95 @@ class MemberFormController extends ChangeNotifier {
       version: 1,
     );
   }
+  void loadMember(MemberModel member) {
+    memberIdController.text = member.memberId;
+
+    fullNameController.text = member.fullName;
+
+    ageController.text = member.age.toString();
+
+    dateOfBirth = member.dateOfBirth;
+
+    if (member.dateOfBirth != null) {
+      dobController.text =
+          DateFormat('dd MMM yyyy').format(member.dateOfBirth!);
+    } else {
+      dobController.clear();
+    }
+
+    gender = member.gender;
+
+    isActive = member.isActive;
+
+    photoUrl = member.photoUrl;
+    mobileController.text = member.phone;
+
+    emailController.text = member.email;
+
+    addressController.text = member.address;
+
+    occupationController.text = member.occupation;
+
+    admissionDate = member.admissionDate;
+
+    joiningDate = member.joiningDate;
+
+    expiryDate = member.membershipExpiryDate;
+
+    membershipPlan = member.membershipPlan;
+
+    membershipStatus = member.membershipStatus;
+
+    assignedTrainer = member.assignedTrainer;
+
+    batch = member.batch;
+
+    admissionSource = member.admissionSource;
+
+    remarksController.text = member.remarks;
+
+    admissionFeeController.text =
+        member.admissionFee.toString();
+
+    membershipFeeController.text =
+        member.membershipFee.toString();
+
+    discountController.text =
+        member.discountAmount.toString();
+
+    finalAmountController.text =
+        member.totalAmount.toString();
+
+    paidAmountController.text =
+        member.paidAmount.toString();
+
+    dueAmountController.text =
+        member.dueAmount.toString();
+
+    paymentMode = member.paymentMode;
+
+    nextDueDate = member.nextDueDate;
+    // Health
+    heightController.text = member.height.toString();
+
+    weightController.text = member.weight.toString();
+
+    bmi = member.bmi;
+
+    fitnessGoal = member.fitnessGoal;
+
+// Emergency
+    emergencyNameController.text =
+        member.emergencyContactName;
+
+    emergencyMobileController.text =
+        member.emergencyContactPhone;
+
+    emergencyRelationshipController.text =
+        member.emergencyRelationship;
+
+    notifyListeners();
+  }
 
   //==========================
   // RESET

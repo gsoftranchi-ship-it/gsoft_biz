@@ -17,7 +17,12 @@ import '../../../../providers/member_provider.dart';
 import '../../../../models/member_model.dart';
 
 class AddMemberPage extends StatefulWidget {
-  const AddMemberPage({super.key});
+  const AddMemberPage({
+    super.key,
+    this.member,
+  });
+
+  final MemberModel? member;
 
   @override
   State<AddMemberPage> createState() => _AddMemberPageState();
@@ -34,7 +39,11 @@ class _AddMemberPageState extends State<AddMemberPage> {
 
     controller = MemberFormController();
 
-    controller.initialize();
+    if (widget.member != null) {
+      controller.loadMember(widget.member!);
+    } else {
+      controller.initialize();
+    }
   }
 
   @override
@@ -64,20 +73,31 @@ class _AddMemberPageState extends State<AddMemberPage> {
       return;
     }
 
-    final memberId = await memberProvider.generateNextMemberId();
+    final bool isEditMode = widget.member != null;
 
-    if (memberId == null) {
-      if (!mounted) return;
+    String memberId;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            memberProvider.failure?.message ??
-                "Unable to generate Member ID.",
+    if (isEditMode) {
+      memberId = widget.member!.memberId;
+    } else {
+      final generatedId =
+      await memberProvider.generateNextMemberId();
+
+      if (generatedId == null) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              memberProvider.failure?.message ??
+                  "Unable to generate Member ID.",
+            ),
           ),
-        ),
-      );
-      return;
+        );
+        return;
+      }
+
+      memberId = generatedId;
     }
     if (controller.selectedPhoto != null) {
       final uploadResult =
@@ -107,7 +127,14 @@ class _AddMemberPageState extends State<AddMemberPage> {
       gymId: currentUser.tenantInfo.gymId,
     );
 
-    final success = await memberProvider.add(member);
+    final bool success;
+
+    if (isEditMode) {
+      await memberProvider.update(member);
+      success = memberProvider.failure == null;
+    } else {
+      success = await memberProvider.add(member);
+    }
 
 
 
