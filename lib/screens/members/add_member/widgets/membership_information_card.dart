@@ -20,8 +20,7 @@ class MembershipInformationCard extends StatelessWidget {
     );
 
     if (picked != null) {
-      controller.joiningDate = picked;
-      controller.setMembershipPlan(controller.membershipPlan);
+      controller.setJoiningDate(picked);
     }
   }
 
@@ -77,8 +76,28 @@ class MembershipInformationCard extends StatelessWidget {
                 }
               },
             ),
-
             const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.event),
+              title: const Text("Admission Date"),
+              subtitle: Text(
+                DateFormat('dd MMM yyyy')
+                    .format(controller.admissionDate),
+              ),
+              trailing: const Icon(Icons.edit),
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: controller.admissionDate,
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2050),
+                );
+
+                if (picked != null) {
+                  controller.setAdmissionDate(picked);
+                }
+              },
+            ),
 
             ListTile(
               leading: const Icon(Icons.calendar_today),

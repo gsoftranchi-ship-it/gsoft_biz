@@ -11,7 +11,7 @@ import 'widgets/medical_information_card.dart';
 import 'widgets/documents_card.dart';
 import 'widgets/save_member_button.dart';
 import 'package:provider/provider.dart';
-
+import '../../../../core/services/file_upload_service.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/member_provider.dart';
 import '../../../../models/member_model.dart';
@@ -78,6 +78,28 @@ class _AddMemberPageState extends State<AddMemberPage> {
         ),
       );
       return;
+    }
+    if (controller.selectedPhoto != null) {
+      final uploadResult =
+      await FileUploadService.instance.uploadImage(
+        gymId: currentUser.tenantInfo.gymId,
+        memberId: memberId,
+        category: UploadCategory.memberPhoto,
+        image: controller.selectedPhoto!,
+      );
+
+      if (!uploadResult.success) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(uploadResult.message),
+          ),
+        );
+        return;
+      }
+
+      controller.photoUrl = uploadResult.downloadUrl;
     }
 
     final MemberModel member = controller.buildMember(

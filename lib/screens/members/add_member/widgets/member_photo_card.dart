@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../controllers/member_form_controller.dart';
@@ -20,7 +20,7 @@ class _MemberPhotoCardState
     extends State<MemberPhotoCard> {
   final ImagePicker _picker = ImagePicker();
 
-  File? _selectedImage;
+  XFile? _selectedImage;
 
   Future<void> _pickImage(
       ImageSource source,
@@ -34,7 +34,8 @@ class _MemberPhotoCardState
     if (image == null) return;
 
     setState(() {
-      _selectedImage = File(image.path);
+      _selectedImage = image;
+      widget.controller.selectedPhoto = image;
     });
 
     // Firebase Storage upload
@@ -89,9 +90,20 @@ class _MemberPhotoCardState
               ),
               child: ClipOval(
                 child: _selectedImage != null
-                    ? Image.file(
-                  _selectedImage!,
-                  fit: BoxFit.cover,
+                    ? FutureBuilder<Uint8List>(
+                  future: _selectedImage!.readAsBytes(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    return Image.memory(
+                      snapshot.data!,
+                      fit: BoxFit.cover,
+                    );
+                  },
                 )
                     : Image.asset(
                   'assets/images/logo.png',

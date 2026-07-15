@@ -32,6 +32,7 @@ import 'widgets/member_reports_summary_card.dart';
 import 'widgets/member_reports_list_card.dart';
 import 'widgets/member_reports_actions_card.dart';
 import '../../models/member_model.dart';
+import 'package:intl/intl.dart';
 
 class MemberDetailsPage extends StatefulWidget {
   final MemberModel member;
@@ -41,65 +42,65 @@ class MemberDetailsPage extends StatefulWidget {
     required this.member,
   });
 
-     @override
-      State<MemberDetailsPage> createState() =>
-        _MemberDetailsPageState();
-      }
+  @override
+  State<MemberDetailsPage> createState() =>
+      _MemberDetailsPageState();
+}
 
-      class _MemberDetailsPageState
-      extends State<MemberDetailsPage> {
+class _MemberDetailsPageState
+    extends State<MemberDetailsPage> {
 
-        @override
-        Widget build(BuildContext context) {
-          final attendanceProvider =
-          context.watch<AttendanceProvider>();
+  @override
+  Widget build(BuildContext context) {
+    final attendanceProvider =
+    context.watch<AttendanceProvider>();
 
-          final memberAttendance =
-          attendanceProvider.attendance
-              .where(
-                (e) =>
-            e.memberId ==
-                widget.member.memberId,
-          )
-              .toList();
+    final memberAttendance =
+    attendanceProvider.attendance
+        .where(
+          (e) =>
+      e.memberId ==
+          widget.member.memberId,
+    )
+        .toList();
 
-          memberAttendance.sort(
-                (a, b) =>
-                b.attendanceDate.compareTo(
-                  a.attendanceDate,
-                ),
-          );
+    memberAttendance.sort(
+          (a, b) =>
+          b.attendanceDate.compareTo(
+            a.attendanceDate,
+          ),
+    );
 
-          final presentDays =
-              memberAttendance
-                  .where((e) => e.isPresent)
-                  .length;
+    final presentDays =
+        memberAttendance
+            .where((e) => e.isPresent)
+            .length;
 
-          final absentDays =
-              memberAttendance
-                  .where((e) => !e.isPresent)
-                  .length;
+    final absentDays =
+        memberAttendance
+            .where((e) => !e.isPresent)
+            .length;
 
-          final totalDays =
-              memberAttendance.length;
+    final totalDays =
+        memberAttendance.length;
 
-          final lastCheckIn =
-          memberAttendance.isEmpty ||
-              memberAttendance.first.checkInTime == null
-              ? "--"
-              : TimeOfDay.fromDateTime(
-            memberAttendance.first.checkInTime!,
-          ).format(context);
+    final lastCheckIn =
+    memberAttendance.isEmpty ||
+        memberAttendance.first.checkInTime == null
+        ? "--"
+        : TimeOfDay.fromDateTime(
+      memberAttendance.first.checkInTime!,
+    ).format(context);
 
-            return DefaultTabController(
-                length: 10,
-              child: Scaffold(
-                backgroundColor: const Color(0xFF111827),
-                appBar: AppBar(
-                title: const Text('Member Details'),
-                bottom: const TabBar(
-                isScrollable: true,
-              tabs: [
+    return DefaultTabController(
+      length: 10,
+      child: Scaffold(
+        backgroundColor: const Color(0xFF111827),
+        appBar: AppBar(
+          title: const Text('Member Details'),
+          bottom: const TabBar(
+            isScrollable: true,
+            tabs: [
               Tab(text: 'Profile'),
               Tab(text: 'Attendance'),
               Tab(text: 'Payments'),
@@ -119,21 +120,37 @@ class MemberDetailsPage extends StatefulWidget {
               child: Column(
                 children: [
                   MemberProfileHeader(
+                    photoUrl: widget.member.photoUrl,
                     memberName: widget.member.fullName,
                     memberId: widget.member.memberId,
                     isActive: widget.member.isActive,
                   ),
-                    MemberInformationCard(
-                      mobile: widget.member.phone,
-                      email: widget.member.email,
-                      gender: widget.member.gender,
-                      age: widget.member.age,
-                    ),
+                  MemberInformationCard(
+                    mobile: widget.member.phone,
+                    email: widget.member.email,
+                    gender: widget.member.gender,
+                    age: widget.member.age,
+                  ),
                   MembershipCard(
-                    plan: "Gold Membership",
-                    joinDate: "01 Jul 2026",
-                    expiryDate: "31 Dec 2026",
-                    remainingDays: 180,
+                    plan: widget.member.membershipPlan,
+
+                    joinDate: DateFormat(
+                      'dd MMM yyyy',
+                    ).format(widget.member.joiningDate),
+
+                    expiryDate: widget.member.membershipExpiryDate == null
+                        ? "--"
+                        : DateFormat(
+                      'dd MMM yyyy',
+                    ).format(
+                      widget.member.membershipExpiryDate!,
+                    ),
+
+                    remainingDays: widget.member.membershipExpiryDate == null
+                        ? 0
+                        : widget.member.membershipExpiryDate!
+                        .difference(DateTime.now())
+                        .inDays,
                   ),
                   MemberQuickActions(),
                 ],
@@ -161,11 +178,17 @@ class MemberDetailsPage extends StatefulWidget {
               child: Column(
                 children: [
                   MemberPaymentSummaryCard(
-                    totalFee: 12000,
-                    paidAmount: 9000,
-                    dueAmount: 3000,
-                    lastPayment: "05 Jul 2026",
-                    nextDueDate: "05 Aug 2026",
+                    totalFee: widget.member.totalAmount,
+                    paidAmount: widget.member.paidAmount,
+                    dueAmount: widget.member.dueAmount,
+
+                    lastPayment: "--",
+
+                    nextDueDate: widget.member.nextDueDate == null
+                        ? "--"
+                        : DateFormat(
+                      'dd MMM yyyy',
+                    ).format(widget.member.nextDueDate!),
                   ),
                   PaymentHistoryCard(),
                   PaymentQuickActions(),
@@ -176,8 +199,8 @@ class MemberDetailsPage extends StatefulWidget {
               child: Column(
                 children: [
                   WorkoutSummaryCard(
-                    trainer: "Rahul Singh",
-                    program: "Muscle Gain",
+                    trainer: widget.member.assignedTrainer,
+                    program: widget.member.fitnessGoal,
                     week: 4,
                     completed: 82,
                   ),
@@ -190,10 +213,10 @@ class MemberDetailsPage extends StatefulWidget {
               child: Column(
                 children:  [
                   DietSummaryCard(
-                    goal: "Muscle Gain",
-                    calories: 2800,
-                    meals: 5,
-                    trainer: "Rahul Singh",
+                    goal: widget.member.fitnessGoal,
+                    calories: 0,
+                    meals: 0,
+                    trainer: widget.member.assignedTrainer,
                   ),
                   DailyMealPlanCard(),
                 ],
@@ -203,11 +226,14 @@ class MemberDetailsPage extends StatefulWidget {
               child: Column(
                 children: [
                   HealthProgressCard(
-                    currentWeight: 74.5,
-                    targetWeight: 70.0,
-                    currentBMI: 24.2,
-                    targetBMI: 22.0,
-                    bodyFat: 18.5,
+                    currentWeight: widget.member.weight,
+
+                    targetWeight: widget.member.weight,
+
+                    currentBMI: widget.member.bmi,
+
+                    targetBMI: widget.member.bmi,
+                    bodyFat: 0.0,
                   ),
                   ProgressChartCard(),
                   ProgressPhotoCard(),
@@ -218,9 +244,16 @@ class MemberDetailsPage extends StatefulWidget {
               child: Column(
                 children: [
                   MedicalSummaryCard(
-                    bloodGroup: "O+",
-                    allergies: 0,
-                    conditions: 0,
+                    bloodGroup: widget.member.bloodGroup,
+
+                    allergies: widget.member.allergies.isEmpty
+                        ? 0
+                        : 1,
+
+                    conditions: widget.member.medicalConditions.isEmpty
+                        ? 0
+                        : 1,
+
                     fitForWorkout: true,
                   ),
                   MedicalHistoryCard(),
@@ -233,8 +266,9 @@ class MemberDetailsPage extends StatefulWidget {
                 children: [
                   DocumentsSummaryCard(
                     profilePhoto: true,
-                    aadhaar: true,
-                    pan: true,
+                    aadhaar: widget.member.aadhaarNumber.isNotEmpty,
+
+                    pan: widget.member.panNumber.isNotEmpty,
                     medicalReport: false,
                     otherDocuments: 2,
                   ),
@@ -247,10 +281,24 @@ class MemberDetailsPage extends StatefulWidget {
               child: Column(
                 children: [
                   RenewalSummaryCard(
-                    currentPlan: "Gold Membership",
-                    expiryDate: "31 Dec 2026",
-                    remainingDays: 180,
-                    status: "Active",
+                    currentPlan: widget.member.membershipPlan,
+
+                    expiryDate: widget.member.membershipExpiryDate == null
+                        ? "--"
+                        : DateFormat(
+                      'dd MMM yyyy',
+                    ).format(
+                      widget.member.membershipExpiryDate!,
+                    ),
+
+                    remainingDays: widget.member.membershipExpiryDate == null
+                        ? 0
+                        : widget.member.membershipExpiryDate!
+                        .difference(DateTime.now())
+                        .inDays,
+
+                    status: widget.member.membershipStatus,
+
                   ),
                   RenewalHistoryCard(),
                   RenewalActionsCard(),

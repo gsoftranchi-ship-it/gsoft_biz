@@ -1,9 +1,11 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-
 import '../../../../core/utils/age_calculator.dart';
 import '../../../../core/utils/bmi_calculator.dart';
-
+import 'package:image_picker/image_picker.dart';
 import '../../../../models/member_model.dart';
+import 'package:intl/intl.dart';
+
 
 class MemberFormController extends ChangeNotifier {
   //==========================
@@ -25,6 +27,8 @@ class MemberFormController extends ChangeNotifier {
   DateTime? dateOfBirth;
 
   String photoUrl = "";
+
+  XFile? selectedPhoto;
 
 
   //==========================
@@ -120,9 +124,9 @@ class MemberFormController extends ChangeNotifier {
 
     notifyListeners();
   }
-    //==========================
-    // DUE AMOUNT
-    //==========================
+  //==========================
+  // DUE AMOUNT
+  //==========================
   void calculateDue() {
     final total =
         double.tryParse(finalAmountController.text) ?? 0;
@@ -230,14 +234,55 @@ class MemberFormController extends ChangeNotifier {
 // DOCUMENTS
 //==========================
 
-  String aadhaarUrl = "";
+  final aadhaarNumberController =
+  TextEditingController();
 
-  String panUrl = "";
+  final panNumberController =
+  TextEditingController();
+
+  String aadhaarDocumentUrl = "";
+
+  String panDocumentUrl = "";
 
   String medicalReportUrl = "";
 
-  String otherDocumentUrl = "";
+  final List<String> otherDocumentUrls = [];
 
+// Selected files (before upload)
+  XFile? aadhaarFile;
+
+  XFile? panFile;
+
+  XFile? medicalFile;
+
+  final List<XFile> otherFiles = [];
+
+
+  //==========================
+  // DIGITAL SIGNATURE
+  //==========================
+
+  String memberSignatureUrl = "";
+
+  String staffSignatureUrl = "";
+  Uint8List? memberSignatureBytes;
+  Uint8List? staffSignatureBytes;
+
+  //==========================
+  // DECLARATION
+  //==========================
+
+  bool declarationAccepted = false;
+
+  void setDeclarationAccepted(bool value) {
+    declarationAccepted = value;
+    notifyListeners();
+  }
+  //==========================
+  // FITNESS
+  //==========================
+
+  String fitnessGoal = "General Fitness";
   //==========================
   // INITIALIZE
   //==========================
@@ -253,11 +298,10 @@ class MemberFormController extends ChangeNotifier {
   void updateDob(DateTime dob) {
     dateOfBirth = dob;
 
-    dobController.text =
-    "${dob.day}/${dob.month}/${dob.year}";
+    final age = AgeCalculator.ageFromDob(dob);
 
-    ageController.text =
-        AgeCalculator.calculateAge(dob).toString();
+    ageController.text = age.toString();
+    dobController.text = DateFormat('dd MMM yyyy').format(dob);
 
     notifyListeners();
   }
@@ -267,14 +311,14 @@ class MemberFormController extends ChangeNotifier {
   //==========================
 
   void updateAge(int age) {
+    ageController.text = age.toString();
 
-    final dob =
-    AgeCalculator.estimateDateOfBirth(age);
+    final dob = AgeCalculator.dobFromAge(age);
 
-    dateOfBirth = dob;
-
-    dobController.text =
-    "${dob.day}/${dob.month}/${dob.year}";
+    if (dob != null) {
+      dateOfBirth = dob;
+      dobController.text = DateFormat('dd MMM yyyy').format(dob);
+    }
 
     notifyListeners();
   }
@@ -328,6 +372,19 @@ class MemberFormController extends ChangeNotifier {
 
     notifyListeners();
   }
+  void setAdmissionDate(DateTime date) {
+    admissionDate = date;
+    notifyListeners();
+  }
+
+  void setJoiningDate(DateTime date) {
+    joiningDate = date;
+
+    // Recalculate expiry date
+    setMembershipPlan(membershipPlan);
+
+    notifyListeners();
+  }
 
 
   //==========================
@@ -359,19 +416,104 @@ class MemberFormController extends ChangeNotifier {
     required String gymId,
   }) {
     return MemberModel(
+      // Identity
       memberId: memberId,
       gymId: gymId,
       fullName: fullNameController.text.trim(),
       photoUrl: photoUrl,
+
+      // Personal
       dateOfBirth: dateOfBirth,
       age: int.tryParse(ageController.text) ?? 0,
       gender: gender,
-      isActive: isActive,
-      searchName: fullNameController.text.trim().toLowerCase(),
-      version: 1,
       phone: mobileController.text.trim(),
       email: emailController.text.trim(),
       address: addressController.text.trim(),
+      occupation: occupationController.text.trim(),
+
+      // Admission & Membership
+      admissionDate: admissionDate,
+      joiningDate: joiningDate,
+      membershipExpiryDate: expiryDate,
+      membershipPlan: membershipPlan,
+      membershipStatus: membershipStatus,
+      assignedTrainer: assignedTrainer,
+      batch: batch,
+      admissionSource: admissionSource,
+      remarks: remarksController.text.trim(),
+
+      // Payment Summary
+      admissionFee:
+      double.tryParse(admissionFeeController.text) ?? 0,
+      membershipFee:
+      double.tryParse(membershipFeeController.text) ?? 0,
+      discountAmount:
+      double.tryParse(discountController.text) ?? 0,
+      totalAmount:
+      double.tryParse(finalAmountController.text) ?? 0,
+      paidAmount:
+      double.tryParse(paidAmountController.text) ?? 0,
+      dueAmount:
+      double.tryParse(dueAmountController.text) ?? 0,
+      paymentMode: paymentMode,
+      nextDueDate: nextDueDate,
+
+      // Health
+      height:
+      double.tryParse(heightController.text) ?? 0,
+      weight:
+      double.tryParse(weightController.text) ?? 0,
+      bmi: bmi,
+      fitnessGoal: fitnessGoal,
+
+      // Emergency
+      emergencyContactName:
+      emergencyNameController.text.trim(),
+      emergencyContactPhone:
+      emergencyMobileController.text.trim(),
+      emergencyRelationship:
+      emergencyRelationshipController.text.trim(),
+
+      // Medical
+      bloodGroup:
+      bloodGroupController.text.trim(),
+      medicalConditions:
+      diseaseController.text.trim(),
+      allergies:
+      allergyController.text.trim(),
+      medicalRemarks:
+      medicalRemarksController.text.trim(),
+
+      // Documents
+      aadhaarNumber:
+      aadhaarNumberController.text.trim(),
+
+      panNumber:
+      panNumberController.text.trim(),
+
+      aadhaarDocumentUrl:
+      aadhaarDocumentUrl,
+
+      panDocumentUrl:
+      panDocumentUrl,
+
+      medicalReportUrl:
+      medicalReportUrl,
+
+      otherDocumentUrls:
+      List<String>.from(otherDocumentUrls),
+
+      memberSignatureUrl:
+      memberSignatureUrl,
+
+      staffSignatureUrl:
+      staffSignatureUrl,
+
+      // System
+      isActive: isActive,
+      searchName:
+      fullNameController.text.trim().toLowerCase(),
+      version: 1,
     );
   }
 
@@ -385,6 +527,26 @@ class MemberFormController extends ChangeNotifier {
     ageController.clear();
 
     dobController.clear();
+
+    aadhaarNumberController.clear();
+
+    panNumberController.clear();
+
+    aadhaarDocumentUrl = "";
+
+    panDocumentUrl = "";
+
+    medicalReportUrl = "";
+
+    otherDocumentUrls.clear();
+
+    memberSignatureUrl = "";
+
+    staffSignatureUrl = "";
+
+    declarationAccepted = false;
+
+    fitnessGoal = "General Fitness";
 
     mobileController.clear();
 
@@ -424,6 +586,12 @@ class MemberFormController extends ChangeNotifier {
 
     photoUrl = "";
 
+    selectedPhoto = null;
+    memberSignatureBytes = null;
+    staffSignatureBytes = null;
+
+    memberSignatureUrl = "";
+    staffSignatureUrl = "";
     gender = "Male";
 
     isActive = true;
@@ -437,6 +605,7 @@ class MemberFormController extends ChangeNotifier {
     expiryDate = null;
 
     memberIdController.clear();
+
 
     notifyListeners();
   }
@@ -544,6 +713,10 @@ class MemberFormController extends ChangeNotifier {
     doctorMobileController.dispose();
 
     medicalRemarksController.dispose();
+
+    aadhaarNumberController.dispose();
+
+    panNumberController.dispose();
 
     super.dispose();
   }
