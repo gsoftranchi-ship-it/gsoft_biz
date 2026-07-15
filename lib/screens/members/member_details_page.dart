@@ -93,7 +93,8 @@ class MemberDetailsPage extends StatefulWidget {
 
             return DefaultTabController(
                 length: 10,
-               child: Scaffold(
+              child: Scaffold(
+                backgroundColor: const Color(0xFF111827),
                 appBar: AppBar(
                 title: const Text('Member Details'),
                 bottom: const TabBar(
