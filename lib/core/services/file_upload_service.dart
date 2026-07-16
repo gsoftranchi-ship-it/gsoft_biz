@@ -292,7 +292,6 @@ class FileUploadService {
         data,
         SettableMetadata(
           contentType: _contentType(ext),
-          cacheControl: 'public,max-age=3600',
         ),
       );
 
@@ -367,11 +366,11 @@ class FileUploadService {
         bytes,
         SettableMetadata(
           contentType: _contentType(extension),
-          cacheControl: 'public,max-age=3600',
         ),
       );
 
       final url = await ref.getDownloadURL();
+
 
       return UploadResult.success(
         url: url,

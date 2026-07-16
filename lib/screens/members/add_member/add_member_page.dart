@@ -100,6 +100,7 @@ class _AddMemberPageState extends State<AddMemberPage> {
       memberId = generatedId;
     }
     if (controller.selectedPhoto != null) {
+
       final uploadResult =
       await FileUploadService.instance.uploadImage(
         gymId: currentUser.tenantInfo.gymId,
@@ -107,6 +108,7 @@ class _AddMemberPageState extends State<AddMemberPage> {
         category: UploadCategory.memberPhoto,
         image: controller.selectedPhoto!,
       );
+
 
       if (!uploadResult.success) {
         if (!mounted) return;
@@ -122,10 +124,12 @@ class _AddMemberPageState extends State<AddMemberPage> {
       controller.photoUrl = uploadResult.downloadUrl;
     }
 
+
     final MemberModel member = controller.buildMember(
       memberId: memberId,
       gymId: currentUser.tenantInfo.gymId,
     );
+
 
     final bool success;
 

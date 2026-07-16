@@ -1,0 +1,19 @@
+[
+  {
+    "origin": [
+      "http://localhost:56067",
+      "http://localhost:*",
+      "https://gsoft-biz-production.web.app",
+      "https://gsoft-biz-production.firebaseapp.com"
+    ],
+    "method": [
+      "GET",
+      "HEAD",
+      "OPTIONS"
+    ],
+    "responseHeader": [
+      "Content-Type"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]

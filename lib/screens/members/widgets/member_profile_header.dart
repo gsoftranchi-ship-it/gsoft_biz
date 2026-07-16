@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+
+
 
 class MemberProfileHeader extends StatelessWidget {
   const MemberProfileHeader({
@@ -17,6 +18,7 @@ class MemberProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Card(
       margin: const EdgeInsets.all(16),
       child: Padding(
@@ -28,23 +30,26 @@ class MemberProfileHeader extends StatelessWidget {
               height: 96,
               child: ClipOval(
                 child: photoUrl != null && photoUrl!.isNotEmpty
-                    ? CachedNetworkImage(
-                  imageUrl: photoUrl!,
+                    ? Image.network(
+                  photoUrl!,
+                  headers: const {
+                    'Accept': 'image/*',
+                  },
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => const Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
-                  ),
-                  errorWidget: (context, url, error) =>
-                      Container(
-                        color: Colors.grey.shade300,
-                        child: const Icon(
-                          Icons.person,
-                          size: 48,
-                        ),
-                      ),
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+
+
+                    return Container(
+                      color: Colors.grey.shade300,
+                      child: const Icon(Icons.person, size: 48),
+                    );
+                  },
                 )
+
                     : Container(
                   color: Colors.grey.shade300,
                   child: const Icon(
