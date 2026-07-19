@@ -15,7 +15,14 @@ import '../../providers/invoice_provider.dart';
 import '../../models/invoice_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../providers/invoice_item_provider.dart';
-
+import 'widgets/billing_header.dart';
+import 'widgets/invoice_summary_card.dart';
+import 'widgets/invoice_actions.dart';
+import 'widgets/payment_information_card.dart';
+import 'widgets/invoice_information_card.dart';
+import 'widgets/customer_type_section.dart';
+import 'widgets/member_selection_section.dart';
+import 'widgets/customer_details_section.dart';
 
 
 class CreateInvoicePage extends StatefulWidget {
@@ -55,11 +62,27 @@ class _CreateInvoicePageState
   final TextEditingController _notesController =
   TextEditingController();
 
+  final TextEditingController _receivedAmountController =
+  TextEditingController();
 
-  final String _paymentMethod = 'Cash';
+  final TextEditingController _balanceAmountController =
+  TextEditingController();
+
+  DateTime? _dueDate;
+
+
+  String _paymentMethod = 'Cash';
+  String _paymentStatus = 'Paid';
   String _customerType = 'MEMBER';
 
   String _taxType = 'GST';
+
+  String _discountType = 'None';
+
+  final TextEditingController _discountController =
+  TextEditingController();
+
+  double _discountAmount = 0.0;
 
   final TextEditingController _invoiceDateController =
   TextEditingController();
@@ -67,16 +90,15 @@ class _CreateInvoicePageState
   final TextEditingController _dueDateController =
   TextEditingController();
 
-
-
   MemberModel? _selectedMember;
   final List<InvoiceItemModel> _items = [];
 
 
   double _subTotal = 0;
-  final double _discount = 0;
+  // Discount is calculated dynamically using _discountAmount.
   double _tax = 0;
   double _grandTotal = 0;
+
 
   @override
   void initState() {
@@ -86,10 +108,15 @@ class _CreateInvoicePageState
         DateTime.now().toString().split(' ').first;
     _invoiceNumberController.text =
     "INV-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
+    _receivedAmountController.clear();
+    _balanceAmountController.text = '0.00';
+
+    _updatePaymentCalculation();
   }
 
   @override
   void dispose() {
+    _discountController.dispose();
     _invoiceNumberController.dispose();
     _memberController.dispose();
     _customerController.dispose();
@@ -100,6 +127,8 @@ class _CreateInvoicePageState
     _addressController.dispose();
     _gstinController.dispose();
     _notesController.dispose();
+    _receivedAmountController.dispose();
+    _balanceAmountController.dispose();
     super.dispose();
   }
 
@@ -119,12 +148,41 @@ class _CreateInvoicePageState
       tax = 0;
     }
 
+    final baseTotal = subtotal + tax;
+    final calculatedDiscount = _calculateDiscount(baseTotal);
+
     setState(() {
       _subTotal = subtotal;
       _tax = tax;
-      _grandTotal = subtotal + tax - _discount;
+      _discountAmount = calculatedDiscount;
+      _grandTotal = baseTotal - calculatedDiscount;
     });
+
+    _updatePaymentCalculation();
   }
+
+    double _calculateDiscount(double total) {
+      final value =
+          double.tryParse(_discountController.text.trim()) ?? 0.0;
+
+      if (value <= 0) {
+        return 0.0;
+      }
+
+      switch (_discountType) {
+        case 'Fixed':
+          return value > total ? total : value;
+
+        case 'Percentage':
+          final discount = total * value / 100;
+          return discount > total ? total : discount;
+
+        default:
+          return 0.0;
+      }
+    }
+
+
   Future<void> _saveInvoice() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -199,9 +257,12 @@ class _CreateInvoicePageState
 
         subtotal: _subTotal,
 
-        discountAmount: _discount,
+        discountAmount: _discountAmount,
 
-        discountPercentage: 0,
+        discountPercentage:
+        _discountType == 'Percentage'
+            ? (double.tryParse(_discountController.text.trim()) ?? 0)
+            : 0,
 
         taxableAmount: _subTotal,
 
@@ -221,11 +282,24 @@ class _CreateInvoicePageState
 
         grandTotal: _grandTotal,
 
-        receivedAmount: 0,
+        receivedAmount:
+        double.tryParse(
+          _receivedAmountController.text,
+        ) ??
+            0,
 
-        balanceAmount: _grandTotal,
+        balanceAmount:
+        double.tryParse(
+          _balanceAmountController.text,
+        ) ??
+            0,
 
-        paymentStatus: PaymentStatus.unpaid,
+        paymentStatus:
+        _paymentStatus == 'Paid'
+            ? PaymentStatus.paid
+            : _paymentStatus == 'Partial'
+            ? PaymentStatus.partial
+            : PaymentStatus.unpaid,
 
         paymentMethod: _paymentMethod,
 
@@ -309,19 +383,7 @@ class _CreateInvoicePageState
       );
     }
   }
-  Future<void> _saveAndCollectPayment() async {
-    await _saveInvoice();
 
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          "Payment module will open next.",
-        ),
-      ),
-    );
-  }
   Future<void> _addProduct() async {
     final product = await showDialog<ProductModel>(
       context: context,
@@ -331,10 +393,30 @@ class _CreateInvoicePageState
     if (product == null) return;
 
     setState(() {
+      final existingIndex = _items.indexWhere(
+            (item) =>
+        item.referenceId == product.productId &&
+            item.itemType == InvoiceItemType.product,
+      );
+
+      if (existingIndex != -1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Product already exists in the invoice.'),
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+
       _items.add(
         InvoiceItemModel(
           invoiceItemId:
-          DateTime.now().millisecondsSinceEpoch.toString(),
+          DateTime
+              .now()
+              .millisecondsSinceEpoch
+              .toString(),
           invoiceId: '',
           itemType: InvoiceItemType.product,
           referenceId: product.productId,
@@ -369,534 +451,451 @@ class _CreateInvoicePageState
       _calculateTotals();
     });
   }
+  Future<void> _selectDueDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
 
-  void _deleteItem(int index) {
-    setState(() {
-      _items.removeAt(index);
-    });
+    if (picked != null) {
+      setState(() {
+        _dueDate = picked;
+      });
+    }
   }
 
-  @override
-  Widget build(BuildContext context) {
+      void _deleteItem(int index) {
+        setState(() {
+          _items.removeAt(index);
+        });
+      }
+  void _increaseQuantity(int index) {
+    setState(() {
+      final item = _items[index];
 
-    return Scaffold(
+      final double quantity = item.quantity + 1.0;
+      final double amount = quantity * item.unitPrice;
+      final double tax = _taxType == 'GST'
+          ? amount * (item.taxPercentage / 100)
+          : 0.0;
 
-      appBar: AppBar(
-        title: const Text(
-          'Create Invoice',
-        ),
-      ),
+      _items[index] = item.copyWith(
+        quantity: quantity,
+        taxAmount: tax,
+        lineTotal: amount,
+      );
+    });
 
-      body: Form(
-        key: _formKey,
+    _calculateTotals();
+  }
 
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+  void _decreaseQuantity(int index) {
+    if (_items[index].quantity <= 1) return;
 
-          children: [
+    setState(() {
+      final item = _items[index];
 
-            Center(
-              child: Image.asset(
-                'assets/images/logo.png',
-                height: 90,
+      final double quantity = item.quantity - 1.0;
+      final double amount = quantity * item.unitPrice;
+      final double tax = _taxType == 'GST'
+          ? amount * (item.taxPercentage / 100)
+          : 0.0;
+
+      _items[index] = item.copyWith(
+        quantity: quantity,
+        taxAmount: tax,
+        lineTotal: amount,
+      );
+    });
+
+    _calculateTotals();
+  }
+
+  void _updatePaymentCalculation() {
+    final double grandTotal = _grandTotal;
+
+    final double received =
+        double.tryParse(_receivedAmountController.text) ?? 0.0;
+
+    switch (_paymentStatus) {
+      case 'Paid':
+        _balanceAmountController.text = '0.00';
+        break;
+
+      case 'Partial':
+        final balance = grandTotal - received;
+
+        _balanceAmountController.text =
+        balance <= 0
+            ? '0.00'
+            : balance.toStringAsFixed(2);
+        break;
+
+      case 'Credit':
+        _receivedAmountController.clear();
+
+        _balanceAmountController.text =
+            grandTotal.toStringAsFixed(2);
+        break;
+    }
+  }
+
+
+      @override
+      Widget build(BuildContext context) {
+        return Scaffold(
+          backgroundColor: Theme
+              .of(context)
+              .colorScheme
+              .surface,
+
+          appBar: null,
+
+          body: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 1300,
               ),
-            ),
+              child: Form(
+                key: _formKey,
 
-            const SizedBox(height: 12),
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
 
-            const Center(
-              child: Text(
-                'Billing',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+                  children: [
 
-            const Center(
-              child: Text(
-                'Create Invoice',
-              ),
-            ),
+                    const BillingHeader(),
 
-            const SizedBox(height: 24),
+                    InvoiceInformationCard(
+                      invoiceNumberController: _invoiceNumberController,
+                      invoiceDateController: _invoiceDateController,
+                      dueDateController: _dueDateController,
+                    ),
 
-            TextFormField(
-              controller:
-              _invoiceNumberController,
+                    const SizedBox(height: 5),
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
 
-              readOnly: true,
+                            const Text(
+                              'Customer Information',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
 
-              decoration:
-              const InputDecoration(
-                labelText:
-                'Invoice Number',
-              ),
-            ),
+                            const SizedBox(height: 16),
 
-            const SizedBox(height: 16),
+                        CustomerTypeSection(
+                          customerType: _customerType,
+                          onChanged: (value) {
+                            if (value == null) return;
 
-            TextFormField(
-              controller:
-              _invoiceDateController,
+                            setState(() {
+                              _customerType = value;
+                              if (value == 'GUEST') {
+                                _selectedMember = null;
 
-              readOnly: true,
+                                _memberController.clear();
+                                _customerController.clear();
+                                _phoneController.clear();
+                                _emailController.clear();
+                                _addressController.clear();
+                                _gstinController.clear();
+                              }
+                            });
+                          },
+                        ),
 
-              decoration:
-              const InputDecoration(
-                labelText:
-                'Invoice Date',
-                suffixIcon:
-                Icon(Icons.calendar_today),
-              ),
-            ),
+                            const SizedBox(height: 16),
 
-            const SizedBox(height: 16),
+                            if (_customerType == 'MEMBER') ...[
+                              MemberSelectionSection(
+                                memberController: _memberController,
+                                selectedMember: _selectedMember,
+                                onTap: () async {
+                                  final memberProvider = context.read<MemberProvider>();
 
-            TextFormField(
-              controller:
-              _dueDateController,
+                                  await showDialog(
+                                    context: context,
+                                    builder: (_) => MemberSelectorDialog(
+                                      members: memberProvider.members,
+                                      onSelected: (member) {
+                                        setState(() {
+                                          _selectedMember = member;
 
-              readOnly: true,
+                                          _memberController.text = member.fullName;
+                                          _customerController.text = member.fullName;
+                                          _phoneController.text = member.phone;
+                                          _emailController.text = member.email;
+                                          _addressController.text = member.address;
+                                        });
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
 
-              decoration:
-              const InputDecoration(
-                labelText:
-                'Due Date',
-                suffixIcon:
-                Icon(Icons.event),
-              ),
-            ),
+                              const SizedBox(height: 16),
+                            ],
 
-            const SizedBox(height: 24),
+                            const SizedBox(height: 16),
 
-            const Divider(),
-            const Text(
-              'Customer Type',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+                            CustomerDetailsSection(
+                              customerType: _customerType,
+                              customerController: _customerController,
+                              phoneController: _phoneController,
+                              emailController: _emailController,
+                              addressController: _addressController,
+                              gstinController: _gstinController,
+                            ),
 
-            const SizedBox(height: 16),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+                    ),
 
-            DropdownButtonFormField<String>(
-              initialValue: _customerType,
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.people),
-                labelText: 'Customer Type',
-              ),
-              items: const [
+                    const SizedBox(height: 20),
 
-                DropdownMenuItem(
-                  value: 'MEMBER',
-                  child: Text('Gym Member'),
-                ),
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
 
-                DropdownMenuItem(
-                  value: 'GUEST',
-                  child: Text('Walk-in Guest'),
-                ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  'STEP 2',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  'Products / Services',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
 
-              ],
-              onChanged: (value) {
+                            SizedBox(height: 12),
 
-                if (value == null) return;
+                            InvoiceItemsTable(
+                              items: _items,
+                              onAddProduct: _addProduct,
+                              onDeleteItem: _deleteItem,
+                              onIncreaseQuantity: _increaseQuantity,
+                              onDecreaseQuantity: _decreaseQuantity,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
 
-                setState(() {
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'STEP 3',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
 
-                  _customerType = value;
+                            const SizedBox(height: 4),
 
-                  if (value == 'GUEST') {
-                    _selectedMember = null;
+                            const Text(
+                              'Discount',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
 
-                    _memberController.clear();
-                    _customerController.clear();
-                    _phoneController.clear();
-                    _emailController.clear();
-                    _addressController.clear();
-                    _gstinController.clear();
-                  }
+                            const SizedBox(height: 20),
 
-                });
+                            DropdownButtonFormField<String>(
+                              initialValue: _discountType,
+                              decoration: const InputDecoration(
+                                labelText: 'Discount Type',
+                                prefixIcon: Icon(Icons.discount),
+                              ),
+                              items: const [
+                                DropdownMenuItem(
+                                  value: 'None',
+                                  child: Text('No Discount'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'Fixed',
+                                  child: Text('Fixed Amount'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'Percentage',
+                                  child: Text('Percentage (%)'),
+                                ),
+                              ],
+                              onChanged: (value) {
+                                if (value == null) return;
 
-              },
-            ),
+                                setState(() {
+                                  _discountType = value;
 
-            const SizedBox(height: 16),
+                                  if (_discountType == 'None') {
+                                    _discountController.clear();
+                                  }
+                                });
 
-            if (_customerType == 'MEMBER') ...[
-              TextFormField(
-                controller: _memberController,
-                readOnly: true,
-                onTap: () async {
-                  final memberProvider = context.read<MemberProvider>();
+                                _calculateTotals();
+                              },
+                            ),
 
-                  await showDialog(
-                    context: context,
-                    builder: (_) => MemberSelectorDialog(
-                      members: memberProvider.members,
-                      onSelected: (member) {
+                            if (_discountType != 'None') ...[
+                              const SizedBox(height: 20),
+
+                              TextFormField(
+                                controller: _discountController,
+                                onChanged: (_) {
+                                  _calculateTotals();
+                                },
+                                keyboardType: const TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: _discountType == 'Fixed'
+                                      ? 'Discount Amount'
+                                      : 'Discount Percentage',
+                                  prefixIcon: Icon(
+                                    _discountType == 'Fixed'
+                                        ? Icons.currency_rupee
+                                        : Icons.percent,
+                                  ),
+                                ),
+                              ),
+                            ],
+
+                            const SizedBox(height: 20),
+
+                            TextFormField(
+                              readOnly: true,
+                              controller: TextEditingController(
+                                text: _discountAmount.toStringAsFixed(2),
+                              ),
+                              decoration: const InputDecoration(
+                                labelText: 'Discount Applied',
+                                prefixIcon: Icon(Icons.savings),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    PaymentInformationCard(
+                      receivedAmountController: _receivedAmountController,
+                      balanceAmountController: _balanceAmountController,
+                      dueDate: _dueDate,
+                      onSelectDueDate: _selectDueDate,
+                      onReceivedAmountChanged: () {
+                        _updatePaymentCalculation();
+                      },
+                      taxType: _taxType,
+                      paymentMethod: _paymentMethod,
+                      notesController: _notesController,
+                      onTaxTypeChanged: (value) {
+                        if (value == null) return;
+
                         setState(() {
-                          _selectedMember = member;
+                          _taxType = value;
+                        });
 
-                          _memberController.text = member.fullName;
-                          _customerController.text = member.fullName;
-                          _phoneController.text = member.phone;
-                          _emailController.text = member.email;
-                          _addressController.text = member.address;
+
+                        _calculateTotals();
+                      },
+                      onPaymentMethodChanged: (value) {
+                        if (value == null) return;
+
+                        setState(() {
+                          _paymentMethod = value;
+                        });
+                      },
+                      paymentStatus: _paymentStatus,
+
+                      onPaymentStatusChanged: (value) {
+                        setState(() {
+                          _paymentStatus = value;
+
+                          if (value == 'Paid') {
+                            _receivedAmountController.text =
+                                _grandTotal.toStringAsFixed(2);
+
+                            _balanceAmountController.text = '0.00';
+                          }
+
+                          if (value == 'Credit') {
+                            _receivedAmountController.clear();
+                          }
+
+                          _updatePaymentCalculation();
                         });
                       },
                     ),
-                  );
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Select Member',
-                  hintText: 'Tap to select member',
-                  prefixIcon: Icon(Icons.person_search),
-                  suffixIcon: Icon(Icons.search),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-            ],
-            const SizedBox(height: 16),
-
-            if (_customerType == 'GUEST') ...[
-              TextFormField(
-                controller: _customerController,
-                decoration: const InputDecoration(
-                  labelText: 'Customer Name',
-                  prefixIcon: Icon(Icons.person),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-            ],
-
-            if (_customerType == 'MEMBER' &&
-                _selectedMember != null) ...[
-              const SizedBox(height: 16),
-
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                    children: [
-
-                      Text(
-                        _selectedMember!.fullName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      Text(
-                        'Phone : ${_selectedMember!.phone}',
-                      ),
-
-                      Text(
-                        'Email : ${_selectedMember!.email}',
-                      ),
-
-                      Text(
-                        'Address : ${_selectedMember!.address}',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-
-            const SizedBox(height: 24),
-
-            if (_customerType == 'GUEST') ...[
-            const Text(
-              'Customer Information',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            TextFormField(
-              controller: _phoneController,
-              readOnly: _customerType == 'MEMBER',
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: 'Phone',
-                prefixIcon: Icon(Icons.phone),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            TextFormField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            TextFormField(
-              controller: _addressController,
-              maxLines: 2,
-              decoration: const InputDecoration(
-                labelText: 'Address',
-                prefixIcon: Icon(Icons.location_on),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            TextFormField(
-              controller: _gstinController,
-              decoration: const InputDecoration(
-                labelText: 'GSTIN (Optional)',
-                prefixIcon: Icon(Icons.badge),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-            ],
-
-            const Divider(),
-
-            const SizedBox(height: 16),
-
-            const Text(
-              'Invoice Items',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            SizedBox(height: 12),
-
-            InvoiceItemsTable(
-              items: _items,
-              onAddProduct: _addProduct,
-              onDeleteItem: _deleteItem,
-            ),
-
-            const SizedBox(height: 24),
-            const Text(
-              'Tax Type',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            DropdownButtonFormField<String>(
-              initialValue: _taxType,
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.receipt_long),
-                labelText: 'Tax Type',
-              ),
-              items: const [
-
-                DropdownMenuItem(
-                  value: 'GST',
-                  child: Text('GST Invoice'),
-                ),
-
-                DropdownMenuItem(
-                  value: 'NON_GST',
-                  child: Text('Non GST Invoice'),
-                ),
-
-              ],
-              onChanged: (value) {
-
-                if (value == null) return;
-
-                setState(() {
-
-                  _taxType = value;
-
-                  _calculateTotals();
-
-                });
-
-              },
-            ),
-
-            const Text(
-              'Payment Information',
-
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            DropdownButtonFormField<String>(
-              initialValue: _paymentMethod,
-              decoration: const InputDecoration(
-                labelText: 'Payment Method',
-                prefixIcon: Icon(Icons.payments),
-              ),
-              items: const [
-                DropdownMenuItem(
-                  value: 'Cash',
-                  child: Text('Cash'),
-                ),
-                DropdownMenuItem(
-                  value: 'UPI',
-                  child: Text('UPI'),
-                ),
-                DropdownMenuItem(
-                  value: 'Card',
-                  child: Text('Card'),
-                ),
-                DropdownMenuItem(
-                  value: 'Bank',
-                  child: Text('Bank Transfer'),
-                ),
-              ],
-              onChanged: (_) {},
-            ),
-
-            const SizedBox(height: 16),
-
-            TextFormField(
-              controller: _notesController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Notes / Remarks',
-                prefixIcon: Icon(Icons.notes),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-
-                    Row(
-                      children: [
-
-                        Expanded(
-                          child: Text('Subtotal'),
-                        ),
-
-                        Text(
-                          '₹ ${_subTotal.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 20),
+                    InvoiceSummaryCard(
+                      subTotal: _subTotal,
+                      discount: _discountAmount,
+                      tax: _tax,
+                      grandTotal: _grandTotal,
                     ),
 
-                    SizedBox(height: 10),
+                    const SizedBox(height: 20),
 
-                    Row(
-                      children: [
-
-                        Expanded(
-                          child: Text('Discount'),
-                        ),
-
-                        Text(
-                          '₹ ${_discount.toStringAsFixed(2)}',
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 10),
-
-                    Row(
-                      children: [
-
-                        Expanded(
-                          child: Text('Tax'),
-                        ),
-
-                        Text(
-                          '₹ ${_tax.toStringAsFixed(2)}',
-                        ),
-                      ],
-                    ),
-
-                    Divider(height: 30),
-
-                    Row(
-                      children: [
-
-                        Expanded(
-                          child: Text(
-                            'Grand Total',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-
-                        Text(
-                          '₹ ${_grandTotal.toStringAsFixed(2)}',
-                          style:TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
+                    InvoiceActions(
+                      onCancel: () => Navigator.pop(context),
+                      onSaveDraft: () {
+                        // TODO: Save Draft
+                      },
+                      onSave: _saveInvoice,
                     ),
                   ],
                 ),
               ),
             ),
-
-            SizedBox(height: 24),
-
-            FilledButton.icon(
-              onPressed: _saveInvoice,
-              icon: const Icon(Icons.save),
-              label: const Text('Save Invoice'),
-            ),
-
-            SizedBox(height: 12),
-
-            OutlinedButton.icon(
-              onPressed: _saveAndCollectPayment,
-              icon: const Icon(Icons.payments),
-              label: const Text('Save & Collect Payment'),
-            ),
-
-            SizedBox(height: 12),
-
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancel'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+          ),
+        );
+      }
+    }

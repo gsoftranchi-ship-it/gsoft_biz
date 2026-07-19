@@ -7,6 +7,8 @@ class InvoiceItemsTable extends StatelessWidget {
     required this.items,
     required this.onAddProduct,
     required this.onDeleteItem,
+    required this.onIncreaseQuantity,
+    required this.onDecreaseQuantity,
   });
 
   final List<InvoiceItemModel> items;
@@ -14,6 +16,10 @@ class InvoiceItemsTable extends StatelessWidget {
   final VoidCallback onAddProduct;
 
   final ValueChanged<int> onDeleteItem;
+
+  final ValueChanged<int> onIncreaseQuantity;
+
+  final ValueChanged<int> onDecreaseQuantity;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +55,7 @@ class InvoiceItemsTable extends StatelessWidget {
 
             Table(
               border: TableBorder.all(
-                color: Colors.grey.shade300,
+                color: Theme.of(context).dividerColor,
               ),
               columnWidths: const {
 
@@ -64,11 +70,11 @@ class InvoiceItemsTable extends StatelessWidget {
                 4: FlexColumnWidth(1),
               },
 
-              children: const [
+              children: [
 
                 TableRow(
                   decoration: BoxDecoration(
-                    color: Color(0xffF5F5F5),
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                   children: [
 
@@ -155,8 +161,26 @@ class InvoiceItemsTable extends StatelessWidget {
                           ),
 
                           Expanded(
-                            child: Text(
-                              item.quantity.toStringAsFixed(0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  icon: const Icon(Icons.remove_circle_outline),
+                                  onPressed: () => onDecreaseQuantity(index),
+                                ),
+                                Text(
+                                  item.quantity.toStringAsFixed(0),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  icon: const Icon(Icons.add_circle_outline),
+                                  onPressed: () => onIncreaseQuantity(index),
+                                ),
+                              ],
                             ),
                           ),
 
