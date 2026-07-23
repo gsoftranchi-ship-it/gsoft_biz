@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_colors.dart';
+
+
 
 class MembershipCard extends StatelessWidget {
   const MembershipCard({
@@ -17,6 +20,7 @@ class MembershipCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).cardColor,
       margin: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 8,
@@ -31,7 +35,10 @@ class MembershipCard extends StatelessWidget {
               style: Theme.of(context).textTheme.titleLarge,
             ),
 
-            const Divider(height: 24),
+            const Divider(
+              height: 24,
+              color: AppColors.divider,
+            ),
 
             _row("Plan", plan),
             _row("Joining", joinDate),
@@ -40,7 +47,9 @@ class MembershipCard extends StatelessWidget {
               "Remaining",
               "$remainingDays Days",
               valueColor:
-              remainingDays <= 7 ? Colors.red : Colors.green,
+              remainingDays <= 7
+                  ? AppColors.danger
+                  : AppColors.success,
             ),
           ],
         ),
@@ -58,13 +67,18 @@ class MembershipCard extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(title),
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+              ),
+            ),
           ),
           Text(
             value,
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              color: valueColor,
+              color: valueColor ?? AppColors.textPrimary,
             ),
           ),
         ],

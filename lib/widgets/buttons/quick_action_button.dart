@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
+import '../../core/constants/app_spacing.dart';
+import '../../core/constants/app_typography.dart';
 
 class QuickActionButton extends StatelessWidget {
   final IconData icon;
@@ -14,8 +16,6 @@ class QuickActionButton extends StatelessWidget {
     required this.title,
     required this.onTap,
   });
-
-  @override
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -23,13 +23,13 @@ class QuickActionButton extends StatelessWidget {
       onTap: onTap,
       child: Ink(
         padding: const EdgeInsets.symmetric(
-          vertical: 16,
+          vertical: AppSpacing.lg,
         ),
         decoration: BoxDecoration(
           color: AppColors.cardDark,
           borderRadius: BorderRadius.circular(AppRadius.lg),
           border: Border.all(
-            color: Colors.white.withValues(alpha: .05),
+            color: AppColors.border,
           ),
         ),
         child: Column(
@@ -44,10 +44,11 @@ class QuickActionButton extends StatelessWidget {
                 color: AppColors.primary,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: AppSpacing.md),
             Text(
               title,
               textAlign: TextAlign.center,
+              style: AppTypography.bodySmall,
             ),
           ],
         ),

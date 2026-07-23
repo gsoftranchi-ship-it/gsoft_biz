@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/widgets/erp_dropdown.dart';
 
 class CustomerTypeSection extends StatelessWidget {
   const CustomerTypeSection({
@@ -12,18 +13,15 @@ class CustomerTypeSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<String>(
-      initialValue: customerType,
-      decoration: const InputDecoration(
-        labelText: 'Customer Type',
-        prefixIcon: Icon(Icons.person_outline),
-      ),
+    return ERPDropdown<String>(
+      value: customerType,
+      label: 'Customer Type',
+      prefixIcon: const Icon(Icons.person_outline),
       items: const [
         DropdownMenuItem(
           value: 'MEMBER',
           child: Text('Gym Member'),
         ),
-
         DropdownMenuItem(
           value: 'GUEST',
           child: Text('Walk-In Customer'),

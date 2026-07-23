@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../core/widgets/erp_text_field.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
 
 class CustomerDetailsSection extends StatelessWidget {
   const CustomerDetailsSection({
@@ -25,72 +28,59 @@ class CustomerDetailsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (customerType == 'GUEST') ...[
-          TextFormField(
+          ERPTextField(
             controller: customerController,
-            decoration: const InputDecoration(
-              labelText: 'Customer Name',
-              prefixIcon: Icon(Icons.person),
-            ),
+            label: 'Customer Name',
+            prefixIcon: const Icon(Icons.person),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.md),
         ],
 
         if (customerType == 'GUEST') ...[
           const Text(
             'Customer Information',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTypography.cardTitle,
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.md),
         ],
 
-        TextFormField(
+        ERPTextField(
           controller: phoneController,
+          label: 'Phone',
           readOnly: customerType == 'MEMBER',
           keyboardType: TextInputType.phone,
-          decoration: const InputDecoration(
-            labelText: 'Phone',
-            prefixIcon: Icon(Icons.phone),
-          ),
+          prefixIcon: const Icon(Icons.phone),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.md),
 
-        TextFormField(
+        ERPTextField(
           controller: emailController,
+          label: 'Email',
           readOnly: customerType == 'MEMBER',
           keyboardType: TextInputType.emailAddress,
-          decoration: const InputDecoration(
-            labelText: 'Email',
-            prefixIcon: Icon(Icons.email),
-          ),
+          prefixIcon: const Icon(Icons.email),
         ),
 
         const SizedBox(height: 16),
 
-        TextFormField(
+        ERPTextField(
           controller: addressController,
+          label: 'Address',
           readOnly: customerType == 'MEMBER',
           maxLines: 2,
-          decoration: const InputDecoration(
-            labelText: 'Address',
-            prefixIcon: Icon(Icons.location_on),
-          ),
+          prefixIcon: const Icon(Icons.location_on),
         ),
 
         const SizedBox(height: 16),
 
-        TextFormField(
+        ERPTextField(
           controller: gstinController,
+          label: 'GSTIN (Optional)',
           readOnly: customerType == 'MEMBER',
-          decoration: const InputDecoration(
-            labelText: 'GSTIN (Optional)',
-            prefixIcon: Icon(Icons.badge),
-          ),
+          prefixIcon: const Icon(Icons.badge),
         ),
       ],
     );

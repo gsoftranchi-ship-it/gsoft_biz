@@ -6,7 +6,15 @@ import '../../providers/member_provider.dart';
 import '../../models/attendance_model.dart';
 import '../../models/member_model.dart';
 import '../../providers/auth_provider.dart';
-
+import '../../core/widgets/erp_page_header.dart';
+import '../../core/widgets/erp_loading.dart';
+import '../../core/widgets/erp_search_bar.dart';
+import '../../core/widgets/erp_card.dart';
+import '../../core/widgets/erp_status_chip.dart';
+import '../../core/constants/app_spacing.dart';
+import '../../core/constants/app_typography.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/widgets/erp_empty_state.dart';
 
 
 class AttendancePage extends StatefulWidget {
@@ -43,8 +51,8 @@ class _AttendancePageState extends State<AttendancePage> {
 
     if (attendanceProvider.loading ||
         memberProvider.loading) {
-      return const Center(
-        child: CircularProgressIndicator(),
+      return const ERPLoading(
+        message: 'Loading attendance...',
       );
     }
 
@@ -94,34 +102,22 @@ class _AttendancePageState extends State<AttendancePage> {
       child: Column(
           children: [
 
-      Padding(
-      padding: const EdgeInsets.fromLTRB(16,16,16,8),
-      child: Row(
-        children: [
-          const Expanded(
-            child: Text(
-              "Attendance",
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            ERPPageHeader(
+              title: 'Attendance',
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.calendar_month),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.download),
+                  ),
+                ],
               ),
             ),
-          ),
-
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.calendar_month),
-          ),
-
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.download),
-          ),
-        ],
-      ),
-    ),
-
 
 
     Expanded(
@@ -129,15 +125,12 @@ class _AttendancePageState extends State<AttendancePage> {
         padding: const EdgeInsets.all(16),
         children: [
 
-          const Text(
+          Text(
             "Today's Attendance",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTypography.pageTitle,
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.lg),
 
           Row(
             children: [
@@ -151,7 +144,7 @@ class _AttendancePageState extends State<AttendancePage> {
                 ),
               ),
 
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.md),
 
               Expanded(
                 child: _summary(
@@ -193,18 +186,20 @@ class _AttendancePageState extends State<AttendancePage> {
             ],
           ),
 
-          const SizedBox(height: 25),
+          const SizedBox(height: AppSpacing.xl),
 
-          TextField(
+          ERPSearchBar(
             controller: searchController,
-            decoration: const InputDecoration(
-              hintText: "Search Member",
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.search),
-            ),
+            hint: 'Search Member',
+            onChanged: (_) {
+              setState(() {});
+            },
+            onClear: () {
+              setState(() {});
+            },
           ),
 
-          const SizedBox(height: 25),
+          const SizedBox(height: AppSpacing.xl),
 
           const Text(
             "Today's Members",
@@ -214,11 +209,40 @@ class _AttendancePageState extends State<AttendancePage> {
             ),
           ),
 
-          const SizedBox(height: 15),
+          const SizedBox(height: AppSpacing.md),
 
-          ...memberProvider.members
-              .where((member) => member.isActive)
-              .map((member) {
+          if (memberProvider.members
+              .where((member) {
+            if (!member.isActive) return false;
+
+            final search =
+            searchController.text.trim().toLowerCase();
+
+            if (search.isEmpty) return true;
+
+            return member.fullName.toLowerCase().contains(search) ||
+                member.memberId.toLowerCase().contains(search);
+          })
+              .isEmpty)
+            const ERPEmptyState(
+              icon: Icons.people_outline,
+              title: 'No Members Found',
+              message: 'No active members match your search.',
+            )
+          else
+            ...memberProvider.members
+                .where((member) {
+              if (!member.isActive) return false;
+
+              final search =
+              searchController.text.trim().toLowerCase();
+
+              if (search.isEmpty) return true;
+
+              return member.fullName.toLowerCase().contains(search) ||
+                  member.memberId.toLowerCase().contains(search);
+            })
+                .map((member) {
 
             final todayRecord = todaysAttendance.cast<AttendanceModel?>().firstWhere(
                   (record) => record?.memberId == member.memberId,
@@ -258,11 +282,11 @@ class _AttendancePageState extends State<AttendancePage> {
       IconData icon,
       ) {
 
-    return Card(
+    return ERPCard(
 
       child: Padding(
 
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(AppSpacing.lg),
 
         child: Column(
 
@@ -277,7 +301,7 @@ class _AttendancePageState extends State<AttendancePage> {
               ),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: AppSpacing.md),
 
             Text(
               value,
@@ -288,9 +312,12 @@ class _AttendancePageState extends State<AttendancePage> {
               ),
             ),
 
-            const SizedBox(height: 6),
+            const SizedBox(height: AppSpacing.xs),
 
-            Text(title),
+            Text(
+              title,
+              style: AppTypography.bodySmall,
+            ),
 
           ],
         ),
@@ -309,21 +336,30 @@ class _AttendancePageState extends State<AttendancePage> {
     final isPresent = attendance != null;
     final memberName = member.fullName;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+    return ERPCard(
+
       child: ListTile(
         leading: CircleAvatar(
+          backgroundColor: AppColors.primary,
           child: Text(
             memberName.isNotEmpty ? memberName[0] : "?",
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
 
-        title: Text(memberName),
+        title: Text(
+          memberName,
+          style: AppTypography.cardTitle,
+        ),
 
         subtitle: Text(
           isPresent
               ? "Check In : $time"
               : "Not Checked In",
+          style: AppTypography.bodySmall,
         ),
 
         trailing: attendance == null
@@ -390,14 +426,9 @@ class _AttendancePageState extends State<AttendancePage> {
           },
           child: const Text("Check Out"),
         )
-            : const Chip(
-          avatar: Icon(
-            Icons.check_circle,
-            color: Colors.green,
-            size: 18,
-          ),
-          label: Text("Completed"),
-        ),
+            : const ERPStatusChip(
+          status: ERPStatus.completed,
+        )
       ),
     );
   }

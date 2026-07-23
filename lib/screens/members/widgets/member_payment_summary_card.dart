@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_colors.dart';
 
 class MemberPaymentSummaryCard extends StatelessWidget {
   const MemberPaymentSummaryCard({
@@ -19,6 +20,7 @@ class MemberPaymentSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).cardColor,
       margin: const EdgeInsets.all(16),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -29,7 +31,10 @@ class MemberPaymentSummaryCard extends StatelessWidget {
               "Payment Summary",
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const Divider(height: 24),
+            const Divider(
+              height: 24,
+              color: AppColors.divider,
+            ),
 
             _row("Total Fee", "₹ ${totalFee.toStringAsFixed(0)}"),
             _row("Paid", "₹ ${paidAmount.toStringAsFixed(0)}"),
@@ -37,8 +42,8 @@ class MemberPaymentSummaryCard extends StatelessWidget {
               "Due",
               "₹ ${dueAmount.toStringAsFixed(0)}",
               valueColor: dueAmount > 0
-                  ? Colors.red
-                  : Colors.green,
+                  ? AppColors.danger
+                  : AppColors.success,
             ),
             _row("Last Payment", lastPayment),
             _row("Next Due", nextDueDate),
@@ -57,12 +62,19 @@ class MemberPaymentSummaryCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          Expanded(child: Text(title)),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
           Text(
             value,
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              color: valueColor,
+              color: valueColor ?? AppColors.textPrimary,
             ),
           ),
         ],

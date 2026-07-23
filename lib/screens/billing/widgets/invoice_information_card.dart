@@ -1,58 +1,51 @@
 import 'package:flutter/material.dart';
+import '../../../core/widgets/erp_card.dart';
+import '../../../core/widgets/erp_text_field.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
 
 class InvoiceInformationCard extends StatelessWidget {
   const InvoiceInformationCard({
     super.key,
     required this.invoiceNumberController,
     required this.invoiceDateController,
-    required this.dueDateController,
+
   });
 
   final TextEditingController invoiceNumberController;
   final TextEditingController invoiceDateController;
-  final TextEditingController dueDateController;
+
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return ERPCard(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            const Text(
+            Text(
               'STEP 1',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
+              style: AppTypography.label.copyWith(
+                color: AppColors.primary,
                 letterSpacing: 1.2,
               ),
             ),
 
-            const SizedBox(height: 4),
+            const SizedBox(height: AppSpacing.xs),
 
             const Text(
               'Customer & Invoice Information',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTypography.pageTitle,
             ),
 
-            const SizedBox(height: 6),
+            const SizedBox(height: AppSpacing.sm),
 
-            Text(
+            const Text(
               'Create and manage invoice details for members or walk-in customers.',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 13,
-              ),
+              style: AppTypography.bodySmall,
             ),
 
             const Divider(height: 28),
@@ -61,38 +54,21 @@ class InvoiceInformationCard extends StatelessWidget {
               children: [
 
                 Expanded(
-                  child: TextFormField(
+                  child: ERPTextField(
                     controller: invoiceNumberController,
+                    label: 'Invoice Number',
                     readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Invoice Number',
-                    ),
                   ),
                 ),
 
-                const SizedBox(width: 16),
+                const SizedBox(width: AppSpacing.md),
 
                 Expanded(
-                  child: TextFormField(
+                  child: ERPTextField(
                     controller: invoiceDateController,
+                    label: 'Invoice Date',
                     readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Invoice Date',
-                      suffixIcon: Icon(Icons.calendar_today),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 16),
-
-                Expanded(
-                  child: TextFormField(
-                    controller: dueDateController,
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Due Date',
-                      suffixIcon: Icon(Icons.event),
-                    ),
+                    suffixIcon: const Icon(Icons.calendar_today),
                   ),
                 ),
               ],

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../models/member_model.dart';
+import '../../../core/widgets/erp_text_field.dart';
+import '../../../core/widgets/erp_card.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
+import '../../../core/constants/app_colors.dart';
 
 class MemberSelectionSection extends StatelessWidget {
   const MemberSelectionSection({
@@ -18,44 +23,38 @@ class MemberSelectionSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextFormField(
+        ERPTextField(
           controller: memberController,
+          label: 'Select Member',
+          hint: 'Tap to select member',
           readOnly: true,
           onTap: onTap,
-          decoration: const InputDecoration(
-            labelText: 'Select Member',
-            hintText: 'Tap to select member',
-            prefixIcon: Icon(Icons.person_search),
-            suffixIcon: Icon(Icons.search),
-          ),
+          prefixIcon: const Icon(Icons.person_search),
+          suffixIcon: const Icon(Icons.search),
         ),
 
         if (selectedMember != null) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.md),
 
-          Card(
+          ERPCard(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Member ID : ${selectedMember!.memberId}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.orange,
+                    style: AppTypography.label.copyWith(
+                      color: AppColors.warning,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
                   Text(
                     selectedMember!.fullName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                    style: AppTypography.bodyLarge,
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
 
                   Text('Phone : ${selectedMember!.phone}'),
 

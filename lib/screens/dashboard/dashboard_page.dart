@@ -7,7 +7,6 @@ import '../../providers/dashboard_provider.dart';
 import '../../providers/invoice_provider.dart';
 import '../../providers/member_provider.dart';
 
-import '../../widgets/common/section_title.dart';
 import '../../widgets/charts/membership_pie_chart.dart';
 import '../../widgets/charts/revenue_chart.dart';
 
@@ -15,6 +14,7 @@ import 'widgets/dashboard_header.dart';
 import 'widgets/recent_activity.dart';
 import 'widgets/summary_cards.dart';
 import 'widgets/todays_tasks.dart';
+import '../../core/widgets/erp_section.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({
@@ -29,41 +29,54 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  bool _loaded = false;
+
+  Future<void> _loadDashboard() async {
+    final authProvider = context.read<AuthProvider>();
+
+    final gymId = authProvider.currentUser?.tenantInfo.gymId;
+
+    if (gymId == null || gymId.isEmpty) {
+      return;
+    }
+
+    await Future.wait([
+      context.read<MemberProvider>().loadMembers(
+        gymId: gymId,
+      ),
+      context.read<AttendanceProvider>().loadAttendance(
+        gymId: gymId,
+      ),
+      context.read<InvoiceProvider>().loadInvoices(
+        gymId: gymId,
+      ),
+      context.read<DashboardProvider>().loadGym(
+        gymId: gymId,
+      ),
+    ]);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadDashboard();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (!_loaded) {
-      _loaded = true;
-
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        final authProvider = context.read<AuthProvider>();
-
-        final gymId = authProvider.currentUser?.tenantInfo.gymId;
-
-        if (gymId == null || gymId.isEmpty) return;
-
-        await Future.wait([
-          context.read<MemberProvider>().loadMembers(
-            gymId: gymId,
-          ),
-          context.read<AttendanceProvider>().loadAttendance(
-            gymId: gymId,
-          ),
-          context.read<InvoiceProvider>().loadInvoices(
-            gymId: gymId,
-          ),
-          context.read<DashboardProvider>().loadGym(
-            gymId: gymId,
-          ),
-        ]);
-      });
-    }
-
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(18, 14, 18, 30),
-        child: Column(
+        child: RefreshIndicator(
+            onRefresh: _loadDashboard,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 1600,
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(18, 14, 18, 30),
+                  child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const DashboardHeader(),
@@ -76,48 +89,40 @@ class _DashboardPageState extends State<DashboardPage> {
 
             const SizedBox(height: 28),
 
-            const SectionTitle(
+            ERPSection(
               title: "Today's Tasks",
+              child: const TodaysTasks(),
             ),
 
-            const SizedBox(height: 14),
-
-            const TodaysTasks(),
 
             const SizedBox(height: 28),
 
-            const SectionTitle(
+            ERPSection(
               title: "Revenue",
+              child: const RevenueChart(),
             ),
-
-            const SizedBox(height: 14),
-
-            const RevenueChart(),
 
             const SizedBox(height: 28),
 
-            const SectionTitle(
+            ERPSection(
               title: "Membership",
+              child: const MembershipPieChart(),
             ),
-
-            const SizedBox(height: 14),
-
-            const MembershipPieChart(),
 
             const SizedBox(height: 28),
 
-            const SectionTitle(
+            ERPSection(
               title: "Recent Activity",
+              child: const RecentActivity(),
             ),
-
-            const SizedBox(height: 14),
-
-            const RecentActivity(),
 
             const SizedBox(height: 40),
           ],
+                  ),
+                ),
+              ),
+            ),
         ),
-      ),
     );
   }
 }

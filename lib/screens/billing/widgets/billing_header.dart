@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 class BillingHeader extends StatelessWidget {
   const BillingHeader({
     super.key,
+    required this.title,
+    this.subtitle,
     this.onPreview,
     this.onDownload,
     this.onPrint,
     this.onShare,
   });
+
+  final String title;
+  final String? subtitle;
 
   final VoidCallback? onPreview;
   final VoidCallback? onDownload;
@@ -24,22 +29,24 @@ class BillingHeader extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Billing',
+                  title,
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 4),
-                Text(
-                  'Create Invoice',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey,
+                if (subtitle != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle!,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/invoice_provider.dart';
-import '../../widgets/billing/invoice_card.dart';
 import 'create_invoice_page.dart';
 import '../../providers/auth_provider.dart';
 import 'invoice_details_page.dart';
+import 'widgets/billing_statistics_section.dart';
+import '../../core/widgets/erp_workspace.dart';
+import '../../core/widgets/erp_page_header.dart';
+import 'widgets/recent_invoice_list.dart';
+import 'widgets/invoice_toolbar.dart';
+
 
 class InvoiceListPage extends StatefulWidget {
   const InvoiceListPage({super.key});
@@ -17,6 +22,7 @@ class InvoiceListPage extends StatefulWidget {
 class _InvoiceListPageState extends State<InvoiceListPage> {
   final TextEditingController _searchController =
   TextEditingController();
+  String _searchQuery = '';
 
   bool _loaded = false;
 
@@ -34,17 +40,28 @@ class _InvoiceListPageState extends State<InvoiceListPage> {
     context.watch<InvoiceProvider>();
     final filteredInvoices = provider.invoices.where((invoice) {
 
-      switch (_selectedFilter) {
-        case 1:
-          return invoice.paymentStatus.name == 'paid';
+      final matchesSearch =
+          _searchQuery.isEmpty ||
+              invoice.invoiceNumber
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase()) ||
+              invoice.customerName
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase()) ||
+              invoice.customerPhone
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase());
 
-        case 2:
-          return invoice.paymentStatus.name == 'unpaid' ||
-              invoice.paymentStatus.name == 'partial';
+      final matchesFilter = switch (_selectedFilter) {
+        1 => invoice.paymentStatus.name == 'paid',
+        2 =>
+        invoice.paymentStatus.name == 'unpaid' ||
+            invoice.paymentStatus.name == 'partial',
+        _ => true,
+      };
 
-        default:
-          return true;
-      }
+      return matchesSearch && matchesFilter;
+
     }).toList();
     final totalCollected = provider.invoices.fold<double>(
       0,
@@ -79,42 +96,6 @@ class _InvoiceListPageState extends State<InvoiceListPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            Image.asset(
-              'assets/images/logo.png',
-              height: 42,
-            ),
-
-            const SizedBox(width: 12),
-
-            const Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-              children: [
-
-                Text(
-                  'Billing',
-                  style: TextStyle(
-                    fontWeight:
-                    FontWeight.bold,
-                  ),
-                ),
-
-                Text(
-                  'Invoice Management',
-                  style: TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
 
       floatingActionButton:
       FloatingActionButton.extended(
@@ -143,216 +124,48 @@ class _InvoiceListPageState extends State<InvoiceListPage> {
         ),
       ),
 
-      body: Padding(
-        padding:
-        const EdgeInsets.all(16),
-        child: Column(
-          children: [
-
-            TextField(
-              controller:
-              _searchController,
-
-              decoration:
-              const InputDecoration(
-                prefixIcon:
-                Icon(Icons.search),
-
-                hintText:
-                'Search invoice...',
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            Row(
+        body: ERPWorkspace(
+          header: const ERPPageHeader(
+            title: 'Billing & Invoices',
+            subtitle: 'Manage invoices, collections and outstanding payments',
+            padding: EdgeInsets.zero,
+          ),
+        toolbar: InvoiceToolbar(
+          searchController: _searchController,
+          searchHint: 'Search Invoice No / Customer / Phone',
+          onSearchChanged: (value) {
+            setState(() {
+              _searchQuery = value.trim();
+            });
+          },
+          selectedFilter: _selectedFilter,
+          onFilterChanged: (value) {
+            setState(() {
+              _selectedFilter = value;
+            });
+          },
+        ),
+          body: Column(
               children: [
-
-                FilterChip(
-                  label: const Text('All'),
-                  selected: _selectedFilter == 0,
-                  onSelected: (_) {
-                    setState(() {
-                      _selectedFilter = 0;
-                    });
-                  },
-                ),
-
-                const SizedBox(width: 8),
-
-                FilterChip(
-                  label: const Text('Paid'),
-                  selected: _selectedFilter == 1,
-                  onSelected: (_) {
-                    setState(() {
-                      _selectedFilter = 1;
-                    });
-                  },
-                ),
-                const SizedBox(width: 8),
-
-                FilterChip(
-                  label: const Text('Due'),
-                  selected: _selectedFilter == 2,
-                  onSelected: (_) {
-                    setState(() {
-                      _selectedFilter = 2;
-                    });
-                  },
-                ),
-              ],
-            ),
-
 
             const SizedBox(height: 20),
 
-            Row(
-              children: [
-
-
-                Expanded(
-
-                  child: Card(
-                    child: Padding(
-                      padding:const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-
-                          const Icon(
-                            Icons.receipt_long,
-                            color: Colors.orange,
-                          ),
-
-                          const SizedBox(height: 8),
-
-                          const Text(
-                            'Invoices',
-                            style: TextStyle(
-                              fontSize: 13,
-                            ),
-                          ),
-
-                          const SizedBox(height: 4),
-
-                          Text(
-                            '${provider.invoices.length}',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-
-                          const Icon(
-                            Icons.currency_rupee,
-                            color: Colors.green,
-                          ),
-
-                          const SizedBox(height: 8),
-
-                          const Text(
-                            'Collected',
-                            style: TextStyle(
-                              fontSize: 13,
-                            ),
-                          ),
-
-                          const SizedBox(height: 4),
-
-                          Text(
-                            '₹${totalCollected.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-
-                          const Icon(
-                            Icons.pending_actions,
-                            color: Colors.redAccent,
-                          ),
-
-                          const SizedBox(height: 8),
-
-                          const Text(
-                            'Outstanding',
-                            style: TextStyle(
-                              fontSize: 13,
-                            ),
-                          ),
-
-                          const SizedBox(height: 4),
-
-                          Text(
-                            '₹${totalOutstanding.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            BillingStatisticsSection(
+              totalInvoices: provider.invoices.length,
+              totalCollected: totalCollected,
+              totalOutstanding: totalOutstanding,
             ),
 
             const SizedBox(height: 20),
 
-            Expanded(
-              child: provider.isLoading
-                  ? const Center(
-                child: CircularProgressIndicator(),
-              )
-                  : provider.errorMessage != null
-                  ? Center(
-                child: Text(provider.errorMessage!),
-              )
-                  : provider.invoices.isEmpty
-                  ? const Center(
-                child: Text('No invoices found'),
-              )
-                  : ListView.builder(
-                itemCount: filteredInvoices.length,
-                itemBuilder: (context, index) {
-                  final invoice = filteredInvoices[index];
-
-                  return InvoiceCard(
-                    invoice: invoice,
-                    onTap: () async {
-                      final authProvider =
-                      context.read<AuthProvider>();
-
-                      final invoiceProvider =
-                      context.read<InvoiceProvider>();
+                Expanded(
+                  child: RecentInvoiceList(
+                    isLoading: provider.isLoading,
+                    errorMessage: provider.errorMessage,
+                    invoices: filteredInvoices,
+                    onInvoiceTap: (invoice) async {
+                      final authProvider = context.read<AuthProvider>();
+                      final invoiceProvider = context.read<InvoiceProvider>();
 
                       final gymId =
                           authProvider.currentUser?.tenantInfo.gymId;
@@ -376,14 +189,12 @@ class _InvoiceListPageState extends State<InvoiceListPage> {
                         gymId: gymId,
                       );
                     },
-                  );
-                },
-              ),
-            )
-          ],
+                  ),
+                )
+          ]
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
-}
 

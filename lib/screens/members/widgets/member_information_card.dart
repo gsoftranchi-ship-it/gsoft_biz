@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_colors.dart';
 
 class MemberInformationCard extends StatelessWidget {
   const MemberInformationCard({
@@ -17,6 +18,7 @@ class MemberInformationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).cardColor,
       margin: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 8,
@@ -30,7 +32,10 @@ class MemberInformationCard extends StatelessWidget {
               "Personal Information",
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const Divider(height: 24),
+            const Divider(
+              height: 24,
+              color: AppColors.divider,
+            ),
             _infoRow(Icons.phone, "Mobile", mobile),
             _infoRow(Icons.email, "Email", email),
             _infoRow(Icons.people, "Gender", gender),
@@ -50,15 +55,25 @@ class MemberInformationCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          Icon(icon),
+          Icon(
+            icon,
+            color: AppColors.primary,
+          ),
           const SizedBox(width: 14),
           Expanded(
-            child: Text(title),
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+              ),
+            ),
           ),
           Text(
             value.isEmpty ? "-" : value,
             style: const TextStyle(
               fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+
             ),
           ),
         ],

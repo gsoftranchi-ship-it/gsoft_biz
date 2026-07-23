@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
+import '../../../core/widgets/erp_card.dart';
 
 class TodaysTasks extends StatelessWidget {
   const TodaysTasks({super.key});
@@ -21,8 +24,8 @@ class TodaysTasks extends StatelessWidget {
       itemCount: 4,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
+        crossAxisSpacing: AppSpacing.md,
+        mainAxisSpacing: AppSpacing.md,
         childAspectRatio: 2.8,
       ),
       itemBuilder: (context, index) {
@@ -32,7 +35,7 @@ class TodaysTasks extends StatelessWidget {
               title: "Renewals Today",
               value: "--",
               icon: Icons.event_repeat_rounded,
-              color: AppColors.warning,
+              color: AppColors.success,
             );
 
           case 1:
@@ -48,7 +51,7 @@ class TodaysTasks extends StatelessWidget {
               title: "Birthdays",
               value: "--",
               icon: Icons.cake_outlined,
-              color: AppColors.success,
+              color: AppColors.info,
             );
 
           default:
@@ -79,18 +82,13 @@ class _TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xff1B1F24),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: .05),
+    return ERPCard(
+        margin: EdgeInsets.zero,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.md,
         ),
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
+
       child: Row(
         children: [
 
@@ -107,7 +105,7 @@ class _TaskCard extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: 14),
+          const SizedBox(width: AppSpacing.md),
 
           Expanded(
             child: Column(
@@ -117,19 +115,19 @@ class _TaskCard extends StatelessWidget {
 
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+                  style: AppTypography.cardTitle.copyWith(
                     fontSize: 14,
                   ),
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(
+                  height: AppSpacing.xs,
+                ),
 
                 Text(
                   value,
-                  style: TextStyle(
+                  style: AppTypography.sectionTitle.copyWith(
                     color: color,
-                    fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
                 ),

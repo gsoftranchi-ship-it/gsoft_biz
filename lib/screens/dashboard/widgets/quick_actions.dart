@@ -6,6 +6,7 @@ import '../../inventory/stock_page.dart';
 import '../../members/add_member/add_member_page.dart';
 import '../../attendance/attendance_page.dart';
 import '../../fees/membership_invoice_list_page.dart';
+import '../../../core/constants/app_spacing.dart';
 
 
 
@@ -15,8 +16,8 @@ class QuickActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
       return Wrap(
-        spacing: 12,
-        runSpacing: 12,
+        spacing: AppSpacing.md,
+        runSpacing: AppSpacing.md,
         children: [
 
           SizedBox(

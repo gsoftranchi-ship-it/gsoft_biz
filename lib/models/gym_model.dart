@@ -27,6 +27,8 @@ class GymModel {
   final String? gstNumber;
   final String? website;
 
+  final String? tagline;
+
   final String? registrationNumber;
 
   final String? subscriptionPlan;
@@ -65,7 +67,9 @@ class GymModel {
     this.logoUrl,
 
     this.gstNumber,
+
     this.website,
+    this.tagline,
 
     this.registrationNumber,
 
@@ -113,6 +117,7 @@ class GymModel {
 
       gstNumber: map['gstNumber'],
       website: map['website'],
+      tagline: map['tagline'],
 
       registrationNumber: map['registrationNumber'],
 
@@ -170,6 +175,7 @@ class GymModel {
       'logoUrl': logoUrl,
       'gstNumber': gstNumber,
       'website': website,
+      'tagline': tagline,
       'registrationNumber': registrationNumber,
       'subscriptionPlan': subscriptionPlan,
       'subscriptionStatus': subscriptionStatus,
@@ -203,6 +209,7 @@ class GymModel {
     String? logoUrl,
     String? gstNumber,
     String? website,
+    String? tagline,
     String? registrationNumber,
     String? subscriptionPlan,
     String? subscriptionStatus,
@@ -231,6 +238,7 @@ class GymModel {
       auditInfo: auditInfo ?? this.auditInfo,
       status: status ?? this.status,
       website: website ?? this.website,
+      tagline: tagline ?? this.tagline,
       city: city ?? this.city,
       state: state ?? this.state,
       country: country ?? this.country,

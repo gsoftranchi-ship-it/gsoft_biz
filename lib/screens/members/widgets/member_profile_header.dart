@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_colors.dart';
 
 
 
@@ -20,6 +21,7 @@ class MemberProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return Card(
+      color: Theme.of(context).cardColor,
       margin: const EdgeInsets.all(16),
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -44,14 +46,14 @@ class MemberProfileHeader extends StatelessWidget {
 
 
                     return Container(
-                      color: Colors.grey.shade300,
+                      color: AppColors.surface,
                       child: const Icon(Icons.person, size: 48),
                     );
                   },
                 )
 
                     : Container(
-                  color: Colors.grey.shade300,
+                  color: AppColors.surface,
                   child: const Icon(
                     Icons.person,
                     size: 48,
@@ -79,18 +81,18 @@ class MemberProfileHeader extends StatelessWidget {
                 isActive
                     ? Icons.check_circle
                     : Icons.cancel,
-                color: Colors.white,
+                color: AppColors.onDark,
                 size: 18,
               ),
               backgroundColor: isActive
-                  ? Colors.green
-                  : Colors.red,
+                  ? AppColors.success
+                  : AppColors.danger,
               label: Text(
                 isActive
                     ? 'Active'
                     : 'Inactive',
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColors.onDark,
                 ),
               ),
             ),

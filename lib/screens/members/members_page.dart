@@ -4,6 +4,16 @@ import '../../providers/member_provider.dart';
 import 'add_member/add_member_page.dart';
 import '../../providers/auth_provider.dart';
 import 'member_details_page.dart';
+import '../../core/widgets/erp_page_header.dart';
+import '../../core/widgets/erp_search_bar.dart';
+import '../../core/widgets/erp_empty_state.dart';
+import '../../core/widgets/erp_loading.dart';
+import '../../core/widgets/erp_card.dart';
+import '../../core/widgets/erp_status_chip.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_typography.dart';
+import '../../core/constants/app_spacing.dart';
+import '../../core/constants/app_radius.dart';
 
 
 class MembersPage extends StatefulWidget {
@@ -36,17 +46,27 @@ class _MembersPageState extends State<MembersPage> {
     });
   }
   Widget _buildFilterChip(String value) {
+    final selected = _selectedFilter == value;
+
     return ChoiceChip(
-      backgroundColor: const Color(0xff1E293B),
-      selectedColor: Colors.orange,
-      labelStyle: TextStyle(
-        color: _selectedFilter == value
+      selected: selected,
+      label: Text(value),
+      labelStyle: AppTypography.bodySmall.copyWith(
+        color: selected
             ? Colors.black
-            : Colors.white,
+            : AppColors.textPrimary,
         fontWeight: FontWeight.w600,
       ),
-      label: Text(value),
-      selected: _selectedFilter == value,
+      backgroundColor: AppColors.cardDark,
+      selectedColor: AppColors.primary,
+      side: BorderSide(
+        color: selected
+            ? AppColors.primary
+            : AppColors.border,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
       onSelected: (_) {
         setState(() {
           _selectedFilter = value;
@@ -85,97 +105,56 @@ class _MembersPageState extends State<MembersPage> {
     return SafeArea(
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Row(
-              children: [
-                const Expanded(
-                  child: Text(
-                    "Members",
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+          ERPPageHeader(
+            title: 'Members',
+            trailing: FilledButton.icon(
+              onPressed: () async {
+                final authProvider = context.read<AuthProvider>();
+                final memberProvider = context.read<MemberProvider>();
+
+                final result = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AddMemberPage(),
                   ),
-                ),
-                FilledButton.icon(
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 22,
-                      vertical: 16,
-                    ),
-                  ),
-                  onPressed: () async {
-                    final authProvider = context.read<AuthProvider>();
-                    final memberProvider = context.read<MemberProvider>();
+                );
 
-                    final result = await Navigator.push<bool>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const AddMemberPage(),
-                      ),
-                    );
+                if (!mounted || result != true) return;
 
-                    if (!mounted || result != true) return;
+                final gymId = authProvider.currentUser!.tenantInfo.gymId;
 
-                    final gymId = authProvider.currentUser!.tenantInfo.gymId;
-
-                    await memberProvider.loadMembers(
-                      gymId: gymId,
-                    );
-                  },
-                  icon: const Icon(Icons.person_add),
-                  label: const Text("Admission"),
-                ),
-              ],
+                await memberProvider.loadMembers(
+                  gymId: gymId,
+                );
+              },
+              icon: const Icon(Icons.person_add),
+              label: const Text('Admission'),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: TextField(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+            ),
+            child: ERPSearchBar(
               controller: _searchController,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: const Color(0xff1E293B),
-                prefixIcon: const Icon(
-                  Icons.search,
-                  color: Colors.white70,
-                ),
-                hintText: 'Search by Member ID, Name or Mobile',
-                hintStyle: const TextStyle(
-                  color: Colors.white54,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(
-                    color: Colors.white24,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(
-                    color: Colors.orange,
-                    width: 1.5,
-                  ),
-                ),
-              ),
-              onChanged: (value) {
+              hint: 'Search by Member ID, Name or Mobile',
+              onChanged: (_) {
+                setState(() {});
+              },
+              onClear: () {
                 setState(() {});
               },
             ),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+            ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -190,53 +169,27 @@ class _MembersPageState extends State<MembersPage> {
             ),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           Expanded(
             child: provider.loading
-                ? const Center(
-              child: CircularProgressIndicator(),
+                ? const ERPLoading(
+              message: 'Loading members...',
             )
                 : provider.members.isEmpty
-                ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.people_outline,
-                    size: 70,
-                    color: Colors.grey,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    "No Members Found",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Click Admission to register your first member.",
-                  ),
-                ],
-              ),
+                ? const ERPEmptyState(
+              icon: Icons.people_outline,
+              title: 'No Members Found',
+              message: 'Click Admission to register your first member.',
             )
                 : ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+              ),
               itemCount: members.length,
               itemBuilder: (context, index) {
                 final member = members[index];
 
-                return Card(
-                  color: const Color(0xff1E293B),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    side: const BorderSide(
-                      color: Colors.white12,
-                    ),
-                  ),
-                  margin: const EdgeInsets.only(bottom: 12),
+                return ERPCard(
                   child: ListTile(
                     onTap: () {
                       Navigator.push(
@@ -249,7 +202,7 @@ class _MembersPageState extends State<MembersPage> {
                       );
                     },
                     leading: CircleAvatar(
-                      backgroundColor: Colors.orange,
+                      backgroundColor: AppColors.primary,
                       child: Text(
                         member.fullName.isEmpty
                             ? "?"
@@ -259,10 +212,7 @@ class _MembersPageState extends State<MembersPage> {
 
                     title: Text(
                       member.fullName,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style:AppTypography.cardTitle,
                     ),
 
                     subtitle: Column(
@@ -271,27 +221,23 @@ class _MembersPageState extends State<MembersPage> {
 
                         Text(
                           member.memberId,
-                          style: const TextStyle(
-                            color: Colors.white70,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
                           ),
                         ),
 
                         const SizedBox(height: 4),
 
-                        Chip(
-                          backgroundColor: member.isActive
-                              ? Colors.green.withValues(alpha: 0.80)
-                              : Colors.red.withValues(alpha: 0.80),
-                          label: Text(
-                            member.isActive ? "Active" : "Inactive",
-                          ),
-                          visualDensity: VisualDensity.compact,
+                        ERPStatusChip(
+                          status: member.isActive
+                              ? ERPStatus.active
+                              : ERPStatus.inactive,
                         )
                       ],
                     ),
                     trailing: const Icon(
                       Icons.arrow_forward_ios_rounded,
-                      color: Colors.white54,
+                      color: AppColors.iconSecondary,
                       size: 18,
                     ),
                   ),

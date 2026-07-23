@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
+import '../../../core/widgets/erp_card.dart';
 import 'package:provider/provider.dart';
 import '../../../models/gym_model.dart';
 import '../../../providers/dashboard_provider.dart';
 import '../../../providers/member_provider.dart';
 import '../../../providers/attendance_provider.dart';
 import '../../../providers/invoice_provider.dart';
+
 
 class DashboardHeader extends StatelessWidget {
   const DashboardHeader({super.key});
@@ -61,17 +65,17 @@ class DashboardHeader extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
+          style: AppTypography.cardTitle.copyWith(
             fontSize: 22,
-            fontWeight: FontWeight.bold,
           ),
         ),
+
         const SizedBox(height: 4),
+
         Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 12,
+          style: AppTypography.bodySmall.copyWith(
             color: AppColors.textSecondary,
           ),
         ),
@@ -104,27 +108,11 @@ class DashboardHeader extends StatelessWidget {
     final avatarRadius = mobile ? 34.0 : 42.0;
     final titleSize = mobile ? 18.0 : 24.0;
 
-    return Container(
-      padding: EdgeInsets.all(mobile ? 16 : 22),
-
-      decoration: BoxDecoration(
-        color: const Color(0xFF081A33),
-
-        borderRadius: BorderRadius.circular(22),
-
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: .25),
+    return ERPCard(
+      padding: EdgeInsets.all(
+          mobile ? AppSpacing.lg : AppSpacing.xl,
         ),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: .25),
-            blurRadius: 20,
-          ),
-        ],
-      ),
-
-      child: Column(
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
@@ -135,7 +123,7 @@ class DashboardHeader extends StatelessWidget {
 
               CircleAvatar(
                 radius: avatarRadius,
-                backgroundColor: AppColors.cardDark,
+                backgroundColor: AppColors.scaffoldDark,
                 child: ClipOval(
                   child: logoUrl != null && logoUrl.isNotEmpty
                       ? Image.network(
@@ -164,7 +152,7 @@ class DashboardHeader extends StatelessWidget {
                     Text(
                       greeting,
                       style: const TextStyle(
-                        color: AppColors.textSecondary,
+                        color: AppColors.success,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
@@ -186,20 +174,18 @@ class DashboardHeader extends StatelessWidget {
                       Text(
                         "Owner : $ownerName",
                         style: const TextStyle(
-                          color: AppColors.textSecondary,
+                          color: AppColors.primary,
                           fontSize: 12,
                         ),
                       ),
-
-
                   ],
                 ),
               ),
 
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white10,
-                  borderRadius:
+                  color: AppColors.warning,
+                    borderRadius:
                   BorderRadius.circular(14),
                 ),
                 child: IconButton(
@@ -265,22 +251,19 @@ class DashboardHeader extends StatelessWidget {
 
           const SizedBox(height: 22),
 
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-            decoration: BoxDecoration(
-              color: AppColors.cardDark,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
+    ERPCard(
+    padding: const EdgeInsets.symmetric(
+    horizontal: AppSpacing.lg,
+    vertical: AppSpacing.md,
+    ),
+    margin: EdgeInsets.zero,
+    child:
+             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   "Business Overview",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTypography.sectionTitle,
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -304,7 +287,7 @@ class DashboardHeader extends StatelessWidget {
                     Expanded(
                       child: _overviewItem(
                         Icons.currency_rupee,
-                        AppColors.primary,
+                        AppColors.success,
                         '₹${invoiceProvider.totalSales.toStringAsFixed(0)}',
                         "Collection",
                       ),

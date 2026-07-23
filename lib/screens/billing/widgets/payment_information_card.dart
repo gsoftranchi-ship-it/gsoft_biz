@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../core/widgets/erp_card.dart';
+import '../../../core/widgets/erp_dropdown.dart';
+import '../../../core/widgets/erp_text_field.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
+import '../../../core/widgets/erp_date_field.dart';
 
 class PaymentInformationCard extends StatelessWidget {
   const PaymentInformationCard({
@@ -13,6 +20,7 @@ class PaymentInformationCard extends StatelessWidget {
     required this.receivedAmountController,
     required this.balanceAmountController,
     required this.dueDate,
+
     required this.onSelectDueDate,
     required this.onReceivedAmountChanged,
   });
@@ -34,22 +42,16 @@ class PaymentInformationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return ERPCard(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'STEP 4',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
+              style: AppTypography.label.copyWith(
+                color: AppColors.primary,
                 letterSpacing: 1.2,
               ),
             ),
@@ -58,10 +60,7 @@ class PaymentInformationCard extends StatelessWidget {
 
             const Text(
               'Payment Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTypography.pageTitle,
             ),
 
             const SizedBox(height: 20),
@@ -69,12 +68,10 @@ class PaymentInformationCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    initialValue: taxType,
-                    decoration: const InputDecoration(
-                      labelText: 'Tax Type',
-                      prefixIcon: Icon(Icons.receipt_long),
-                    ),
+                  child: ERPDropdown<String>(
+                    value: taxType,
+                    label: 'Tax Type',
+                    prefixIcon: const Icon(Icons.receipt_long),
                     items: const [
                       DropdownMenuItem(
                         value: 'GST',
@@ -92,12 +89,10 @@ class PaymentInformationCard extends StatelessWidget {
                 if (paymentStatus != 'Credit') ...[
                   const SizedBox(width: 16),
                   Expanded(
-                    child: DropdownButtonFormField<String>(
-                      initialValue: paymentMethod,
-                      decoration: const InputDecoration(
-                        labelText: 'Payment Method',
-                        prefixIcon: Icon(Icons.payments),
-                      ),
+                    child: ERPDropdown<String>(
+                      value: paymentMethod,
+                      label: 'Payment Method',
+                      prefixIcon: const Icon(Icons.payments),
                       items: const [
                         DropdownMenuItem(
                           value: 'Cash',
@@ -124,12 +119,9 @@ class PaymentInformationCard extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            DropdownButtonFormField<String>(
-              initialValue: paymentStatus,
-              decoration: const InputDecoration(
-                labelText: 'Payment Status',
-                border: OutlineInputBorder(),
-              ),
+            ERPDropdown<String>(
+              value: paymentStatus,
+              label: 'Payment Status',
               items: const [
                 DropdownMenuItem(
                   value: 'Paid',
@@ -155,59 +147,70 @@ class PaymentInformationCard extends StatelessWidget {
 
             // Received Amount
             if (paymentStatus != 'Credit') ...[
-              TextFormField(
+              ERPTextField(
                 controller: receivedAmountController,
+                label: 'Received Amount',
+                prefixIcon: const Icon(Icons.currency_rupee),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 onChanged: (_) => onReceivedAmountChanged(),
-                decoration: const InputDecoration(
-                  labelText: 'Received Amount',
-                  prefixIcon: Icon(Icons.currency_rupee),
-                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Received amount is required.';
+                  }
+
+                  final amount = double.tryParse(value);
+
+                  if (amount == null) {
+                    return 'Enter a valid amount.';
+                  }
+
+                  if (amount < 0) {
+                    return 'Amount cannot be negative.';
+                  }
+
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
             ],
 
               // Balance Amount
             if (paymentStatus == 'Partial' || paymentStatus == 'Credit') ...[
-              TextFormField(
+              ERPTextField(
                 controller: balanceAmountController,
+                label: 'Balance Amount',
                 readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: 'Balance Amount',
-                  prefixIcon: Icon(Icons.account_balance_wallet),
-                ),
+                prefixIcon: const Icon(Icons.account_balance_wallet),
               ),
               const SizedBox(height: 20),
             ],
 
               // Due Date
             if (paymentStatus != 'Paid') ...[
-              InkWell(
+              ERPDateField(
+                label: 'Due Date',
+                hint: 'Select Due Date',
+                value: dueDate,
+                prefixIcon: const Icon(Icons.calendar_today),
                 onTap: onSelectDueDate,
-                child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Due Date',
-                    prefixIcon: Icon(Icons.calendar_today),
-                  ),
-                  child: Text(
-                    dueDate == null
-                        ? 'Select Due Date'
-                        : '${dueDate!.day}/${dueDate!.month}/${dueDate!.year}',
-                  ),
-                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select a Due Date.';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
             ],
 
             const SizedBox(height: 20),
 
-            TextFormField(
+            ERPTextField(
               controller: notesController,
+              label: 'Notes / Remarks',
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Notes / Remarks',
-                prefixIcon: Icon(Icons.notes),
-              ),
+              prefixIcon: const Icon(Icons.notes),
             ),
           ],
         ),

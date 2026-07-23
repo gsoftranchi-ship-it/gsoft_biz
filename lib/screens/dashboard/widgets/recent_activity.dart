@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import '../../../core/constants/app_colors.dart';
 import '../../../models/member_model.dart';
 import '../../../models/membership_invoice_model.dart';
 import '../../../providers/member_provider.dart';
 import '../../../providers/membership_provider.dart';
-import '../../../widgets/cards/glass_card.dart';
+
 import '../../fees/membership_invoice_details_page.dart';
+import '../../../core/widgets/erp_card.dart';
+import '../../../core/widgets/erp_status_chip.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
 
 class RecentActivity extends StatelessWidget {
   const RecentActivity({super.key});
@@ -21,9 +25,9 @@ class RecentActivity extends StatelessWidget {
 
     if (memberProvider.loading ||
         membershipProvider.loading) {
-      return const GlassCard(
+      return const ERPCard(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: EdgeInsets.all(AppSpacing.xl),
           child: Center(
             child: CircularProgressIndicator(),
           ),
@@ -50,9 +54,9 @@ class RecentActivity extends StatelessWidget {
     invoices.take(5).toList();
 
     if (recentInvoices.isEmpty) {
-      return const GlassCard(
+      return const ERPCard(
         child: Padding(
-          padding: EdgeInsets.all(24),
+          padding: EdgeInsets.all(AppSpacing.lg),
           child: Center(
             child: Text(
               'No recent billing activity.',
@@ -62,7 +66,7 @@ class RecentActivity extends StatelessWidget {
       );
     }
 
-    return GlassCard(
+    return ERPCard(
       child: ListView.separated(
         shrinkWrap: true,
         physics:
@@ -70,8 +74,8 @@ class RecentActivity extends StatelessWidget {
         itemCount: recentInvoices.length,
         separatorBuilder: (context, index) => Padding(
           padding: const EdgeInsets.only(
-            left: 20,
-            right: 8,
+            left: AppSpacing.xl,
+            right: AppSpacing.sm,
           ),
           child: Divider(
             color: Colors.white.withValues(alpha: .06),
@@ -104,8 +108,8 @@ class RecentActivity extends StatelessWidget {
               height: 42,
               decoration: BoxDecoration(
                 color: invoice.dueAmount <= 0
-                    ? Colors.green.withValues(alpha: .15)
-                    : Colors.orange.withValues(alpha: .15),
+                    ? AppColors.success.withValues(alpha: .15)
+                    : AppColors.warning.withValues(alpha: .15),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -113,15 +117,14 @@ class RecentActivity extends StatelessWidget {
                     ? Icons.payments_rounded
                     : Icons.pending_actions_rounded,
                 color: invoice.dueAmount <= 0
-                    ? Colors.green
-                    : Colors.orange,
+                    ? AppColors.success
+                    : AppColors.warning,
                 size: 22,
               ),
             ),
             title: Text(
               member?.fullName ?? invoice.memberId,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
+              style: AppTypography.cardTitle.copyWith(
                 fontSize: 15,
               ),
             ),
@@ -131,8 +134,8 @@ class RecentActivity extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   invoice.invoiceNumber,
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  style: AppTypography.body.copyWith(
+                    color: AppColors.textSecondary,
                   ),
                 ),
                 Text(
@@ -141,9 +144,8 @@ class RecentActivity extends StatelessWidget {
                       .toString()
                       .split(' ')
                       .first,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -161,27 +163,11 @@ class RecentActivity extends StatelessWidget {
                     FontWeight.bold,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: invoice.dueAmount <= 0
-                        ? Colors.green.withValues(alpha: .12)
-                        : Colors.orange.withValues(alpha: .12),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    status,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: invoice.dueAmount <= 0
-                          ? Colors.green
-                          : Colors.orange,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                ERPStatusChip(
+                  status: invoice.dueAmount <= 0
+                      ? ERPStatus.completed
+                      : ERPStatus.pending,
+                  label: status,
                 ),
               ],
             ),

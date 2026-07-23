@@ -2,6 +2,7 @@
 
   import '../../models/membership_invoice_model.dart';
   import '../../models/membership_payment_model.dart';
+  import '../../../core/constants/app_colors.dart';
 
   class MembershipReceiptPage extends StatelessWidget {
     const MembershipReceiptPage({
@@ -26,13 +27,10 @@
             children: [
               Center(
                 child: Column(
-                  children: const [
+                  children: [
                     Text(
                       'PAYMENT RECEIPT',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.headlineSmall
                     ),
                     SizedBox(height: 4),
                     Text(
@@ -45,6 +43,7 @@
               const SizedBox(height: 24),
 
               Card(
+                color: Theme.of(context).cardColor,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -52,12 +51,9 @@
                     CrossAxisAlignment.start,
                     children: [
 
-                      const Text(
+                      Text(
                         'Receipt Information',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
 
                       const SizedBox(height: 16),
@@ -87,14 +83,14 @@
                                   : 'Partial Payment',
                               style: TextStyle(
                                 color: (invoice.dueAmount - payment.amount) <= 0
-                                    ? Colors.green.shade800
-                                    : Colors.orange.shade800,
+                                    ? AppColors.success
+                                    : AppColors.warning,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             backgroundColor: (invoice.dueAmount - payment.amount) <= 0
-                                ? Colors.green.shade100
-                                : Colors.orange.shade100,
+                                ? AppColors.success.withValues(alpha: .15)
+                                : AppColors.warning.withValues(alpha: .15)
                           )
                         ],
                       ),
@@ -113,12 +109,9 @@
                     CrossAxisAlignment.start,
                     children: [
 
-                      const Text(
+                      Text(
                         'Invoice Information',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
 
                       const SizedBox(height: 16),
@@ -147,12 +140,9 @@
                     CrossAxisAlignment.start,
                     children: [
 
-                      const Text(
+                      Text(
                         'Payment Details',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
 
                       const SizedBox(height: 16),
@@ -190,12 +180,9 @@
                     CrossAxisAlignment.start,
                     children: [
 
-                      const Text(
+                      Text(
                         'Financial Summary',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
 
                       const SizedBox(height: 16),
@@ -291,13 +278,19 @@
         child: Row(
           children: [
             Expanded(
-              child: Text(title),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                ),
+              ),
             ),
             Text(
               value,
               style: TextStyle(
                 fontWeight:
                 bold ? FontWeight.bold : FontWeight.normal,
+                color: AppColors.textPrimary,
               ),
             ),
           ],

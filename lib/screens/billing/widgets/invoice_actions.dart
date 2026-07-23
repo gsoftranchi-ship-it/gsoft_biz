@@ -4,11 +4,13 @@ class InvoiceActions extends StatelessWidget {
   const InvoiceActions({
     super.key,
     required this.onCancel,
+    required this.onPreview,
     required this.onSave,
     this.onSaveDraft,
   });
 
   final VoidCallback onCancel;
+  final VoidCallback onPreview;
   final VoidCallback onSave;
   final VoidCallback? onSaveDraft;
 
@@ -23,6 +25,14 @@ class InvoiceActions extends StatelessWidget {
         ),
 
         const Spacer(),
+
+        OutlinedButton.icon(
+          onPressed: onPreview,
+          icon: const Icon(Icons.preview_outlined),
+          label: const Text('Preview'),
+        ),
+
+        const SizedBox(width: 12),
 
         OutlinedButton.icon(
           onPressed: onSaveDraft,

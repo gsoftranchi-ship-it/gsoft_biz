@@ -112,7 +112,7 @@ class SummaryCards extends StatelessWidget {
               value:
               "₹${outstandingRevenue.toStringAsFixed(2)}",
               subtitle: "Pending Collection",
-              color: AppColors.primary,
+              color: AppColors.danger,
             );
 
           default:

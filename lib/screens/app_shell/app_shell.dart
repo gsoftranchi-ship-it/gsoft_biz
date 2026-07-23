@@ -15,7 +15,8 @@ import '../../providers/member_provider.dart';
 import '../../providers/membership_provider.dart';
 import '../../providers/tenant_provider.dart';
 import '../../providers/product_provider.dart';
-
+import '../app_shell/widgets/workspace_container.dart';
+import '../../../core/constants/app_breakpoints.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -86,11 +87,13 @@ class _AppShellState extends State<AppShell> {
   Widget get currentPage => _pages[_currentIndex];
 
   bool isDesktop(BuildContext context) {
-    return MediaQuery.of(context).size.width >= 900;
+    return AppBreakpoints.isDesktop(
+      MediaQuery.of(context).size.width,
+    );
   }
   @override
   Widget build(BuildContext context) {
-    final desktop = MediaQuery.of(context).size.width >= 900;
+    final desktop = isDesktop(context);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -103,19 +106,15 @@ class _AppShellState extends State<AppShell> {
             onChanged: changePage,
           ),
           Expanded(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFF081A33),
-                image: DecorationImage(
-                  image: AssetImage(
-                    'assets/images/background/dashboard_surface.png',
-                  ),
-                  fit: BoxFit.cover,
-                  alignment: Alignment.center,
+            child: WorkspaceContainer(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 220),
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                child: KeyedSubtree(
+                  key: ValueKey(_currentIndex),
+                  child: currentPage,
                 ),
-              ),
-              child: SafeArea(
-                child: currentPage,
               ),
             ),
           ),
